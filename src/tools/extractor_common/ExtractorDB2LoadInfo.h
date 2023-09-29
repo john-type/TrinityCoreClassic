@@ -43,7 +43,7 @@ struct CinematicCameraLoadInfo
             { FT_FLOAT, 1, true },
             { FT_INT, 1, false },
         };
-        static DB2Meta meta(1294214, -1, 4, 4, 0x744B99BC, fields, -1);
+        static DB2Meta meta(1294214, -1, 4, 4, 0x7BA7D9AC, fields, -1);
         static DB2FileLoadInfo const loadInfo(&loadedFields[0], std::extent<decltype(loadedFields)>::value, &meta);
         return &loadInfo;
     }
@@ -98,7 +98,7 @@ struct LiquidMaterialLoadInfo
             { FT_BYTE, 1, true },
             { FT_BYTE, 1, true },
         };
-        static DB2Meta meta(1132538, -1, 2, 2, 0x2CFFEA40, fields, -1);
+        static DB2Meta meta(1132538, -1, 2, 2, 0xD384A6A0, fields, -1);
         static DB2FileLoadInfo const loadInfo(&loadedFields[0], std::extent<decltype(loadedFields)>::value, &meta);
         return &loadInfo;
     }
@@ -125,7 +125,7 @@ struct LiquidObjectLoadInfo
             { FT_BYTE, 1, false },
             { FT_BYTE, 1, false },
         };
-        static DB2Meta meta(1308058, -1, 5, 5, 0x6CAEB8A1, fields, -1);
+        static DB2Meta meta(1308058, -1, 5, 5, 0xF09062A1, fields, -1);
         static DB2FileLoadInfo const loadInfo(&loadedFields[0], std::extent<decltype(loadedFields)>::value, &meta);
         return &loadInfo;
     }
@@ -218,7 +218,7 @@ struct LiquidTypeLoadInfo
             { FT_INT, 4, false },
             { FT_FLOAT, 4, true },
         };
-        static DB2Meta meta(1371380, -1, 21, 21, 0xAFFFC9E0, fields, -1);
+        static DB2Meta meta(1371380, -1, 21, 21, 0xD0172A80, fields, -1);
         static DB2FileLoadInfo const loadInfo(&loadedFields[0], std::extent<decltype(loadedFields)>::value, &meta);
         return &loadInfo;
     }
@@ -247,16 +247,14 @@ struct MapLoadInfo
             { true, FT_SHORT, "CosmeticParentMapID" },
             { false, FT_BYTE, "TimeOffset" },
             { false, FT_FLOAT, "MinimapIconScale" },
-            { true, FT_INT, "RaidOffset" },
             { true, FT_SHORT, "CorpseMapID" },
             { false, FT_BYTE, "MaxPlayers" },
             { true, FT_SHORT, "WindSettingsID" },
             { true, FT_INT, "ZmpFileDataID" },
             { true, FT_INT, "Flags1" },
             { true, FT_INT, "Flags2" },
-            { true, FT_INT, "Flags3" },
         };
-        static DB2MetaField const fields[22] =
+        static DB2MetaField const fields[21] =
         {
             { FT_STRING_NOT_LOCALIZED, 1, true },
             { FT_STRING, 1, true },
@@ -274,14 +272,13 @@ struct MapLoadInfo
             { FT_SHORT, 1, true },
             { FT_BYTE, 1, false },
             { FT_FLOAT, 1, true },
-            { FT_INT, 1, true },
             { FT_SHORT, 1, true },
             { FT_BYTE, 1, false },
             { FT_SHORT, 1, true },
             { FT_INT, 1, true },
-            { FT_INT, 3, true },
+            { FT_INT, 2, true },
         };
-        static DB2Meta meta(1349477, -1, 22, 22, 0xBFC078A9, fields, -1);
+        static DB2Meta meta(1349477, -1, 21, 21, 0xC08A6797, fields, -1);
         static DB2FileLoadInfo const loadInfo(&loadedFields[0], std::extent<decltype(loadedFields)>::value, &meta);
         return &loadInfo;
     }
