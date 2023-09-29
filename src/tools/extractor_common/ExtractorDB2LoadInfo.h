@@ -77,7 +77,7 @@ struct GameobjectDisplayInfoLoadInfo
             { FT_FLOAT, 1, true },
             { FT_FLOAT, 1, true },
         };
-        static DB2Meta meta(1266277, -1, 6, 6, 0xB59CF0B2, fields, -1);
+        static DB2Meta meta(1266277, -1, 6, 6, 0x21FD4DC2, fields, -1);
         static DB2FileLoadInfo const loadInfo(&loadedFields[0], std::extent<decltype(loadedFields)>::value, &meta);
         return &loadInfo;
     }
