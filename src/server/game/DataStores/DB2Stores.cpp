@@ -848,7 +848,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sSpellMiscStore);
     LOAD_DB2(sSpellNameStore);
     LOAD_DB2(sSpellPowerStore);
-    LOAD_DB2(sSpellPowerDifficultyStore);
+    //LOAD_DB2(sSpellPowerDifficultyStore); //TODOFROST - this needs to work!
     //LOAD_DB2(sSpellProcsPerMinuteStore);
     //LOAD_DB2(sSpellProcsPerMinuteModStore);
     LOAD_DB2(sSpellRadiusStore);
@@ -864,7 +864,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sSpellVisualEffectNameStore);
     LOAD_DB2(sSpellVisualMissileStore);
     LOAD_DB2(sSpellVisualKitStore);
-    LOAD_DB2(sSpellXSpellVisualStore);
+    //LOAD_DB2(sSpellXSpellVisualStore); //TODOFROST - needs to work!
     LOAD_DB2(sSummonPropertiesStore);
     LOAD_DB2(sTactKeyStore);
     LOAD_DB2(sTalentStore);
@@ -880,9 +880,9 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     //LOAD_DB2(sTransmogSetItemStore);
     LOAD_DB2(sTransportAnimationStore);
     LOAD_DB2(sTransportRotationStore);
-    LOAD_DB2(sUiMapStore);
+    //LOAD_DB2(sUiMapStore); //TODOFROST - needs to work!
     LOAD_DB2(sUiMapAssignmentStore);
-    LOAD_DB2(sUiMapLinkStore);
+    //LOAD_DB2(sUiMapLinkStore); //TODOFROST - needs to work!
     LOAD_DB2(sUiMapXMapArtStore);
     LOAD_DB2(sUnitConditionStore);
     //LOAD_DB2(sUnitPowerBarStore);
