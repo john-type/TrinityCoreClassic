@@ -3911,7 +3911,6 @@ struct MapLoadInfo
             { true, FT_INT, "ZmpFileDataID" },
             { true, FT_INT, "Flags1" },
             { true, FT_INT, "Flags2" },
-            { true, FT_INT, "Flags3" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), MapMeta::Instance(), HOTFIX_SEL_MAP);
         return &loadInfo;

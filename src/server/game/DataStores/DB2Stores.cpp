@@ -788,7 +788,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sNamesProfanityStore);
     LOAD_DB2(sNamesReservedStore);
     LOAD_DB2(sNamesReservedLocaleStore);
-    LOAD_DB2(sNumTalentsAtLevelStore);
+    // LOAD_DB2(sNumTalentsAtLevelStore); //TODOFROST - this needs to work!
     LOAD_DB2(sOverrideSpellDataStore);
     //LOAD_DB2(sParagonReputationStore);
     LOAD_DB2(sPhaseStore);

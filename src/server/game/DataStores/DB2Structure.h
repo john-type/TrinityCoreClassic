@@ -2436,7 +2436,7 @@ struct MapEntry
     uint8 MaxPlayers;
     int16 WindSettingsID;
     int32 ZmpFileDataID;
-    std::array<int32, 3> Flags;
+    std::array<int32, 2> Flags;
 
     // Helpers
     uint8 Expansion() const { return ExpansionID; }
