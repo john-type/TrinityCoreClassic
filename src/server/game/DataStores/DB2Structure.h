@@ -618,7 +618,6 @@ struct ChrCustomizationChoiceEntry
     uint16 SortOrder;
     uint16 UiOrderIndex;
     int32 Flags;
-    int32 AddedInPatch;
     std::array<int32, 2> SwatchColor;
 };
 
@@ -2147,7 +2146,6 @@ struct ItemSparseEntry
     uint32 DurationInInventory;
     float QualityModifier;
     uint32 BagFamily;
-    int32 StartQuestID;
     float ItemRange;
     std::array<float, MAX_ITEM_PROTO_STATS> StatPercentageOfSocket;
     std::array<int32, MAX_ITEM_PROTO_STATS> StatPercentEditor;
@@ -2161,9 +2159,6 @@ struct ItemSparseEntry
     float PriceRandomValue;
     std::array<int32, MAX_ITEM_PROTO_FLAGS> Flags;
     int32 OppositeFactionItemID;
-    int32 ModifiedCraftingReagentItemID;
-    int32 ContentTuningID;
-    int32 PlayerLevelToItemLevelCurveID;
     uint32 MaxDurability;
     uint16 ItemNameDescriptionID;
     uint16 RequiredTransmogHoliday;
@@ -2176,6 +2171,7 @@ struct ItemSparseEntry
     std::array<uint16, MAX_ITEM_PROTO_ZONES> ZoneBound;
     uint16 ItemSet;
     uint16 LockID;
+    int32 StartQuestID;
     uint16 PageID;
     uint16 ItemDelay;
     uint16 MinFactionID;
@@ -2189,7 +2185,6 @@ struct ItemSparseEntry
     std::array<uint16, 5> MaxDamage;
     std::array<int16, 7> Resistances;
     uint16 ScalingStatDistributionID;
-    std::array<int16, MAX_ITEM_PROTO_STATS> StatModifierBonusAmount;
     uint8 ExpansionID;
     uint8 ArtifactID;
     uint8 SpellWeight;
@@ -2209,6 +2204,7 @@ struct ItemSparseEntry
     int8 InventoryType;
     int8 OverallQualityID;
     uint8 AmmunitionType;
+    std::array<int8, MAX_ITEM_PROTO_STATS> StatModifierBonusAmount;
     int8 RequiredLevel;
 };
 
@@ -2320,9 +2316,6 @@ struct LanguagesEntry
 {
     LocalizedString Name;
     uint32 ID;
-    int32 Flags;
-    int32 UiTextureKitID;
-    int32 UiTextureKitElementCount;
 };
 
 struct LFGDungeonsEntry

@@ -640,7 +640,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     //LOAD_DB2(sAzeriteTierUnlockSetStore);
     LOAD_DB2(sBankBagSlotPricesStore);
     LOAD_DB2(sBannedAddonsStore);
-    LOAD_DB2(sBarberShopStyleStore);
+    //LOAD_DB2(sBarberShopStyleStore);
     //LOAD_DB2(sBattlePetBreedQualityStore);
     //LOAD_DB2(sBattlePetBreedStateStore);
     //LOAD_DB2(sBattlePetSpeciesStore);
@@ -667,7 +667,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     //LOAD_DB2(sChrSpecializationStore);
     LOAD_DB2(sCinematicCameraStore);
     LOAD_DB2(sCinematicSequencesStore);
-    LOAD_DB2(sContentTuningStore);
+    //LOAD_DB2(sContentTuningStore); //TODOFROST - this needs to work!
     LOAD_DB2(sConversationLineStore);
     LOAD_DB2(sCreatureDisplayInfoStore);
     LOAD_DB2(sCreatureDisplayInfoExtraStore);
@@ -709,10 +709,10 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     //LOAD_DB2(sGarrPlotInstanceStore);
     //LOAD_DB2(sGarrSiteLevelStore);
     //LOAD_DB2(sGarrSiteLevelPlotInstStore);
-    LOAD_DB2(sGemPropertiesStore);
+    //LOAD_DB2(sGemPropertiesStore);
     //LOAD_DB2(sGlyphBindableSpellStore);
     LOAD_DB2(sGlyphPropertiesStore);
-    LOAD_DB2(sGlyphSlotStore);
+    /*LOAD_DB2(sGlyphSlotStore);*/
     //LOAD_DB2(sGlyphRequiredSpecStore);
     //LOAD_DB2(sGuildColorBackgroundStore);
     //LOAD_DB2(sGuildColorBorderStore);
@@ -734,7 +734,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     //LOAD_DB2(sItemBonusTreeNodeStore);
     //LOAD_DB2(sItemChildEquipmentStore);
     LOAD_DB2(sItemClassStore);
-    LOAD_DB2(sItemCurrencyCostStore);
+    //LOAD_DB2(sItemCurrencyCostStore); //TODOFROST - this needs to work!
     LOAD_DB2(sItemDamageAmmoStore);
     LOAD_DB2(sItemDamageOneHandStore);
     LOAD_DB2(sItemDamageOneHandCasterStore);
@@ -769,7 +769,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     //LOAD_DB2(sKeystoneAffixStore);
     LOAD_DB2(sLanguageWordsStore);
     LOAD_DB2(sLanguagesStore);
-    LOAD_DB2(sLFGDungeonsStore);
+    //LOAD_DB2(sLFGDungeonsStore);
     LOAD_DB2(sLightStore);
     LOAD_DB2(sLiquidTypeStore);
     LOAD_DB2(sLockStore);
