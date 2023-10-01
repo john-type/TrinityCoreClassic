@@ -137,6 +137,7 @@ namespace WorldPackets
                 uint32 Flags4            = 0;
                 bool FirstLogin      = false;
                 uint8 unkWod61x          = 0;
+                bool ExpansionChosen     = true;
                 Timestamp<> LastPlayedTime;
                 uint16 SpecID            = 0;
                 uint32 Unknown703        = 0;

@@ -211,6 +211,8 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfo con
     data.WriteBit(charInfo.FirstLogin);
     data.WriteBit(charInfo.BoostInProgress);
     data.WriteBits(charInfo.unkWod61x, 5);
+    data.WriteBit(false);
+    data.WriteBit(charInfo.ExpansionChosen);
 
     for (std::string const& str : charInfo.MailSenders)
         data.WriteBits(str.length() + 1, 6);
