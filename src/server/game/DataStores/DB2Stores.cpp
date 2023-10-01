@@ -513,8 +513,8 @@ void LoadDB2(std::bitset<TOTAL_LOCALES>& availableDb2Locales, std::vector<std::s
             ourMetaString += loadInfo->Fields[i].Type;
 
         ASSERT(clientMetaString == ourMetaString,
-            "%s C++ structure fields %s do not match generated types from the client %s",
-            storage->GetFileName().c_str(), ourMetaString.c_str(), clientMetaString.c_str());
+            "%s C++ structure fields %s do not match generated types from the client %s (diff %i)",
+            storage->GetFileName().c_str(), ourMetaString.c_str(), clientMetaString.c_str(), ourMetaString.length() - clientMetaString.length());
 
         // compatibility format and C++ structure sizes
         ASSERT(loadInfo->Meta->GetRecordSize() == cppRecordSize,
@@ -1352,8 +1352,9 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
             if (talentInfo->SpellRank[j])
             {
                 sTalentSpellPosMap[talentInfo->SpellRank[j]] = TalentSpellPos(talentInfo->ID, j);
-                if (talentTab && talentTab->PetTalentMask)
-                    sPetTalentSpells.insert(talentInfo->SpellRank[j]);
+                //TODOFROST
+                /*if (talentTab && talentTab->PetTalentMask)
+                    sPetTalentSpells.insert(talentInfo->SpellRank[j]);*/
             }
         }
     }

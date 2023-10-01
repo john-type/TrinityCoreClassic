@@ -488,7 +488,7 @@ struct BattlemasterListEntry
     int8 MaxLevel;
     int8 RatedPlayers;
     int8 MinPlayers;
-    int32 MaxPlayers;
+    int8 MaxPlayers;
     int8 GroupsAllowed;
     int8 MaxGroupSize;
     int16 HolidayWorldState;
@@ -542,7 +542,7 @@ struct CharacterLoadoutEntry
     Trinity::RaceMask<int64> RaceMask;
     uint32 ID;
     int8 ChrClassID;
-    int32 Purpose;
+    int8 Purpose;
     int8 ModID;
 
     bool IsForNewCharacter() const { return Purpose == 9; }
@@ -585,10 +585,9 @@ struct ChrClassesEntry
     uint32 SelectScreenFileDataID;
     uint32 IconFileDataID;
     uint32 LowResScreenFileDataID;
-    int32 Flags;
     int32 StartingLevel;
     uint32 RolesMask;
-    uint32 ArmorTypeMask;
+    uint16 Flags;
     uint16 CinematicSequenceID;
     uint16 DefaultSpec;
     uint8 HasStrengthAttackBonus;
@@ -684,7 +683,7 @@ struct ChrModelEntry
     std::array<float, 3> FaceCustomizationOffset;
     std::array<float, 3> CustomizeOffset;
     uint32 ID;
-    int8 Sex;
+    int32 Sex;
     int32 DisplayID;
     int32 CharComponentTextureLayoutID;
     int32 Flags;
@@ -696,7 +695,6 @@ struct ChrModelEntry
     float CustomizeFacing;
     float CameraDistanceOffset;
     float BarberShopCameraOffsetScale;
-    float BarberShopCameraHeightOffsetScale; // applied after BarberShopCameraOffsetScale
     float BarberShopCameraRotationOffset;
 };
 
@@ -915,7 +913,6 @@ struct CreatureFamilyEntry
     int8 MaxScaleLevel;
     int16 PetFoodMask;
     int8 PetTalentType;
-    int32 CategoryEnumID;
     int32 IconFileID;
     std::array<int16, 2> SkillLine;
 };
@@ -1285,11 +1282,12 @@ struct DungeonEncounterEntry
     LocalizedString Name;
     uint32 ID;
     int16 MapID;
-    int32 DifficultyID;
+    int8 DifficultyID;
     int32 OrderIndex;
     int8 Bit;
     int32 CreatureDisplayID;
-    int32 Flags;
+    uint8 Flags;
+    int32 SpellIconFileID;
 };
 
 struct DurabilityCostsEntry
@@ -1375,7 +1373,7 @@ struct FactionEntry
     int16 ReputationIndex;
     uint16 ParentFactionID;
     uint8 Expansion;
-    uint8 FriendshipRepID;
+    uint32 FriendshipRepID;
     uint8 Flags;
     uint16 ParagonFactionID;
     std::array<int16, 4> ReputationClassMask;
@@ -1710,8 +1708,7 @@ struct GlyphPropertiesEntry
     uint32 SpellID;
     uint8 GlyphType;
     uint8 GlyphExclusiveCategoryID;
-    int32 SpellIconFileDataID;
-    uint32 GlyphSlotFlags;
+    uint16 SpellIconFileDataID;
 };
 
 struct GlyphRequiredSpecEntry
@@ -1838,7 +1835,6 @@ struct ItemEntry
     int32 ContentTuningID;
     uint32 MaxDurability;
     uint8 AmmunitionType;
-    int32 ScalingStatValue;
     std::array<uint8, 5> DamageType;
     std::array<int16, 7> Resistances;
     std::array<uint16, 5> MinDamage;
@@ -2067,7 +2063,7 @@ struct ItemModifiedAppearanceEntry
     int32 ItemAppearanceModifierID;
     int32 ItemAppearanceID;
     int32 OrderIndex;
-    int8 TransmogSourceTypeEnum;
+    int32 TransmogSourceTypeEnum;
 };
 
 struct ItemModifiedAppearanceExtraEntry
@@ -2171,7 +2167,7 @@ struct ItemSparseEntry
     std::array<uint16, MAX_ITEM_PROTO_ZONES> ZoneBound;
     uint16 ItemSet;
     uint16 LockID;
-    int32 StartQuestID;
+    uint16 StartQuestID;
     uint16 PageID;
     uint16 ItemDelay;
     uint16 MinFactionID;
@@ -2201,8 +2197,8 @@ struct ItemSparseEntry
     uint8 MinReputation;
     uint8 RequiredPVPMedal;
     uint8 RequiredPVPRank;
-    int8 InventoryType;
-    int8 OverallQualityID;
+    uint8 InventoryType;
+    uint8 OverallQualityID;
     uint8 AmmunitionType;
     std::array<int8, MAX_ITEM_PROTO_STATS> StatModifierBonusAmount;
     int8 RequiredLevel;
@@ -2431,7 +2427,6 @@ struct MapEntry
     int16 CosmeticParentMapID;
     uint8 TimeOffset;
     float MinimapIconScale;
-    int32 RaidOffset;
     int16 CorpseMapID;                                              // map_id of entrance map in ghost mode (continent always and in most cases = normal entrance)
     uint8 MaxPlayers;
     int16 WindSettingsID;
@@ -3252,7 +3247,6 @@ struct SpellItemEnchantmentEntry
     LocalizedString HordeName;
     std::array<uint32, MAX_ITEM_ENCHANTMENT_EFFECTS> EffectArg;
     std::array<float, MAX_ITEM_ENCHANTMENT_EFFECTS> EffectScalingPoints;
-    uint32 GemItemID;
     uint32 TransmogUseConditionID;
     uint32 TransmogCost;
     uint32 IconFileDataID;
@@ -3323,8 +3317,6 @@ struct SpellMiscEntry
     float MinDuration;
     int32 SpellIconFileDataID;
     int32 ActiveIconFileDataID;
-    int32 ContentTuningID;
-    int32 ShowFutureSpellPlayerConditionID;
     std::array<int32, 14> Attributes;
     uint32 SpellID;
 };
@@ -3493,7 +3485,6 @@ struct SpellVisualEntry
     uint16 DamageNumberDelay;
     uint32 LowViolenceSpellVisualID;
     uint32 RaidSpellVisualMissileSetID;
-    int32 ReducedUnexpectedCameraMovementSpellVisualID;
     uint16 AreaModel;
     int8 HasMissile;
 };
@@ -3571,9 +3562,9 @@ struct SummonPropertiesEntry
     int32 Faction;
     int32 Title;
     int32 Slot;
-    std::array<int32, 2> Flags;
+    int32 Flags;
 
-    EnumFlag<SummonPropertiesFlags> GetFlags() const { return static_cast<SummonPropertiesFlags>(Flags[0]); }
+    EnumFlag<SummonPropertiesFlags> GetFlags() const { return static_cast<SummonPropertiesFlags>(Flags); }
 };
 
 #define TACTKEY_SIZE 16
@@ -3597,7 +3588,7 @@ struct TalentEntry
     int32 SpellID;
     int32 OverridesSpellID;
     int32 RequiredSpellID;
-    std::array<int32, 2> CategoryMask;
+    std::array<uint8, 2> CategoryMask;
     std::array<int32, 9> SpellRank;
     std::array<int32, 3> PrereqTalent;
     std::array<int32, 3> PrereqRank;
@@ -3611,8 +3602,6 @@ struct TalentTabEntry
     int32 OrderIndex;
     int32 RaceMask;
     int32 ClassMask;
-    int32 PetTalentMask;
-    int32 SpellIconID;
 };
 
 struct TaxiNodesEntry
@@ -3623,9 +3612,9 @@ struct TaxiNodesEntry
     DBCPosition2D FlightMapOffset;
     uint32 ID;
     uint32 ContinentID;
-    uint32 ConditionID;
+    uint16 ConditionID;
     uint16 CharacterBitNumber;
-    uint16 Flags;
+    uint8 Flags;
     int32 UiTextureKitID;
     float Facing;
     uint32 SpecialIconConditionID;
@@ -3883,7 +3872,6 @@ struct VehicleSeatEntry
     uint32 EnterUISoundID;
     uint32 ExitUISoundID;
     int32 UiSkinFileDataID;
-    int32 UiSkin;
     float CameraEnteringDelay;
     float CameraEnteringDuration;
     float CameraExitingDelay;

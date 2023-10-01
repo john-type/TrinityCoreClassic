@@ -1136,8 +1136,6 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
         SchoolMask = _misc->SchoolMask;
         IconFileDataId = _misc->SpellIconFileDataID;
         ActiveIconFileDataId = _misc->ActiveIconFileDataID;
-        ContentTuningId = _misc->ContentTuningID;
-        ShowFutureSpellPlayerConditionID = _misc->ShowFutureSpellPlayerConditionID;
     }
 
     // SpellScalingEntry

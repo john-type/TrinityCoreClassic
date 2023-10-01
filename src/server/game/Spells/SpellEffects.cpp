@@ -3353,11 +3353,12 @@ void Spell::EffectApplyGlyph()
         {
             if (GlyphSlotEntry const* gs = sGlyphSlotStore.LookupEntry(player->GetGlyphSlot(m_misc.GlyphIndex)))
             {
-                if (gp->GlyphSlotFlags != gs->Type)
-                {
+                //TODOFROST
+                //if (gp->GlyphSlotFlags != gs->Type)
+                //{
                     SendCastResult(SPELL_FAILED_INVALID_GLYPH);
                     return;                                 // glyph slot mismatch
-                }
+                //}
             }
 
             // remove old glyph

@@ -812,7 +812,7 @@ struct BattlemasterListLoadInfo
             { true, FT_BYTE, "MaxLevel" },
             { true, FT_BYTE, "RatedPlayers" },
             { true, FT_BYTE, "MinPlayers" },
-            { true, FT_INT, "MaxPlayers" },
+            { true, FT_BYTE, "MaxPlayers" },
             { true, FT_BYTE, "GroupsAllowed" },
             { true, FT_BYTE, "MaxGroupSize" },
             { true, FT_SHORT, "HolidayWorldState" },
@@ -914,7 +914,7 @@ struct CharacterLoadoutLoadInfo
             { true, FT_LONG, "RaceMask" },
             { false, FT_INT, "ID" },
             { true, FT_BYTE, "ChrClassID" },
-            { true, FT_INT, "Purpose" },
+            { true, FT_BYTE, "Purpose" },
             { true, FT_BYTE, "ModID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), CharacterLoadoutMeta::Instance(), HOTFIX_SEL_CHARACTER_LOADOUT);
@@ -987,10 +987,9 @@ struct ChrClassesLoadInfo
             { false, FT_INT, "SelectScreenFileDataID" },
             { false, FT_INT, "IconFileDataID" },
             { false, FT_INT, "LowResScreenFileDataID" },
-            { true, FT_INT, "Flags" },
             { true, FT_INT, "StartingLevel" },
             { false, FT_INT, "RolesMask" },
-            { false, FT_INT, "ArmorTypeMask" },
+            { false, FT_SHORT, "Flags" },
             { false, FT_SHORT, "CinematicSequenceID" },
             { false, FT_SHORT, "DefaultSpec" },
             { false, FT_BYTE, "HasStrengthAttackBonus" },
@@ -1153,7 +1152,7 @@ struct ChrModelLoadInfo
             { false, FT_FLOAT, "CustomizeOffset2" },
             { false, FT_FLOAT, "CustomizeOffset3" },
             { false, FT_INT, "ID" },
-            { true, FT_BYTE, "Sex" },
+            { true, FT_INT, "Sex" },
             { true, FT_INT, "DisplayID" },
             { true, FT_INT, "CharComponentTextureLayoutID" },
             { true, FT_INT, "Flags" },
@@ -1165,7 +1164,6 @@ struct ChrModelLoadInfo
             { false, FT_FLOAT, "CustomizeFacing" },
             { false, FT_FLOAT, "CameraDistanceOffset" },
             { false, FT_FLOAT, "BarberShopCameraOffsetScale" },
-            { false, FT_FLOAT, "BarberShopCameraHeightOffsetScale" },
             { false, FT_FLOAT, "BarberShopCameraRotationOffset" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), ChrModelMeta::Instance(), HOTFIX_SEL_CHR_MODEL);
@@ -1454,7 +1452,6 @@ struct CreatureFamilyLoadInfo
             { true, FT_BYTE, "MaxScaleLevel" },
             { true, FT_SHORT, "PetFoodMask" },
             { true, FT_BYTE, "PetTalentType" },
-            { true, FT_INT, "CategoryEnumID" },
             { true, FT_INT, "IconFileID" },
             { true, FT_SHORT, "SkillLine1" },
             { true, FT_SHORT, "SkillLine2" },
@@ -1717,11 +1714,12 @@ struct DungeonEncounterLoadInfo
             { false, FT_STRING, "Name" },
             { false, FT_INT, "ID" },
             { true, FT_SHORT, "MapID" },
-            { true, FT_INT, "DifficultyID" },
+            { true, FT_BYTE, "DifficultyID" },
             { true, FT_INT, "OrderIndex" },
             { true, FT_BYTE, "Bit" },
             { true, FT_INT, "CreatureDisplayID" },
-            { true, FT_INT, "Flags" },
+            { false, FT_BYTE, "Flags" },
+            { true, FT_INT, "SpellIconFileID"},
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), DungeonEncounterMeta::Instance(), HOTFIX_SEL_DUNGEON_ENCOUNTER);
         return &loadInfo;
@@ -1901,7 +1899,7 @@ struct FactionLoadInfo
             { true, FT_SHORT, "ReputationIndex" },
             { false, FT_SHORT, "ParentFactionID" },
             { false, FT_BYTE, "Expansion" },
-            { false, FT_BYTE, "FriendshipRepID" },
+            { false, FT_INT, "FriendshipRepID" },
             { false, FT_BYTE, "Flags" },
             { false, FT_SHORT, "ParagonFactionID" },
             { true, FT_SHORT, "ReputationClassMask1" },
@@ -2397,8 +2395,7 @@ struct GlyphPropertiesLoadInfo
             { false, FT_INT, "SpellID" },
             { false, FT_BYTE, "GlyphType" },
             { false, FT_BYTE, "GlyphExclusiveCategoryID" },
-            { true, FT_INT, "SpellIconFileDataID" },
-            { false, FT_INT, "GlyphSlotFlags" },
+            { false, FT_SHORT, "SpellIconFileDataID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), GlyphPropertiesMeta::Instance(), HOTFIX_SEL_GLYPH_PROPERTIES);
         return &loadInfo;
@@ -2670,7 +2667,6 @@ struct ItemLoadInfo
             { true, FT_INT, "ContentTuningID" },
             { false, FT_INT, "MaxDurability" },
             { false, FT_BYTE, "AmmunitionType" },
-            { true, FT_INT, "ScalingStatValue" },
             { false, FT_BYTE, "DamageType1" },
             { false, FT_BYTE, "DamageType2" },
             { false, FT_BYTE, "DamageType3" },
@@ -3163,7 +3159,7 @@ struct ItemModifiedAppearanceLoadInfo
             { true, FT_INT, "ItemAppearanceModifierID" },
             { true, FT_INT, "ItemAppearanceID" },
             { true, FT_INT, "OrderIndex" },
-            { true, FT_BYTE, "TransmogSourceTypeEnum" },
+            { true, FT_INT, "TransmogSourceTypeEnum" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), ItemModifiedAppearanceMeta::Instance(), HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE);
         return &loadInfo;
@@ -3377,7 +3373,7 @@ struct ItemSparseLoadInfo
             { false, FT_SHORT, "ZoneBound2" },
             { false, FT_SHORT, "ItemSet" },
             { false, FT_SHORT, "LockID" },
-            { true, FT_INT, "StartQuestID" },
+            { false, FT_SHORT, "StartQuestID" },
             { false, FT_SHORT, "PageID" },
             { false, FT_SHORT, "ItemDelay" },
             { false, FT_SHORT, "MinFactionID" },
@@ -3432,8 +3428,8 @@ struct ItemSparseLoadInfo
             { false, FT_BYTE, "MinReputation" },
             { false, FT_BYTE, "RequiredPVPMedal" },
             { false, FT_BYTE, "RequiredPVPRank" },
-            { true, FT_BYTE, "InventoryType" },
-            { true, FT_BYTE, "OverallQualityID" },
+            { false, FT_BYTE, "InventoryType" },
+            { false, FT_BYTE, "OverallQualityID" },
             { false, FT_BYTE, "AmmunitionType" },
             { true, FT_BYTE, "StatModifierBonusStat1" },
             { true, FT_BYTE, "StatModifierBonusStat2" },
@@ -3904,7 +3900,6 @@ struct MapLoadInfo
             { true, FT_SHORT, "CosmeticParentMapID" },
             { false, FT_BYTE, "TimeOffset" },
             { false, FT_FLOAT, "MinimapIconScale" },
-            { true, FT_INT, "RaidOffset" },
             { true, FT_SHORT, "CorpseMapID" },
             { false, FT_BYTE, "MaxPlayers" },
             { true, FT_SHORT, "WindSettingsID" },
@@ -5316,7 +5311,6 @@ struct SpellItemEnchantmentLoadInfo
             { false, FT_FLOAT, "EffectScalingPoints1" },
             { false, FT_FLOAT, "EffectScalingPoints2" },
             { false, FT_FLOAT, "EffectScalingPoints3" },
-            { false, FT_INT, "GemItemID" },
             { false, FT_INT, "TransmogUseConditionID" },
             { false, FT_INT, "TransmogCost" },
             { false, FT_INT, "IconFileDataID" },
@@ -5453,8 +5447,6 @@ struct SpellMiscLoadInfo
             { false, FT_FLOAT, "MinDuration" },
             { true, FT_INT, "SpellIconFileDataID" },
             { true, FT_INT, "ActiveIconFileDataID" },
-            { true, FT_INT, "ContentTuningID" },
-            { true, FT_INT, "ShowFutureSpellPlayerConditionID" },
             { true, FT_INT, "Attributes1" },
             { true, FT_INT, "Attributes2" },
             { true, FT_INT, "Attributes3" },
@@ -5781,7 +5773,6 @@ struct SpellVisualLoadInfo
             { false, FT_SHORT, "DamageNumberDelay" },
             { false, FT_INT, "LowViolenceSpellVisualID" },
             { false, FT_INT, "RaidSpellVisualMissileSetID" },
-            { true, FT_INT, "ReducedUnexpectedCameraMovementSpellVisualID" },
             { false, FT_SHORT, "AreaModel" },
             { true, FT_BYTE, "HasMissile" },
         };
@@ -5905,7 +5896,6 @@ struct SummonPropertiesLoadInfo
             { true, FT_INT, "Title" },
             { true, FT_INT, "Slot" },
             { true, FT_INT, "Flags1" },
-            { true, FT_INT, "Flags2" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), SummonPropertiesMeta::Instance(), HOTFIX_SEL_SUMMON_PROPERTIES);
         return &loadInfo;
@@ -5958,8 +5948,8 @@ struct TalentLoadInfo
             { true, FT_INT, "SpellID" },
             { true, FT_INT, "OverridesSpellID" },
             { true, FT_INT, "RequiredSpellID" },
-            { true, FT_INT, "CategoryMask1" },
-            { true, FT_INT, "CategoryMask2" },
+            { false, FT_BYTE, "CategoryMask1" },
+            { false, FT_BYTE, "CategoryMask2" },
             { true, FT_INT, "SpellRank1" },
             { true, FT_INT, "SpellRank2" },
             { true, FT_INT, "SpellRank3" },
@@ -5993,8 +5983,6 @@ struct TalentTabLoadInfo
             { true, FT_INT, "OrderIndex" },
             { true, FT_INT, "RaceMask" },
             { true, FT_INT, "ClassMask" },
-            { true, FT_INT, "PetTalentMask" },
-            { true, FT_INT, "SpellIconID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TalentTabMeta::Instance(), HOTFIX_SEL_TALENT_TAB);
         return &loadInfo;
@@ -6017,9 +6005,9 @@ struct TaxiNodesLoadInfo
             { false, FT_FLOAT, "FlightMapOffsetY" },
             { false, FT_INT, "ID" },
             { false, FT_INT, "ContinentID" },
-            { false, FT_INT, "ConditionID" },
+            { false, FT_SHORT, "ConditionID" },
             { false, FT_SHORT, "CharacterBitNumber" },
-            { false, FT_SHORT, "Flags" },
+            { false, FT_BYTE, "Flags" },
             { true, FT_INT, "UiTextureKitID" },
             { false, FT_FLOAT, "Facing" },
             { false, FT_INT, "SpecialIconConditionID" },
@@ -6474,7 +6462,6 @@ struct VehicleSeatLoadInfo
             { false, FT_INT, "EnterUISoundID" },
             { false, FT_INT, "ExitUISoundID" },
             { true, FT_INT, "UiSkinFileDataID" },
-            { true, FT_INT, "UiSkin" },
             { false, FT_FLOAT, "CameraEnteringDelay" },
             { false, FT_FLOAT, "CameraEnteringDuration" },
             { false, FT_FLOAT, "CameraExitingDelay" },
