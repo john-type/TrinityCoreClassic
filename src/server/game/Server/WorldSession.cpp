@@ -1338,7 +1338,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_GUILD_BANK_TEXT_QUERY:                //   0               1.5
         case CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT:    //   0               1.5
         case CMSG_MOVE_SET_FACING:                      //   0               1.5
-        case CMSG_MOVE_SET_FACING_HEARTBEAT:            //   0               1.5
+        //TODOFROST case CMSG_MOVE_SET_FACING_HEARTBEAT:            //   0               1.5
         case CMSG_MOVE_SET_PITCH:                       //   0               1.5
         case CMSG_REQUEST_PARTY_MEMBER_STATS:           //   0               1.5
         case CMSG_QUEST_GIVER_COMPLETE_QUEST:           //   0               1.5
@@ -1407,7 +1407,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_QUEST_GIVER_ACCEPT_QUEST:             //   0               4
         case CMSG_QUEST_LOG_REMOVE_QUEST:               //   0               4
         case CMSG_QUEST_GIVER_CHOOSE_REWARD:            //   0               4
-        case CMSG_SEND_CONTACT_LIST:                    //   0               5
+        //TODOFROST case CMSG_SEND_CONTACT_LIST:                    //   0               5
         case CMSG_AUTOBANK_ITEM:                        //   0               6
         case CMSG_AUTOSTORE_BANK_ITEM:                  //   0               6
         case CMSG_WHO:                                  //   0               7
@@ -1431,11 +1431,12 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
             break;
         }
 
-        case CMSG_QUEST_POI_QUERY:                      //   0              25         very high upload bandwidth usage
-        {
-            maxPacketCounterAllowed = MAX_QUEST_LOG_SIZE;
-            break;
-        }
+        //TODOFROST 
+        //case CMSG_QUEST_POI_QUERY:                      //   0              25         very high upload bandwidth usage
+        //{
+        //    maxPacketCounterAllowed = MAX_QUEST_LOG_SIZE;
+        //    break;
+        //}
 
         case CMSG_SPELL_CLICK:                          // not profiled
         case CMSG_MOVE_DISMISS_VEHICLE:                 // not profiled
@@ -1445,8 +1446,8 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         }
 
         case CMSG_SIGN_PETITION:                        //   9               4         2 sync 1 async db queries
-        case CMSG_TURN_IN_PETITION:                     //   8               5.5       2 sync db query
-        case CMSG_CHANGE_SUB_GROUP:                     //   6               5         1 sync 1 async db queries
+        //TODOFROST case CMSG_TURN_IN_PETITION:                     //   8               5.5       2 sync db query
+        //TODOFROST case CMSG_CHANGE_SUB_GROUP:                     //   6               5         1 sync 1 async db queries
         case CMSG_QUERY_PETITION:                       //   4               3.5       1 sync db query
         case CMSG_CHAR_CUSTOMIZE:                       //   5               5         1 sync db query
         case CMSG_CHAR_RACE_OR_FACTION_CHANGE:          //   5               5         1 sync db query

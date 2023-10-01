@@ -493,4 +493,50 @@ bool RsaSignature::Sign(uint8 const* message, std::size_t messageLength, DigestG
     std::reverse(output.begin(), output.end());
     return result != 0;
 }
+
+bool RsaSignature::SignHash(uint8 const* message, std::size_t messageLength, DigestGenerator& generator, std::vector<uint8>& output)
+{
+    std::unique_ptr<EVP_MD, DigestGenerator::EVP_MD_Deleter> digestGenerator = generator.GetGenerator();
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    //TODOFROST
+    static_assert(false, "not yet implemented")
+#endif
+
+    EVP_PKEY_CTX* pkey_ctx = EVP_PKEY_CTX_new(_key, nullptr);
+
+    int result = EVP_PKEY_sign_init(pkey_ctx);
+
+    if (result == 0)
+        return false;
+
+    result = EVP_PKEY_CTX_set_rsa_padding(pkey_ctx, RSA_PKCS1_PADDING);
+
+    if (result == 0)
+        return false;
+
+    result = EVP_PKEY_CTX_set_signature_md(pkey_ctx, digestGenerator.get());
+
+    if (!result)
+        return false;
+
+    generator.PostInitCustomizeContext(_ctx);
+
+    size_t signatureLength = 0;
+
+    result = EVP_PKEY_sign(pkey_ctx, nullptr, &signatureLength, message, messageLength);
+
+    if (result == 0)
+        return false;
+
+    output.resize(signatureLength);
+    result = EVP_PKEY_sign(pkey_ctx, output.data(), &signatureLength, message, messageLength);
+    std::reverse(output.begin(), output.end());
+
+    //TODOFROST - this needs to be in a guard, because of early returns, this may not get called.
+    EVP_PKEY_CTX_free(pkey_ctx);
+
+    return result != 0;
+}
+
 }

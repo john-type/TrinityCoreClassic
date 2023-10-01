@@ -100,8 +100,15 @@ public:
     {
         return this->Sign(message.data(), message.size(), generator, output);
     }
+    template <std::size_t N>
+    bool SignHash(std::array<uint8, N> const& message, DigestGenerator& generator, std::vector<uint8>& output)
+    {
+        return this->SignHash(message.data(), message.size(), generator, output);
+    }
 
     bool Sign(uint8 const* message, std::size_t messageLength, DigestGenerator& generator, std::vector<uint8>& output);
+
+    bool SignHash(uint8 const* message, std::size_t messageLength, DigestGenerator& generator, std::vector<uint8>& output);
 
 private:
     EVP_MD_CTX* _ctx = nullptr;
