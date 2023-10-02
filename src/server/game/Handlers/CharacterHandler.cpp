@@ -1402,7 +1402,6 @@ void WorldSession::SendFeatureSystemStatus()
     features.BpayStoreEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
     features.IsMuted = !CanSpeak();
 
-    features.TextToSpeechFeatureEnabled = false;
 
     SendPacket(features.Write());
 }

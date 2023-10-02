@@ -128,9 +128,6 @@ namespace WorldPackets
             uint32 ClubsPresenceUpdateTimer              = 0;
             uint32 HiddenUIClubsPresenceUpdateTimer      = 0; ///< Timer for updating club presence when communities ui frame is hidden
             uint32 KioskSessionMinutes                   = 0;
-            int32 ActiveSeason                           = 0; ///< Currently active Classic season
-            int16 MaxPlayerNameQueriesPerPacket          = 50;
-            int16 PlayerNameQueryTelemetryInterval       = 600;
             bool ItemRestorationButtonEnabled        = false;
             bool CharUndeleteEnabled                 = false; ///< Implemented
             bool BpayStoreDisabledByParentalControls = false;
@@ -155,18 +152,12 @@ namespace WorldPackets
             bool IsMuted                             = false;
             bool ClubFinderEnabled                   = false;
             bool Unknown901CheckoutRelated           = false;
-            bool TextToSpeechFeatureEnabled          = false;
-            bool ChatDisabledByDefault               = false;
-            bool ChatDisabledByPlayer                = false;
-            bool LFGListCustomRequiresAuthenticator  = false;
             bool BattlegroundsEnabled                = true; // NYI
-            bool Unknown340                          = false; // NYI
 
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;
             RafSystemFeatureInfo RAFSystem;
-            std::vector<GameRuleValuePair> GameRuleValues;
-            std::vector<uint8> UnknownBytes;
+            std::vector<uint8> UnknownBytes;    //TODOFROST - RaceClassExpansionLevels
         };
 
         class FeatureSystemStatusGlueScreen final : public ServerPacket
@@ -193,12 +184,6 @@ namespace WorldPackets
             bool LiveRegionAccountCopyEnabled        = false; // NYI
             bool LiveRegionKeyBindingsCopyEnabled    = false;
             bool Unknown901CheckoutRelated           = false; // NYI
-            bool Unknown340_1                        = false; // NYI
-            bool Unknown340_2                        = false; // NYI
-            bool TBCInfoPaneEnabled                  = false; // NYI
-            bool TBCInfoPanePriceEnabled             = false; // NYI
-            bool TBCTransitionUIEnabled              = false; // NYI
-            bool SoMNotificationEnabled              = false; // NYI
             Optional<EuropaTicketConfig> EuropaTicketSystemStatus;
             std::vector<int32> LiveRegionCharacterCopySourceRegions;
             uint32 TokenPollTimeSeconds              = 0;     // NYI
@@ -210,11 +195,6 @@ namespace WorldPackets
             int32 MinimumExpansionLevel              = 0;
             int32 MaximumExpansionLevel              = 0;
             uint32 KioskSessionMinutes               = 0;
-            int32 ActiveSeason                       = 0;     // Currently active Classic season
-            std::vector<GameRuleValuePair> GameRuleValues;
-            int16 MaxPlayerNameQueriesPerPacket = 50;
-            int16 PlayerNameQueryTelemetryInterval = 600;
-            Optional<int32> LaunchETA;
         };
 
         class MOTD final : public ServerPacket
