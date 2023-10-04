@@ -215,6 +215,13 @@ WorldPacket const* WorldPackets::Misc::DungeonDifficultySet::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::SetAllTaskProgress::Write()
+{
+    _worldPacket << uint32(0);
+    //TODOFROST see old hermes.
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::RaidDifficultySet::Write()
 {
     _worldPacket << int32(DifficultyID);

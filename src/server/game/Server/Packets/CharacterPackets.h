@@ -454,6 +454,25 @@ namespace WorldPackets
             uint32 CurrentCooldown = 0; ///< Current cooldown until next free character restoration. (in sec)
         };
 
+        class GetAccountCharacterList final : public ClientPacket {
+        public:
+            GetAccountCharacterList(WorldPacket&& packet) : ClientPacket(CMSG_GET_ACCOUNT_CHARACTER_LIST, std::move(packet)) {}
+
+            void Read() override;
+
+            uint32 Token = 0;
+        };
+
+        class GetAccountCharacterListResult final : public ServerPacket {
+        public:
+            GetAccountCharacterListResult() : ServerPacket(SMSG_GET_ACCOUNT_CHARACTER_LIST_RESULT, 3) {}
+
+            WorldPacket const* Write() override;
+
+            uint32 Token = 0;
+            //TODOFROST other fields - see hermes
+        };
+
         class PlayerLogin final : public ClientPacket
         {
         public:

@@ -106,6 +106,15 @@ namespace WorldPackets
             Optional<uint32> NativeRealmAddress; ///< original realm (?) (identifier made from the Index, BattleGroup and Region)
         };
 
+        class QueryPlayerName final : public ClientPacket {
+        public:
+            QueryPlayerName(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_PLAYER_NAME, std::move(packet)) {}
+
+            void Read() override;
+
+            ObjectGuid Player;
+        };
+
         class QueryPlayerNames final : public ClientPacket
         {
         public:
@@ -131,7 +140,6 @@ namespace WorldPackets
             uint8 Sex = GENDER_NONE;
             uint8 ClassID = CLASS_NONE;
             uint8 Level = 0;
-            uint8 Unused915 = 0;
             DeclinedName DeclinedNames;
         };
 
@@ -148,6 +156,18 @@ namespace WorldPackets
             uint8 Result = 0; // 0 - full packet, != 0 - only guid
             Optional<PlayerGuidLookupData> Data;
             Optional<NameCacheUnused920> Unused920;
+        };
+
+        class QueryPlayerNameResponse final : public ServerPacket
+        {
+        public:
+            QueryPlayerNameResponse() : ServerPacket(SMSG_QUERY_PLAYER_NAME_RESPONSE, 60) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Player;
+            uint8 Result = 0; // 0 - full packet, != 0 - only guid
+            PlayerGuidLookupData Data;
         };
 
         class QueryPlayerNamesResponse final : public ServerPacket

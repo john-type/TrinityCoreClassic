@@ -987,6 +987,15 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin&
     SendConnectToInstance(WorldPackets::Auth::ConnectToSerial::WorldAttempt1);
 }
 
+void WorldSession::HandleGetAccountCharListOpcode(WorldPackets::Character::GetAccountCharacterList& accountCharList)
+{
+    //TODOFROST - real result
+    WorldPackets::Character::GetAccountCharacterListResult result;
+    result.Token = accountCharList.Token;
+
+    SendPacket(result.Write());
+}
+
 void WorldSession::HandleContinuePlayerLogin()
 {
     if (!PlayerLoading() || GetPlayer())

@@ -1307,6 +1307,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         // CPU usage sending 2000 packets/second on a 3.70 GHz 4 cores on Win x64
         //                                              [% CPU mysqld]   [%CPU worldserver RelWithDebInfo]
         case CMSG_PLAYER_LOGIN:                         //   0               0.5
+        case CMSG_QUERY_PLAYER_NAME:                    //   0
         case CMSG_QUERY_PLAYER_NAMES:                   //   0               1
         case CMSG_QUERY_PET_NAME:                       //   0               1
         case CMSG_QUERY_NPC_TEXT:                       //   0               1
@@ -1365,7 +1366,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_LOGOUT_CANCEL:                        //   0               2
         case CMSG_ALTER_APPEARANCE:                     //   0               2
         case CMSG_QUEST_CONFIRM_ACCEPT:                 //   0               2
-        case CMSG_GUILD_EVENT_LOG_QUERY:                //   0               2.5
+        //TODOFROST case CMSG_GUILD_EVENT_LOG_QUERY:                //   0               2.5
         case CMSG_QUEST_GIVER_STATUS_MULTIPLE_QUERY:    //   0               2.5
         case CMSG_BEGIN_TRADE:                          //   0               2.5
         case CMSG_INITIATE_TRADE:                       //   0               3

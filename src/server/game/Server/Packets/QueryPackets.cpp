@@ -102,6 +102,11 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Query::QueryPlayerName::Read()
+{
+    _worldPacket >> Player;
+}
+
 void WorldPackets::Query::QueryPlayerNames::Read()
 {
     Players.resize(_worldPacket.read<uint32>());
@@ -186,7 +191,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupDa
     data << uint8(lookupData.Sex);
     data << uint8(lookupData.ClassID);
     data << uint8(lookupData.Level);
-    data << uint8(lookupData.Unused915);
     data.WriteString(lookupData.Name);
 
     return data;
@@ -219,6 +223,17 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::NameCacheLookupRes
         data << *result.Unused920;
 
     return data;
+}
+
+WorldPacket const* WorldPackets::Query::QueryPlayerNameResponse::Write()
+{
+    _worldPacket << uint8(Result);
+    _worldPacket << Player;
+
+    if (Result == RESPONSE_SUCCESS)
+        _worldPacket << Data;
+
+    return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Query::QueryPlayerNamesResponse::Write()

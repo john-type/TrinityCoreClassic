@@ -463,6 +463,20 @@ WorldPacket const* UndeleteCooldownStatusResponse::Write()
     return &_worldPacket;
 }
 
+void GetAccountCharacterList::Read()
+{
+    _worldPacket >> Token;
+}
+
+WorldPacket const* GetAccountCharacterListResult::Write()
+{
+    _worldPacket << Token;
+    _worldPacket << uint32(0);
+    _worldPacket.ResetBitPos();
+    _worldPacket.WriteBit(false);
+    return &_worldPacket;
+}
+
 void PlayerLogin::Read()
 {
     _worldPacket >> Guid;

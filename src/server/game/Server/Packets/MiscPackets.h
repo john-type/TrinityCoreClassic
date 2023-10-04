@@ -301,6 +301,16 @@ namespace WorldPackets
             int32 DifficultyID = 0;
         };
 
+        class SetAllTaskProgress : public ServerPacket
+        {
+        public:
+            SetAllTaskProgress() : ServerPacket(SMSG_SET_ALL_TASK_PROGRESS, 4) {}
+
+            WorldPacket const* Write() override;
+
+            //TODOFROST - see hermes source
+        };
+
         class RaidDifficultySet final : public ServerPacket
         {
         public:

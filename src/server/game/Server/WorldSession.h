@@ -230,6 +230,8 @@ namespace WorldPackets
         struct CharRaceOrFactionChangeInfo;
         struct CharacterUndeleteInfo;
 
+        class GetAccountCharacterList;
+
         class AlterApperance;
         class EnumCharacters;
         class CreateCharacter;
@@ -606,6 +608,7 @@ namespace WorldPackets
     {
         class QueryCreature;
         struct NameCacheLookupResult;
+        class QueryPlayerName;
         class QueryPlayerNames;
         class QueryPageText;
         class QueryNPCText;
@@ -1154,6 +1157,7 @@ class TC_GAME_API WorldSession
         void HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& charDelete);
         void HandleCharCreateOpcode(WorldPackets::Character::CreateCharacter& charCreate);
         void HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin& playerLogin);
+        void HandleGetAccountCharListOpcode(WorldPackets::Character::GetAccountCharacterList& accountCharList);
 
         void SendConnectToInstance(WorldPackets::Auth::ConnectToSerial serial);
         void HandleContinuePlayerLogin();
@@ -1270,6 +1274,7 @@ class TC_GAME_API WorldSession
         void HandleGameObjectUseOpcode(WorldPackets::GameObject::GameObjUse& packet);
         void HandleGameobjectReportUse(WorldPackets::GameObject::GameObjReportUse& packet);
 
+        void HandleQueryPlayerName(WorldPackets::Query::QueryPlayerName& queryPlayerName);
         void HandleQueryPlayerNames(WorldPackets::Query::QueryPlayerNames& queryPlayerNames);
         void HandleQueryTimeOpcode(WorldPackets::Query::QueryTime& queryTime);
         void HandleCreatureQuery(WorldPackets::Query::QueryCreature& packet);

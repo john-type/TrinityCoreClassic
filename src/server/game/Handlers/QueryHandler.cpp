@@ -45,6 +45,20 @@ void WorldSession::BuildNameQueryData(ObjectGuid guid, WorldPackets::Query::Name
         lookupData.Result = RESPONSE_FAILURE; // name unknown
 }
 
+void WorldSession::HandleQueryPlayerName(WorldPackets::Query::QueryPlayerName& queryPlayerName) {
+    Player* player = ObjectAccessor::FindConnectedPlayer(queryPlayerName.Player);
+
+    WorldPackets::Query::QueryPlayerNameResponse response;
+    response.Player = queryPlayerName.Player;
+
+    if (response.Data.Initialize(queryPlayerName.Player, player))
+        response.Result = RESPONSE_SUCCESS; // name known
+    else
+        response.Result = RESPONSE_FAILURE; // name unknown
+
+    SendPacket(response.Write());
+}
+
 void WorldSession::HandleQueryPlayerNames(WorldPackets::Query::QueryPlayerNames& queryPlayerNames)
 {
     WorldPackets::Query::QueryPlayerNamesResponse response;
