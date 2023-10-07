@@ -395,62 +395,63 @@ void PlayerAchievementMgr::ResetCriteria(CriteriaFailEvent failEvent, int32 fail
 
 void PlayerAchievementMgr::SendAllData(Player const* /*receiver*/) const
 {
-    VisibleAchievementCheck filterInvisible;
-    WorldPackets::Achievement::AllAccountCriteria allAccountCriteria;
+    //TODOFROST
+    //VisibleAchievementCheck filterInvisible;
+    //WorldPackets::Achievement::AllAccountCriteria allAccountCriteria;
 
-    WorldPackets::Achievement::AllAchievementData achievementData;
-    achievementData.Data.Earned.reserve(_completedAchievements.size());
-    achievementData.Data.Progress.reserve(_criteriaProgress.size());
+    //WorldPackets::Achievement::AllAchievementData achievementData;
+    //achievementData.Data.Earned.reserve(_completedAchievements.size());
+    //achievementData.Data.Progress.reserve(_criteriaProgress.size());
 
-    for (std::pair<uint32 const, CompletedAchievementData> const& completedAchievement : _completedAchievements)
-    {
-        AchievementEntry const* achievement = filterInvisible(completedAchievement);
-        if (!achievement)
-            continue;
+    //for (std::pair<uint32 const, CompletedAchievementData> const& completedAchievement : _completedAchievements)
+    //{
+    //    AchievementEntry const* achievement = filterInvisible(completedAchievement);
+    //    if (!achievement)
+    //        continue;
 
-        WorldPackets::Achievement::EarnedAchievement earned;
-        earned.Id = completedAchievement.first;
-        earned.Date = completedAchievement.second.Date;
-        if (!(achievement->Flags & ACHIEVEMENT_FLAG_ACCOUNT))
-        {
-            earned.Owner = _owner->GetGUID();
-            earned.VirtualRealmAddress = earned.NativeRealmAddress = GetVirtualRealmAddress();
-        }
-        achievementData.Data.Earned.push_back(earned);
-    }
+    //    WorldPackets::Achievement::EarnedAchievement earned;
+    //    earned.Id = completedAchievement.first;
+    //    earned.Date = completedAchievement.second.Date;
+    //    if (!(achievement->Flags & ACHIEVEMENT_FLAG_ACCOUNT))
+    //    {
+    //        earned.Owner = _owner->GetGUID();
+    //        earned.VirtualRealmAddress = earned.NativeRealmAddress = GetVirtualRealmAddress();
+    //    }
+    //    achievementData.Data.Earned.push_back(earned);
+    //}
 
-    for (std::pair<uint32 const, CriteriaProgress> const& criteriaProgres : _criteriaProgress)
-    {
-        Criteria const* criteria = sCriteriaMgr->GetCriteria(criteriaProgres.first);
+    //for (std::pair<uint32 const, CriteriaProgress> const& criteriaProgres : _criteriaProgress)
+    //{
+    //    Criteria const* criteria = sCriteriaMgr->GetCriteria(criteriaProgres.first);
 
-        WorldPackets::Achievement::CriteriaProgress progress;
-        progress.Id = criteriaProgres.first;
-        progress.Quantity = criteriaProgres.second.Counter;
-        progress.Player = criteriaProgres.second.PlayerGUID;
-        progress.Flags = 0;
-        progress.Date = criteriaProgres.second.Date;
-        progress.TimeFromStart = Seconds::zero();
-        progress.TimeFromCreate = Seconds::zero();
-        achievementData.Data.Progress.push_back(progress);
+    //    WorldPackets::Achievement::CriteriaProgress progress;
+    //    progress.Id = criteriaProgres.first;
+    //    progress.Quantity = criteriaProgres.second.Counter;
+    //    progress.Player = criteriaProgres.second.PlayerGUID;
+    //    progress.Flags = 0;
+    //    progress.Date = criteriaProgres.second.Date;
+    //    progress.TimeFromStart = Seconds::zero();
+    //    progress.TimeFromCreate = Seconds::zero();
+    //    achievementData.Data.Progress.push_back(progress);
 
-        if (criteria->FlagsCu & CRITERIA_FLAG_CU_ACCOUNT)
-        {
-            WorldPackets::Achievement::CriteriaProgress progress;
-            progress.Id = criteriaProgres.first;
-            progress.Quantity = criteriaProgres.second.Counter;
-            progress.Player = _owner->GetSession()->GetBattlenetAccountGUID();
-            progress.Flags = 0;
-            progress.Date = criteriaProgres.second.Date;
-            progress.TimeFromStart = Seconds::zero();
-            progress.TimeFromCreate = Seconds::zero();
-            allAccountCriteria.Progress.push_back(progress);
-        }
-    }
+    //    if (criteria->FlagsCu & CRITERIA_FLAG_CU_ACCOUNT)
+    //    {
+    //        WorldPackets::Achievement::CriteriaProgress progress;
+    //        progress.Id = criteriaProgres.first;
+    //        progress.Quantity = criteriaProgres.second.Counter;
+    //        progress.Player = _owner->GetSession()->GetBattlenetAccountGUID();
+    //        progress.Flags = 0;
+    //        progress.Date = criteriaProgres.second.Date;
+    //        progress.TimeFromStart = Seconds::zero();
+    //        progress.TimeFromCreate = Seconds::zero();
+    //        allAccountCriteria.Progress.push_back(progress);
+    //    }
+    //}
 
-    if (!allAccountCriteria.Progress.empty())
-        SendPacket(allAccountCriteria.Write());
+    //if (!allAccountCriteria.Progress.empty())
+    //    SendPacket(allAccountCriteria.Write());
 
-    SendPacket(achievementData.Write());
+    //SendPacket(achievementData.Write());
 }
 
 void PlayerAchievementMgr::SendAchievementInfo(Player* receiver, uint32 /*achievementId = 0 */) const

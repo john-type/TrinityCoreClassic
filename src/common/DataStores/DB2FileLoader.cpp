@@ -1771,8 +1771,12 @@ void DB2FileLoader::LoadHeaders(DB2FileSource* source, DB2FileLoadInfo const* lo
         throw DB2FileLoadException(Trinity::StringFormat("Incorrect number of fields in %s, expected %u, got %u",
             source->GetFileName(), loadInfo->Meta->FieldCount, _header.TotalFieldCount + (loadInfo->Meta->ParentIndexField >= int32(_header.TotalFieldCount) ? 1 : 0)));
 
-    if (loadInfo && (_header.ParentLookupCount && loadInfo->Meta->ParentIndexField == -1))
-        throw DB2FileLoadException(Trinity::StringFormat("Unexpected parent lookup found in %s", source->GetFileName()));
+    //TODOFROST
+    if (loadInfo && (_header.ParentLookupCount && loadInfo->Meta->ParentIndexField == -1)) {
+        _header.ParentLookupCount = 0;
+    }
+    //if (loadInfo && (_header.ParentLookupCount && loadInfo->Meta->ParentIndexField == -1))
+    //    throw DB2FileLoadException(Trinity::StringFormat("Unexpected parent lookup found in %s", source->GetFileName()));
 
     std::unique_ptr<DB2SectionHeader[]> sections = std::make_unique<DB2SectionHeader[]>(_header.SectionCount);
     if (_header.SectionCount && !source->Read(sections.get(), sizeof(DB2SectionHeader) * _header.SectionCount))

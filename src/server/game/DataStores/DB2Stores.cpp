@@ -907,17 +907,18 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     }
 
     // Check loaded DB2 files proper version
-    if (!sAreaTableStore.LookupEntry(14483) ||               // last area added in 3.4.0 (45942)
-        !sCharTitlesStore.LookupEntry(697) ||                // last char title added in 3.4.0 (45942)
-        !sGemPropertiesStore.LookupEntry(1629) ||            // last gem property added in 3.4.0 (45942)
-        !sItemStore.LookupEntry(200240) ||                   // last item added in 3.4.0 (45942)
-        !sItemExtendedCostStore.LookupEntry(7678) ||         // last item extended cost added in 3.4.0 (45942)
-        !sMapStore.LookupEntry(2567) ||                      // last map added in 3.4.0 (45942)
-        !sSpellNameStore.LookupEntry(395481))                // last spell added in 3.4.0 (45942)
-    {
-        TC_LOG_ERROR("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
-        exit(1);
-    }
+    // //TODOFROST
+    //if (!sAreaTableStore.LookupEntry(14483) ||               // last area added in 3.4.0 (45942)
+    //    !sCharTitlesStore.LookupEntry(697) ||                // last char title added in 3.4.0 (45942)
+    //    !sGemPropertiesStore.LookupEntry(1629) ||            // last gem property added in 3.4.0 (45942)
+    //    !sItemStore.LookupEntry(200240) ||                   // last item added in 3.4.0 (45942)
+    //    !sItemExtendedCostStore.LookupEntry(7678) ||         // last item extended cost added in 3.4.0 (45942)
+    //    !sMapStore.LookupEntry(2567) ||                      // last map added in 3.4.0 (45942)
+    //    !sSpellNameStore.LookupEntry(395481))                // last spell added in 3.4.0 (45942)
+    //{
+    //    TC_LOG_ERROR("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
+    //    exit(1);
+    //}
 
     for (AreaGroupMemberEntry const* areaGroupMember : sAreaGroupMemberStore)
         _areaGroupMembers[areaGroupMember->AreaGroupID].push_back(areaGroupMember->AreaID);

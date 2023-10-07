@@ -637,7 +637,7 @@ enum PlayerSlots
     // first slot for item stored (in any way in player m_items data)
     PLAYER_SLOT_START           = 0,
     // last+1 slot for item stored (in any way in player m_items data)
-    PLAYER_SLOT_END             = 129,
+    PLAYER_SLOT_END             = 199,
     PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
 };
 
@@ -1869,8 +1869,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void InitGlyphsForLevel();
         void UpdateGlyphsEnabled();
-        void SetGlyphSlot(uint8 slotIndex, uint32 slotType) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphInfos, slotIndex).ModifyValue(&UF::GlyphInfo::GlyphSlot), slotType); }
-        uint32 GetGlyphSlot(uint8 slotIndex) const { return m_activePlayerData->GlyphInfos[slotIndex].GlyphSlot; }
+        //TODOFROST
+        void SetGlyphSlot(uint8 slotIndex, uint32 slotType) { } // SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphInfos, slotIndex).ModifyValue(&UF::GlyphInfo::GlyphSlot), slotType);}
+        uint32 GetGlyphSlot(uint8 slotIndex) const { return 0; } // return m_activePlayerData->GlyphInfos[slotIndex].GlyphSlot; }
         void SetGlyph(uint8 slotIndex, uint32 glyph);
         uint32 GetGlyph(uint8 slotIndex) { return _specializationInfo.Glyphs[GetActiveTalentGroup()][slotIndex]; }
         PlayerTalentMap const* GetTalentMap(uint8 spec) const { return &_specializationInfo.Talents[spec]; }
@@ -2724,13 +2725,14 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         uint32 GetCustomizationChoice(uint32 chrCustomizationOptionId) const
         {
-            int32 choiceIndex = m_playerData->Customizations.FindIndexIf([chrCustomizationOptionId](UF::ChrCustomizationChoice choice)
-            {
-                return choice.ChrCustomizationOptionID == chrCustomizationOptionId;
-            });
+            //TODOFROST
+            //int32 choiceIndex = m_playerData->Customizations.FindIndexIf([chrCustomizationOptionId](UF::ChrCustomizationChoice choice)
+            //{
+            //    return choice.ChrCustomizationOptionID == chrCustomizationOptionId;
+            //});
 
-            if (choiceIndex >= 0)
-                return m_playerData->Customizations[choiceIndex].ChrCustomizationChoiceID;
+            //if (choiceIndex >= 0)
+            //    return m_playerData->Customizations[choiceIndex].ChrCustomizationChoiceID;
 
             return 0;
         }
@@ -2741,13 +2743,14 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             if (markChanged)
                 m_customizationsChanged = true;
 
-            ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
-            for (auto&& customization : customizations)
-            {
-                UF::ChrCustomizationChoice& newChoice = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
-                newChoice.ChrCustomizationOptionID = customization.ChrCustomizationOptionID;
-                newChoice.ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID;
-            }
+            //TODOFROST
+            //ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
+            //for (auto&& customization : customizations)
+            //{
+            //    UF::ChrCustomizationChoice& newChoice = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
+            //    newChoice.ChrCustomizationOptionID = customization.ChrCustomizationOptionID;
+            //    newChoice.ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID;
+            //}
         }
         void SetPvpTitle(uint8 pvpTitle) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PvpTitle), pvpTitle); }
         void SetArenaFaction(uint8 arenaFaction) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::ArenaFaction), arenaFaction); }
@@ -2810,7 +2813,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void AddAuraVision(PlayerFieldByte2Flags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::AuraVision), flags); }
         void RemoveAuraVision(PlayerFieldByte2Flags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::AuraVision), flags); }
 
-        void SetTransportServerTime(int32 transportServerTime) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::TransportServerTime), transportServerTime); }
+        //TODOFROST
+        void SetTransportServerTime(int32 transportServerTime) { } //SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::TransportServerTime), transportServerTime); }
 
         bool IsInFriendlyArea() const;
         bool IsFriendlyArea(AreaTableEntry const* inArea) const;

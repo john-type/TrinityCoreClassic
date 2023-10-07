@@ -65,6 +65,14 @@ void WorldSession::SendAvailableHotfixes()
 
 void WorldSession::HandleHotfixRequest(WorldPackets::Hotfix::HotfixRequest& hotfixQuery)
 {
+    WorldPackets::Hotfix::HotfixConnect hotfixQueryResponse_tmp;
+    SendPacket(hotfixQueryResponse_tmp.Write());
+
+    return;
+
+    //TODOFROST - remove hotfix placeholder
+
+
     DB2Manager::HotfixContainer const& hotfixes = sDB2Manager.GetHotfixData();
     WorldPackets::Hotfix::HotfixConnect hotfixQueryResponse;
     hotfixQueryResponse.Hotfixes.reserve(hotfixQuery.Hotfixes.size());

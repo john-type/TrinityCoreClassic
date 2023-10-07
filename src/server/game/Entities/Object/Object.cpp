@@ -178,11 +178,22 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
             flags.CombatVictim = true;
     }
 
+    //TODOFROST - this is not yet implemented on hermes, need to to implement here.
+    flags.AreaTrigger = false;
+    flags.SmoothPhasing = false;
+    flags.SceneObject = false;
+    flags.Conversation = false;
+
+
     ByteBuffer buf(0x400, ByteBuffer::Reserve{});
     buf << uint8(updateType);
     buf << GetGUID();
     buf << uint8(objectType);
+    //TODOFROST - hermes passes the object type mask here as int32
+    // trinity appears to always use data << uint32(0) instead aspart of the buildValuesCreate call.
+    //buf << int32(m_objectType); //TODOFROST - should this be uint32?
 
+    
     BuildMovementUpdate(&buf, flags, target);
     BuildValuesCreate(&buf, target);
     data->AddUpdateBlock(buf);
@@ -296,10 +307,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
 
         *data << GetGUID();                                             // MoverGUID
 
-        *data << uint32(unit->GetUnitMovementFlags());
-        *data << uint32(unit->GetExtraUnitMovementFlags());
-        *data << uint32(unit->GetExtraUnitMovementFlags2());
-
         *data << uint32(unit->m_movementInfo.time);                     // MoveTime
         *data << float(unit->GetPositionX());
         *data << float(unit->GetPositionY());
@@ -315,22 +322,20 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         //for (std::size_t i = 0; i < RemoveForcesIDs.size(); ++i)
         //    *data << ObjectGuid(RemoveForcesIDs);
 
+        data->WriteBits(unit->GetUnitMovementFlags(), 30);
+        data->WriteBits(unit->GetExtraUnitMovementFlags(), 18);
+
         data->WriteBit(!unit->m_movementInfo.transport.guid.IsEmpty()); // HasTransport
         data->WriteBit(HasFall);                                        // HasFall
         data->WriteBit(HasSpline);                                      // HasSpline - marks that the unit uses spline movement
         data->WriteBit(false);                                          // HeightChangeFailed
         data->WriteBit(false);                                          // RemoteTimeValid
-        data->WriteBit(HasInertia);                                     // HasInertia
+
+        //data->FlushBits(); //TODOFROST hermes has flush here, legacy trinity doesnt?
 
         if (!unit->m_movementInfo.transport.guid.IsEmpty())
             *data << unit->m_movementInfo.transport;
 
-        if (HasInertia)
-        {
-            *data << unit->m_movementInfo.inertia->guid;
-            *data << unit->m_movementInfo.inertia->force.PositionXYZStream();
-            *data << uint32(unit->m_movementInfo.inertia->lifetime);
-        }
 
         if (HasFall)
         {
@@ -393,6 +398,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
 
     if (flags.ServerTime)
         *data << uint32(GameTime::GetGameTimeMS());
+    //TODOFROST hermes and legacy trinity have slightly different logic
 
     if (flags.Vehicle)
     {

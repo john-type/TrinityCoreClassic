@@ -1060,7 +1060,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     SendTutorialsData();
 
     pCurrChar->GetMotionMaster()->Initialize();
-    pCurrChar->SendDungeonDifficulty();
+    //TODOFROST
+    //pCurrChar->SendDungeonDifficulty();
 
     WorldPackets::Character::LoginVerifyWorld loginVerifyWorld;
     loginVerifyWorld.MapID = pCurrChar->GetMapId();
@@ -1156,17 +1157,19 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
             chH.PSendSysMessage("%s", sWorld->GetNewCharString().c_str());
     }
 
+
     if (!pCurrChar->GetMap()->AddPlayerToMap(pCurrChar))
     {
-        AreaTriggerStruct const* at = sObjectMgr->GetGoBackTrigger(pCurrChar->GetMapId());
-        if (at)
-            pCurrChar->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, pCurrChar->GetOrientation());
-        else
-            pCurrChar->TeleportTo(pCurrChar->m_homebind);
+    //TODOFROST
+    //    AreaTriggerStruct const* at = sObjectMgr->GetGoBackTrigger(pCurrChar->GetMapId());
+    //    if (at)
+    //        pCurrChar->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, pCurrChar->GetOrientation());
+    //    else
+    //        pCurrChar->TeleportTo(pCurrChar->m_homebind);
     }
 
     ObjectAccessor::AddObject(pCurrChar);
-    //TC_LOG_DEBUG("Player %s added to Map.", pCurrChar->GetName().c_str());
+    TC_LOG_DEBUG("Player %s added to Map.", pCurrChar->GetName().c_str());
 
     if (pCurrChar->GetGuildId())
     {
@@ -1180,7 +1183,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
         }
     }
 
-    pCurrChar->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Login);
+    //TODOFROST
+   /* pCurrChar->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Login);*/
 
     pCurrChar->SendInitialPacketsAfterAddToMap();
 
@@ -1207,7 +1211,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     }
 
     // friend status
-    sSocialMgr->SendFriendStatus(pCurrChar, FRIEND_ONLINE, pCurrChar->GetGUID(), true);
+    // //TODOFROST
+    //sSocialMgr->SendFriendStatus(pCurrChar, FRIEND_ONLINE, pCurrChar->GetGUID(), true);
 
     // Place character in world (and load zone) before some object loading
     pCurrChar->LoadCorpse(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION));

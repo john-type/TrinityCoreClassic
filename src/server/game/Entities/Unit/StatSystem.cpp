@@ -725,8 +725,9 @@ void Player::UpdateSpellCritChance()
     crit += GetRatingBonusValue(CR_CRIT_SPELL);
 
     // Store crit value
-    for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
-        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::SpellCritPercentage, i), crit);
+    //TODOFROST
+ /*   for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::SpellCritPercentage, i), crit);*/
 }
 
 void Player::UpdateArmorPenetration(int32 amount)

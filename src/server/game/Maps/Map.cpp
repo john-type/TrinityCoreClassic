@@ -439,13 +439,15 @@ bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
     if (initPlayer)
         player->m_clientGUIDs.clear();
 
-    player->UpdateObjectVisibility(false);
-    PhasingHandler::SendToPlayer(player);
+    //TODOFROST
 
-    if (player->IsAlive())
-        ConvertCorpseToBones(player->GetGUID());
+    //player->UpdateObjectVisibility(false);
+    //PhasingHandler::SendToPlayer(player);
 
-    sScriptMgr->OnPlayerEnterMap(this, player);
+    //if (player->IsAlive())
+    //    ConvertCorpseToBones(player->GetGUID());
+
+    //sScriptMgr->OnPlayerEnterMap(this, player);
     return true;
 }
 

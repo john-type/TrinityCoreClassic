@@ -2539,8 +2539,9 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::RangedCritPercentage), 0.0f);
 
     // Init spell schools (will be recalculated in UpdateAllStats() at loading and in _ApplyAllStatBonuses() at reset
-    for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::SpellCritPercentage, i), 0.0f);
+    // //TODOFROST
+    //for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
+    //    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::SpellCritPercentage, i), 0.0f);
 
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ParryPercentage), 0.0f);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BlockPercentage), 0.0f);
@@ -4545,7 +4546,8 @@ Corpse* Player::CreateCorpse()
     corpse->SetRace(GetRace());
     corpse->SetSex(GetNativeGender());
     corpse->SetClass(GetClass());
-    corpse->SetCustomizations(Trinity::Containers::MakeIteratorPair(m_playerData->Customizations.begin(), m_playerData->Customizations.end()));
+    //TODOFROST
+    //corpse->SetCustomizations(Trinity::Containers::MakeIteratorPair(m_playerData->Customizations.begin(), m_playerData->Customizations.end()));
     corpse->ReplaceAllFlags(flags);
     corpse->SetDisplayId(GetNativeDisplayId());
     corpse->SetFactionTemplate(sChrRacesStore.AssertEntry(GetRace())->FactionID);
@@ -20415,8 +20417,8 @@ void Player::_SaveCustomizations(CharacterDatabaseTransaction trans)
         return;
 
     m_customizationsChanged = false;
-
-    SavePlayerCustomizations(trans, GetGUID().GetCounter(), Trinity::Containers::MakeIteratorPair(m_playerData->Customizations.begin(), m_playerData->Customizations.end()));
+    //TODOFROST
+    //SavePlayerCustomizations(trans, GetGUID().GetCounter(), Trinity::Containers::MakeIteratorPair(m_playerData->Customizations.begin(), m_playerData->Customizations.end()));
 }
 
 void Player::_SaveActions(CharacterDatabaseTransaction trans)
@@ -24084,13 +24086,14 @@ void Player::SendInitialPacketsBeforeAddToMap()
     // SMSG_SET_PCT_SPELL_MODIFIER
     // SMSG_SET_FLAT_SPELL_MODIFIER
 
+    //TODOFROST - next 3 calls need to happen.
     /// SMSG_TALENTS_INFO
-    SendTalentsInfoData(false);
+    //SendTalentsInfoData(false);
     /// SMSG_INITIAL_SPELLS
-    SendKnownSpells();
+    //SendKnownSpells();
 
     /// SMSG_SEND_UNLEARN_SPELLS
-    SendUnlearnSpells();
+    //SendUnlearnSpells();
 
     /// SMSG_SEND_SPELL_HISTORY
     WorldPackets::Spells::SendSpellHistory sendSpellHistory;
@@ -26023,27 +26026,30 @@ bool Player::CanCaptureTowerPoint() const
 
 int64 Player::GetBarberShopCost(Trinity::IteratorPair<UF::ChrCustomizationChoice const*> newCustomizations) const
 {
-    if (HasAuraType(SPELL_AURA_REMOVE_BARBER_SHOP_COST))
-        return 0;
+    return 0;
 
-    GtBarberShopCostBaseEntry const* bsc = sBarberShopCostBaseGameTable.GetRow(GetLevel());
-    if (!bsc)                                                // shouldn't happen
-        return 0;
+    //TODOFROST
+    //if (HasAuraType(SPELL_AURA_REMOVE_BARBER_SHOP_COST))
+    //    return 0;
 
-    int64 cost = 0;
-    for (UF::ChrCustomizationChoice const& newChoice : newCustomizations)
-    {
-        int32 currentCustomizationIndex = m_playerData->Customizations.FindIndexIf([&](UF::ChrCustomizationChoice const& currentCustomization)
-        {
-            return currentCustomization.ChrCustomizationOptionID == newChoice.ChrCustomizationOptionID;
-        });
+    //GtBarberShopCostBaseEntry const* bsc = sBarberShopCostBaseGameTable.GetRow(GetLevel());
+    //if (!bsc)                                                // shouldn't happen
+    //    return 0;
 
-        if (currentCustomizationIndex == -1 || m_playerData->Customizations[currentCustomizationIndex].ChrCustomizationChoiceID != newChoice.ChrCustomizationChoiceID)
-            if (ChrCustomizationOptionEntry const* customizationOption = sChrCustomizationOptionStore.LookupEntry(newChoice.ChrCustomizationOptionID))
-                cost += bsc->Cost * customizationOption->BarberShopCostModifier;
-    }
+    //int64 cost = 0;
+    //for (UF::ChrCustomizationChoice const& newChoice : newCustomizations)
+    //{
+    //    int32 currentCustomizationIndex = m_playerData->Customizations.FindIndexIf([&](UF::ChrCustomizationChoice const& currentCustomization)
+    //    {
+    //        return currentCustomization.ChrCustomizationOptionID == newChoice.ChrCustomizationOptionID;
+    //    });
 
-    return cost;
+    //    if (currentCustomizationIndex == -1 || m_playerData->Customizations[currentCustomizationIndex].ChrCustomizationChoiceID != newChoice.ChrCustomizationChoiceID)
+    //        if (ChrCustomizationOptionEntry const* customizationOption = sChrCustomizationOptionStore.LookupEntry(newChoice.ChrCustomizationOptionID))
+    //            cost += bsc->Cost * customizationOption->BarberShopCostModifier;
+    //}
+
+    //return cost;
 }
 
 // Only sent on CreateObject
@@ -26068,7 +26074,8 @@ void Player::InitGlyphsForLevel()
     if (level >= 80)
         value |= 0x20;
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphsEnabled), value);
+    //TODOFROST
+    //SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphsEnabled), value);
 }
 
 void Player::UpdateGlyphsEnabled()
@@ -26088,13 +26095,15 @@ void Player::UpdateGlyphsEnabled()
     if (level >= 80)
         value |= 0x20;
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphsEnabled), value);
+    //TODOFROST
+    //SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphsEnabled), value);
 }
 
 void Player::SetGlyph(uint8 slotIndex, uint32 glyph)
 {
     GetGlyphs(GetActiveTalentGroup())[slotIndex] = glyph;
-    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphInfos, slotIndex).ModifyValue(&UF::GlyphInfo::Glyph), glyph);
+    //TODOFROST
+    //SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphInfos, slotIndex).ModifyValue(&UF::GlyphInfo::Glyph), glyph);
 }
 
 bool Player::isTotalImmune() const

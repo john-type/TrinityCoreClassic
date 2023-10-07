@@ -6775,8 +6775,9 @@ float Unit::SpellCritChanceDone(Spell* spell, AuraEffect const* aurEff, SpellSch
             if (schoolMask & SPELL_SCHOOL_MASK_NORMAL)
                 crit_chance = 0.0f;
             // For other schools
-            else if (Player const* thisPlayer = ToPlayer())
-                crit_chance = thisPlayer->m_activePlayerData->SpellCritPercentage[GetFirstSchoolInMask(schoolMask)];
+            //TODOFROST
+           /* else if (Player const* thisPlayer = ToPlayer())
+                crit_chance = thisPlayer->m_activePlayerData->SpellCritPercentage[GetFirstSchoolInMask(schoolMask)];*/
             else
                 crit_chance = (float)m_baseSpellCritChance;
             break;
@@ -9752,13 +9753,14 @@ void CharmInfo::SetSpellAutocast(SpellInfo const* spellInfo, bool state)
 
 void Unit::SetMovedUnit(Unit* target)
 {
-    m_unitMovedByMe->m_playerMovingMe = nullptr;
-    m_unitMovedByMe = ASSERT_NOTNULL(target);
-    m_unitMovedByMe->m_playerMovingMe = ASSERT_NOTNULL(ToPlayer());
+    //TODOFROST
+    //m_unitMovedByMe->m_playerMovingMe = nullptr;
+    //m_unitMovedByMe = ASSERT_NOTNULL(target);
+    //m_unitMovedByMe->m_playerMovingMe = ASSERT_NOTNULL(ToPlayer());
 
-    WorldPackets::Movement::MoveSetActiveMover packet;
-    packet.MoverGUID = target->GetGUID();
-    ToPlayer()->SendDirectMessage(packet.Write());
+    //WorldPackets::Movement::MoveSetActiveMover packet;
+    //packet.MoverGUID = target->GetGUID();
+    //ToPlayer()->SendDirectMessage(packet.Write());
 }
 
 ProcFlagsHit createProcHitMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCondition)
@@ -11918,16 +11920,17 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
                 std::vector<uint32> displayIds;
                 displayIds.reserve(formModelData->Choices->size());
 
-                for (std::size_t i = 0; i < formModelData->Choices->size(); ++i)
-                {
-                    if (ChrCustomizationDisplayInfoEntry const* displayInfo = formModelData->Displays[i])
-                    {
-                        ChrCustomizationReqEntry const* choiceReq = sChrCustomizationReqStore.LookupEntry((*formModelData->Choices)[i]->ChrCustomizationReqID);
-                        if (!choiceReq || player->GetSession()->MeetsChrCustomizationReq(choiceReq, Classes(GetClass()), false,
-                            MakeChrCustomizationChoiceRange(player->m_playerData->Customizations)))
-                            displayIds.push_back(displayInfo->DisplayID);
-                    }
-                }
+                //TODOFROST
+                //for (std::size_t i = 0; i < formModelData->Choices->size(); ++i)
+                //{
+                //    if (ChrCustomizationDisplayInfoEntry const* displayInfo = formModelData->Displays[i])
+                //    {
+                //        ChrCustomizationReqEntry const* choiceReq = sChrCustomizationReqStore.LookupEntry((*formModelData->Choices)[i]->ChrCustomizationReqID);
+                //        if (!choiceReq || player->GetSession()->MeetsChrCustomizationReq(choiceReq, Classes(GetClass()), false,
+                //            MakeChrCustomizationChoiceRange(player->m_playerData->Customizations)))
+                //            displayIds.push_back(displayInfo->DisplayID);
+                //    }
+                //}
 
                 if (!displayIds.empty())
                     return Trinity::Containers::SelectRandomContainerElement(displayIds);
