@@ -34,39 +34,39 @@ enum TypeID
     TYPEID_OBJECT                 = 0,
     TYPEID_ITEM                   = 1,
     TYPEID_CONTAINER              = 2,
-    TYPEID_AZERITE_EMPOWERED_ITEM = 3,
-    TYPEID_AZERITE_ITEM           = 4,
-    TYPEID_UNIT                   = 5,
-    TYPEID_PLAYER                 = 6,
-    TYPEID_ACTIVE_PLAYER          = 7,
-    TYPEID_GAMEOBJECT             = 8,
-    TYPEID_DYNAMICOBJECT          = 9,
-    TYPEID_CORPSE                 = 10,
-    TYPEID_AREATRIGGER            = 11,
-    TYPEID_SCENEOBJECT            = 12,
-    TYPEID_CONVERSATION           = 13
+    TYPEID_UNIT                   = 3,
+    TYPEID_PLAYER                 = 4,
+    TYPEID_ACTIVE_PLAYER          = 5,
+    TYPEID_GAMEOBJECT             = 6,
+    TYPEID_DYNAMICOBJECT          = 7,
+    TYPEID_CORPSE                 = 8,
+    TYPEID_AREATRIGGER            = 9,
+    TYPEID_SCENEOBJECT            = 10,
+    TYPEID_CONVERSATION           = 11
 };
 
-#define NUM_CLIENT_OBJECT_TYPES             14
+#define NUM_CLIENT_OBJECT_TYPES             12
 
 enum TypeMask
 {
     TYPEMASK_OBJECT                 = 0x0001,
     TYPEMASK_ITEM                   = 0x0002,
     TYPEMASK_CONTAINER              = 0x0004,
-    TYPEMASK_AZERITE_EMPOWERED_ITEM = 0x0008,
-    TYPEMASK_AZERITE_ITEM           = 0x0010,
-    TYPEMASK_UNIT                   = 0x0020,
-    TYPEMASK_PLAYER                 = 0x0040,
-    TYPEMASK_ACTIVE_PLAYER          = 0x0080,
-    TYPEMASK_GAMEOBJECT             = 0x0100,
-    TYPEMASK_DYNAMICOBJECT          = 0x0200,
-    TYPEMASK_CORPSE                 = 0x0400,
-    TYPEMASK_AREATRIGGER            = 0x0800,
-    TYPEMASK_SCENEOBJECT            = 0x1000,
-    TYPEMASK_CONVERSATION           = 0x2000,
+    TYPEMASK_UNIT                   = 0x0008,
+    TYPEMASK_PLAYER                 = 0x0010,
+    TYPEMASK_ACTIVE_PLAYER          = 0x0020,
+    TYPEMASK_GAMEOBJECT             = 0x0040,
+    TYPEMASK_DYNAMICOBJECT          = 0x0080,
+    TYPEMASK_CORPSE                 = 0x0100,
+    TYPEMASK_AREATRIGGER            = 0x0200,
+    TYPEMASK_SCENEOBJECT            = 0x0400,
+    TYPEMASK_CONVERSATION           = 0x0800,
     TYPEMASK_SEER                   = TYPEMASK_PLAYER | TYPEMASK_UNIT | TYPEMASK_DYNAMICOBJECT
 };
+
+
+//trinity 25
+// hermes 57 = OBJECT | UNIT | PLAYER | ACITVE_PLAYER
 
 enum class HighGuid
 {
