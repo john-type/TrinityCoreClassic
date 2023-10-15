@@ -150,12 +150,14 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     uint8 updateType = m_isNewObject ? UPDATETYPE_CREATE_OBJECT2 : UPDATETYPE_CREATE_OBJECT;
     uint8 objectType = m_objectTypeId;
     CreateObjectBits flags = m_updateFlag;
+    int32 hierFlags = m_objectType;
 
     if (target == this)                                      // building packet for yourself
     {
         flags.ThisIsYou = true;
         flags.ActivePlayer = true;
         objectType = TYPEID_ACTIVE_PLAYER;
+        hierFlags |= TYPEMASK_ACTIVE_PLAYER;
     }
 
     if (WorldObject const* worldObject = dynamic_cast<WorldObject const*>(this))
@@ -184,16 +186,12 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     flags.SceneObject = false;
     flags.Conversation = false;
 
-
     ByteBuffer buf(0x400, ByteBuffer::Reserve{});
     buf << uint8(updateType);
     buf << GetGUID();
     buf << uint8(objectType);
-    //TODOFROST - hermes passes the object type mask here as int32
-    // trinity appears to always use data << uint32(0) instead aspart of the buildValuesCreate call.
-    //buf << int32(m_objectType); //TODOFROST - should this be uint32?
+    buf << hierFlags;
 
-    
     BuildMovementUpdate(&buf, flags, target);
     BuildValuesCreate(&buf, target);
     data->AddUpdateBlock(buf);
