@@ -1652,7 +1652,7 @@ void Item::BuildValuesCreate(ByteBuffer* data, Player const* target) const
 {
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = data->wpos();
-    *data << uint32(0);
+    *data << uint32(0); // placeholder for data size.
     *data << uint8(flags);
     m_objectData->WriteCreate(*data, flags, this, target);
     m_itemData->WriteCreate(*data, flags, this, target);
@@ -1681,7 +1681,7 @@ void Item::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags
     valuesMask.Set(TYPEID_ITEM);
 
     std::size_t sizePos = data->wpos();
-    *data << uint32(0);
+    *data << uint32(0); // placeholder for data size.
     *data << uint32(valuesMask.GetBlock(0));
 
     UF::ItemData::Mask mask;
@@ -1706,7 +1706,7 @@ void Item::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::
 
     ByteBuffer buffer = PrepareValuesUpdateBuffer();
     std::size_t sizePos = buffer.wpos();
-    buffer << uint32(0);
+    buffer << uint32(0); // placeholder for data size.
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])

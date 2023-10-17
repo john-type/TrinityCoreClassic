@@ -373,10 +373,16 @@ class TC_GAME_API Object
             }
         }
 
+
+        uint32 GetUpdateFieldData(Player const* target, uint32*& flags) const;
+        uint32 GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const;
+
         void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player* target) const;
         virtual UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const;
-        virtual void BuildValuesCreate(ByteBuffer* data, Player const* target) const = 0;
-        virtual void BuildValuesUpdate(ByteBuffer* data, Player const* target) const = 0;
+        virtual void BuildValuesCreate(ByteBuffer* data, Player const* target) const = 0;   //TODOFROST - remove (too modern)
+        virtual void BuildValuesUpdate(ByteBuffer* data, Player const* target) const = 0;   //TODOFROST - remove (too modern)
+        virtual void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const* target) const;
+        virtual void BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const* target) const;
 
     public:
         virtual void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const;
@@ -386,6 +392,9 @@ class TC_GAME_API Object
 
         TypeID m_objectTypeId;
         CreateObjectBits m_updateFlag;
+
+        uint16 m_valuesCount;
+        uint16 m_dynamicValuesCount;
 
         virtual bool AddToObjectUpdate() = 0;
         virtual void RemoveFromObjectUpdate() = 0;

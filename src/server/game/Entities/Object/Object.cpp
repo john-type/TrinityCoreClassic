@@ -51,6 +51,7 @@
 #include "Transport.h"
 #include "Unit.h"
 #include "UpdateData.h"
+#include "UpdateFieldFlags.h"
 #include "Util.h"
 #include "VMapFactory.h"
 #include "Vehicle.h"
@@ -79,6 +80,9 @@ Object::Object() : m_values(this)
     m_isNewObject       = false;
     m_isDestroyedObject = false;
     m_objectUpdated     = false;
+
+    m_valuesCount = 0;
+    m_dynamicValuesCount = 0;
 }
 
 WorldObject::~WorldObject()
@@ -193,7 +197,10 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     buf << hierFlags;
 
     BuildMovementUpdate(&buf, flags, target);
-    BuildValuesCreate(&buf, target);
+    //TODOFROST  - BuildValuesUpdateWithFlag looks to be a more relevant structure that BuildValuesWithCreate, see WPP
+    // SEE trinity legion, used to work differently compared to modern trinity.
+    //BuildValuesUpdateWithFlag(&buf, UF::UpdateFieldFlag::Owner, target);
+    BuildValuesCreate(&buf, target); 
     data->AddUpdateBlock(buf);
 }
 
@@ -267,6 +274,119 @@ void Object::SendOutOfRangeForPlayer(Player* target) const
     WorldPacket packet;
     updateData.BuildPacket(&packet);
     target->SendDirectMessage(&packet);
+}
+
+uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
+{
+    uint32 visibleFlag = UF::UF_FLAG_PUBLIC;
+
+    if (target == this)
+        visibleFlag |= UF::UF_FLAG_PRIVATE;
+
+    switch (GetTypeId())
+    {
+    case TYPEID_ITEM:
+    case TYPEID_CONTAINER:
+        flags = UF::ItemUpdateFieldFlags;
+        if (((Item const*)this)->GetOwnerGUID() == target->GetGUID())
+            visibleFlag |= UF::UF_FLAG_OWNER | UF::UF_FLAG_ITEM_OWNER;
+        break;
+    case TYPEID_UNIT:
+    case TYPEID_PLAYER:
+    {
+        Player* plr = ToUnit()->GetCharmerOrOwnerPlayerOrPlayerItself();
+        flags = UF::UnitUpdateFieldFlags;
+        if (ToUnit()->GetOwnerGUID() == target->GetGUID())
+            visibleFlag |= UF::UF_FLAG_OWNER;
+
+        //TODOFROST
+        //if (HasFlag(UF::OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
+        //    if (ToUnit()->HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
+        //        visibleFlag |= UF::UF_FLAG_SPECIAL_INFO;
+
+        if (plr && plr->IsInSameRaidWith(target))
+            visibleFlag |= UF::UF_FLAG_PARTY_MEMBER;
+        break;
+    }
+    case TYPEID_GAMEOBJECT:
+        flags = UF::GameObjectUpdateFieldFlags;
+        if (ToGameObject()->GetOwnerGUID() == target->GetGUID())
+            visibleFlag |= UF::UF_FLAG_OWNER;
+        break;
+    case TYPEID_DYNAMICOBJECT:
+        flags = UF::DynamicObjectUpdateFieldFlags;
+        if (ToDynObject()->GetCasterGUID() == target->GetGUID())
+            visibleFlag |= UF::UF_FLAG_OWNER;
+        break;
+    case TYPEID_CORPSE:
+        flags = UF::CorpseUpdateFieldFlags;
+        if (ToCorpse()->GetOwnerGUID() == target->GetGUID())
+            visibleFlag |= UF::UF_FLAG_OWNER;
+        break;
+    case TYPEID_AREATRIGGER:
+        flags = UF::AreaTriggerUpdateFieldFlags;
+        break;
+    case TYPEID_SCENEOBJECT:
+        flags = UF::SceneObjectUpdateFieldFlags;
+        break;
+    case TYPEID_CONVERSATION:
+        flags = UF::ConversationUpdateFieldFlags;
+        break;
+    case TYPEID_OBJECT:
+        ABORT();
+        break;
+    }
+
+    return visibleFlag;
+}
+
+uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const
+{
+    uint32 visibleFlag = UF::UF_FLAG_PUBLIC;
+
+    if (target == this)
+        visibleFlag |= UF::UF_FLAG_PRIVATE;
+
+    switch (GetTypeId())
+    {
+    case TYPEID_ITEM:
+    case TYPEID_CONTAINER:
+        flags = UF::ItemDynamicUpdateFieldFlags;
+        if (((Item const*)this)->GetOwnerGUID() == target->GetGUID())
+            visibleFlag |= UF::UF_FLAG_OWNER | UF::UF_FLAG_ITEM_OWNER;
+        break;
+    case TYPEID_UNIT:
+    case TYPEID_PLAYER:
+    {
+        Player* plr = ToUnit()->GetCharmerOrOwnerPlayerOrPlayerItself();
+        flags = UF::UnitDynamicUpdateFieldFlags;
+        if (ToUnit()->GetOwnerGUID() == target->GetGUID())
+            visibleFlag |= UF::UF_FLAG_OWNER;
+
+        //TODOFROST
+ /*       if (HasFlag(UF::OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
+            if (ToUnit()->HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
+                visibleFlag |= UF::UF_FLAG_SPECIAL_INFO;*/
+
+        if (plr && plr->IsInSameRaidWith(target))
+            visibleFlag |= UF::UF_FLAG_PARTY_MEMBER;
+        break;
+    }
+    case TYPEID_GAMEOBJECT:
+        flags = UF::GameObjectDynamicUpdateFieldFlags;
+        break;
+    case TYPEID_CONVERSATION:
+        flags = UF::ConversationDynamicUpdateFieldFlags;
+
+        if (ToConversation()->GetCreatorGuid() == target->GetGUID())
+            visibleFlag |= UF::UF_FLAG_0x100;
+        break;
+    default:
+        flags = nullptr;
+        break;
+    }
+
+    return visibleFlag;
 }
 
 void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player* target) const
@@ -755,10 +875,79 @@ UF::UpdateFieldFlag Object::GetUpdateFieldFlagsFor(Player const* /*target*/) con
     return UF::UpdateFieldFlag::None;
 }
 
+void Object::BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const* target) const
+{
+    if (!target)
+        return;
+
+    //TODOFROST
+    //std::size_t blockCount = ValuesUpdateMask::GetBlockCount(m_valuesCount);
+
+    //uint32* flags = NULL;
+    //uint32 visibleFlag = GetUpdateFieldData(target, flags);
+    //ASSERT(flags);
+
+    //*data << uint8(blockCount);
+    //std::size_t maskPos = data->wpos();
+    //data->resize(data->size() + blockCount * sizeof(UpdateMask::BlockType));
+
+    //for (uint16 index = 0; index < m_valuesCount; ++index)
+    //{
+    //    if (_fieldNotifyFlags & flags[index] ||
+    //        ((updateType == UPDATETYPE_VALUES ? _changesMask[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)))
+    //    {
+    //        UpdateMask::SetUpdateBit(data->contents() + maskPos, index);
+    //        *data << m_uint32Values[index];
+    //    }
+    //}
+}
+
+void Object::BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const* target) const
+{
+    if (!target)
+        return;
+
+    //TODOFROST
+    //std::size_t blockCount = ValuesUpdateMask::GetBlockCount(m_dynamicValuesCount);
+
+    //uint32* flags = nullptr;
+    //uint32 visibleFlag = GetDynamicUpdateFieldData(target, flags);
+
+    //*data << uint8(blockCount);
+    //std::size_t maskPos = data->wpos();
+    //data->resize(data->size() + blockCount * sizeof(UpdateMask::BlockType));
+
+    //for (uint16 index = 0; index < _dynamicValuesCount; ++index)
+    //{
+    //    std::vector<uint32> const& values = _dynamicValues[index];
+    //    if (_fieldNotifyFlags & flags[index] ||
+    //        ((updateType == UPDATETYPE_VALUES ? _dynamicChangesMask[index] != UpdateMask::UNCHANGED : !values.empty()) && (flags[index] & visibleFlag)))
+    //    {
+    //        UpdateMask::SetUpdateBit(data->contents() + maskPos, index);
+
+    //        std::size_t arrayBlockCount = UpdateMask::GetBlockCount(values.size());
+    //        *data << uint16(UpdateMask::EncodeDynamicFieldChangeType(arrayBlockCount, _dynamicChangesMask[index], updateType));
+    //        if (_dynamicChangesMask[index] == UpdateMask::VALUE_AND_SIZE_CHANGED && updateType == UPDATETYPE_VALUES)
+    //            *data << uint32(values.size());
+
+    //        std::size_t arrayMaskPos = data->wpos();
+    //        data->resize(data->size() + arrayBlockCount * sizeof(UpdateMask::BlockType));
+    //        for (std::size_t v = 0; v < values.size(); ++v)
+    //        {
+    //            if (updateType != UPDATETYPE_VALUES || _dynamicChangesArrayMask[index][v])
+    //            {
+    //                UpdateMask::SetUpdateBit(data->contents() + arrayMaskPos, v);
+    //                *data << uint32(values[v]);
+    //            }
+    //        }
+    //    }
+    //}
+}
+
 void Object::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag /*flags*/, Player const* /*target*/) const
 {
     std::size_t sizePos = data->wpos();
-    *data << uint32(0);
+    *data << uint32(0); // placeholder for data size.
     *data << uint32(0);
 
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);

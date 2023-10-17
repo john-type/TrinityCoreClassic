@@ -45,6 +45,8 @@ public:
         InitFromBlocks(init.begin(), init.size());
     }
 
+    virtual ~UpdateMask() = default;
+
     uint32 GetBlocksMask(uint32 index) const
     {
         return _blocksMask[index];
@@ -160,5 +162,21 @@ UpdateMask<Bits> operator|(UpdateMask<Bits> const& left, UpdateMask<Bits> const&
     result |= right;
     return result;
 }
+
+template<uint32 Bits>
+class DynamicUpdateMask : public UpdateMask<Bits> {
+public:
+
+    enum DynamicFieldChangeType : uint16
+    {
+        UNCHANGED = 0,
+        VALUE_CHANGED = 0x7FFF,
+        VALUE_AND_SIZE_CHANGED = 0x8000
+    };
+
+    uint32 EncodeDynamicFieldChangeType(DynamicFieldChangeType changeType, uint8 updateType) {
+        return this->BlockCount | ((changeType & VALUE_AND_SIZE_CHANGED) * ((3 - updateType /*this part evaluates to 0 if update type is not VALUES*/) / 3));
+    }
+};
 
 #endif // UpdateMask_h__

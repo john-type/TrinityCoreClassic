@@ -1006,7 +1006,7 @@ void AreaTrigger::BuildValuesCreate(ByteBuffer* data, Player const* target) cons
 {
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = data->wpos();
-    *data << uint32(0);
+    *data << uint32(0); // placeholder for data size.
     *data << uint8(flags);
     m_objectData->WriteCreate(*data, flags, this, target);
     m_areaTriggerData->WriteCreate(*data, flags, this, target);
@@ -1017,7 +1017,7 @@ void AreaTrigger::BuildValuesUpdate(ByteBuffer* data, Player const* target) cons
 {
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = data->wpos();
-    *data << uint32(0);
+    *data << uint32(0); // placeholder for data size.
     *data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
@@ -1041,7 +1041,7 @@ void AreaTrigger::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Objec
 
     ByteBuffer buffer = PrepareValuesUpdateBuffer();
     std::size_t sizePos = buffer.wpos();
-    buffer << uint32(0);
+    buffer << uint32(0); // placeholder for data size.
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
