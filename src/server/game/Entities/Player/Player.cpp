@@ -24018,7 +24018,7 @@ void Player::SetMoney(uint64 value)
     if (!loading)
         MoneyChanged(value);
 
-    SetUInt64Value(UF::ACTIVE_PLAYER_FIELD_COINAGE, value);
+    //SetUInt64Value(UF::ACTIVE_PLAYER_FIELD_COINAGE, value); //TODOFROST - work out why it throws exception
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Coinage), value);
 
     if (!loading)

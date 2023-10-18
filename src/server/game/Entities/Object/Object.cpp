@@ -235,10 +235,9 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     buf << hierFlags;
 
     BuildMovementUpdate(&buf, flags, target);
-    //TODOFROST  - BuildValuesUpdateWithFlag looks to be a more relevant structure that BuildValuesWithCreate, see WPP
-    // SEE trinity legion, used to work differently compared to modern trinity.
-    //BuildValuesUpdateWithFlag(&buf, UF::UpdateFieldFlag::Owner, target);
-    BuildValuesCreate(&buf, target); 
+    BuildValuesUpdate(updateType, &buf, target);
+    BuildDynamicValuesUpdate(updateType, &buf, target);
+    //BuildValuesCreate(&buf, target);  //old implementatin
     data->AddUpdateBlock(buf);
 }
 
@@ -260,7 +259,9 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player const* tar
 {
     ByteBuffer buf = PrepareValuesUpdateBuffer();
 
-    BuildValuesUpdate(&buf, target);
+    BuildValuesUpdate(UPDATETYPE_VALUES, &buf, target);
+    BuildDynamicValuesUpdate(UPDATETYPE_VALUES, &buf, target);
+    //BuildValuesUpdate(&buf, target); //old implementatio
 
     data->AddUpdateBlock(buf);
 }
@@ -269,7 +270,11 @@ void Object::BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::Updat
 {
     ByteBuffer buf = PrepareValuesUpdateBuffer();
 
-    BuildValuesUpdateWithFlag(&buf, flags, target);
+    //TODO can SetFieldNotifyFlag / RemoveFieldNotifyFlag calls be moved into here?
+
+    BuildValuesUpdate(UPDATETYPE_VALUES, &buf, target);
+    BuildDynamicValuesUpdate(UPDATETYPE_VALUES, &buf, target);
+    //BuildValuesUpdateWithFlag(&buf, flags, target);
 
     data->AddUpdateBlock(buf);
 }
