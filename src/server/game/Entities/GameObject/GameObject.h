@@ -229,10 +229,21 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void getFishLoot(Loot* loot, Player* loot_owner);
         void getFishLootJunk(Loot* loot, Player* loot_owner);
 
-        bool HasFlag(GameObjectFlags flags) const { return (*m_gameObjectData->Flags & flags) != 0; }
-        void SetFlag(GameObjectFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags); }
-        void RemoveFlag(GameObjectFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags); }
-        void ReplaceAllFlags(GameObjectFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags); }
+        bool HasFlag(GameObjectFlags flags) const {
+            return (*m_gameObjectData->Flags & flags) != 0;
+        }
+        void SetFlag(GameObjectFlags flags) {
+            Object::SetFlag(UF::GAMEOBJECT_FLAGS, flags);
+            SetUpdateFieldFlagValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags);
+        }
+        void RemoveFlag(GameObjectFlags flags) {
+            Object::RemoveFlag(UF::GAMEOBJECT_FLAGS, flags);
+            RemoveUpdateFieldFlagValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags);
+        }
+        void ReplaceAllFlags(GameObjectFlags flags) {
+            //TODOFROST
+            SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags);
+        }
 
         void SetLevel(uint32 level) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Level), level); }
         GameobjectTypes GetGoType() const { return GameobjectTypes(*m_gameObjectData->TypeID); }

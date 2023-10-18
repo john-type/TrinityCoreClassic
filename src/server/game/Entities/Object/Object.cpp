@@ -154,6 +154,9 @@ void Object::_Create(ObjectGuid const& guid)
 
     m_objectUpdated = false;
     m_guid = guid;
+
+    SetGuidValue(UF::OBJECT_FIELD_GUID, guid);
+    //SetUInt16Value(UF::OBJECT_FIELD_TYPE, 0, m_objectType); //TODOFROST - check replacement
 }
 
 void Object::AddToWorld()

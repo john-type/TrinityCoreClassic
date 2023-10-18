@@ -9066,6 +9066,7 @@ bool Unit::CanFreeMove() const
 
 void Unit::SetLevel(uint8 lvl, bool sendUpdate/* = true*/)
 {
+    SetUInt32Value(UF::UNIT_FIELD_LEVEL, lvl);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Level), lvl);
 
     if (!sendUpdate)
@@ -9095,6 +9096,7 @@ void Unit::SetHealth(uint64 val)
     }
 
     uint64 oldVal = GetHealth();
+    SetUInt64Value(UF::UNIT_FIELD_HEALTH, val);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Health), val);
 
     TriggerOnHealthChangeAuras(oldVal, val);
@@ -10107,6 +10109,7 @@ bool Unit::IsStandState() const
 
 void Unit::SetStandState(UnitStandStateType state, uint32 animKitID /* = 0*/)
 {
+    SetByteValue(UF::UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, uint8(state));
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StandState), state);
 
     if (IsStandState())
@@ -10155,12 +10158,15 @@ void Unit::RecalculateObjectScale()
 
 void Unit::SetDisplayId(uint32 modelId, float displayScale /*= 1.f*/)
 {
+    SetUInt32Value(UF::UNIT_FIELD_DISPLAYID, modelId);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DisplayID), modelId);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DisplayScale), displayScale);
 
     // Set Gender by modelId
-    if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(modelId))
+    if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(modelId)) {
+        SetByteValue(UF::UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, minfo->gender);
         SetGender(Gender(minfo->gender));
+    }
 }
 
 void Unit::RestoreDisplayId(bool ignorePositiveAurasPreventingMounting /*= false*/)

@@ -815,9 +815,15 @@ class TC_GAME_API Unit : public WorldObject
         bool CanDualWield() const { return m_canDualWield; }
         virtual void SetCanDualWield(bool value) { m_canDualWield = value; }
         float GetCombatReach() const override { return m_unitData->CombatReach; }
-        void SetCombatReach(float combatReach) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CombatReach), combatReach); }
+        void SetCombatReach(float combatReach) {
+            SetFloatValue(UF::UNIT_FIELD_COMBATREACH, combatReach);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CombatReach), combatReach);
+        }
         float GetBoundingRadius() const { return m_unitData->BoundingRadius; }
-        void SetBoundingRadius(float boundingRadius) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BoundingRadius), boundingRadius); }
+        void SetBoundingRadius(float boundingRadius) {
+            SetFloatValue(UF::UNIT_FIELD_BOUNDINGRADIUS, boundingRadius);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BoundingRadius), boundingRadius);
+        }
         bool IsWithinCombatRange(Unit const* obj, float dist2compare) const;
         bool IsWithinMeleeRange(Unit const* obj) const { return IsWithinMeleeRangeAt(GetPosition(), obj); }
         bool IsWithinMeleeRangeAt(Position const& pos, Unit const* obj) const;
@@ -869,18 +875,30 @@ class TC_GAME_API Unit : public WorldObject
         uint8 GetLevelForTarget(WorldObject const* /*target*/) const override { return GetLevel(); }
         void SetLevel(uint8 lvl, bool sendUpdate = true);
         uint8 GetRace() const { return m_unitData->Race; }
-        void SetRace(uint8 race) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Race), race); }
+        void SetRace(uint8 race) {
+            SetByteValue(UF::UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_RACE, race);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Race), race);
+        }
         uint64 GetRaceMask() const { return UI64LIT(1) << (GetRace() - 1); }
         uint8 GetClass() const { return m_unitData->ClassId; }
-        void SetClass(uint8 classId) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ClassId), classId); }
+        void SetClass(uint8 classId) {
+            SetByteValue(UF::UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, classId);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ClassId), classId);
+        }
         uint32 GetClassMask() const { return 1 << (GetClass()-1); }
         Gender GetGender() const { return Gender(*m_unitData->Sex); }
-        void SetGender(Gender gender) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Sex), gender); }
+        void SetGender(Gender gender) {
+            SetByteValue(UF::UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, gender);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Sex), gender);
+        }
         virtual Gender GetNativeGender() const { return GetGender(); }
         virtual void SetNativeGender(Gender gender) { SetGender(gender); }
 
         float GetStat(Stats stat) const { return float(m_unitData->Stats[stat]); }
-        void SetStat(Stats stat, int32 val) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Stats, stat), val); }
+        void SetStat(Stats stat, int32 val) {
+            SetStatInt32Value(UF::UNIT_FIELD_STAT + stat, val);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Stats, stat), val);
+        }
         uint32 GetArmor() const { return GetResistance(SPELL_SCHOOL_NORMAL); }
         void SetArmor(int32 val, int32 /*bonusVal*/)
         {
@@ -944,20 +962,53 @@ class TC_GAME_API Unit : public WorldObject
         void SetModHasteRegen(float hasteRegen) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModHasteRegen), hasteRegen); }
         void SetModTimeRate(float timeRate) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModTimeRate), timeRate); }
 
-        bool HasUnitFlag(UnitFlags flags) const { return (*m_unitData->Flags & flags) != 0; }
-        void SetUnitFlag(UnitFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags), flags); }
-        void RemoveUnitFlag(UnitFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags), flags); }
-        void ReplaceAllUnitFlags(UnitFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags), flags); }
+        bool HasUnitFlag(UnitFlags flags) const {
+            return (*m_unitData->Flags & flags) != 0;
+        }
+        void SetUnitFlag(UnitFlags flags) {
+            SetFlag(UF::UNIT_FIELD_FLAGS, flags);
+            SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags), flags);
+        }
+        void RemoveUnitFlag(UnitFlags flags) {
+            RemoveFlag(UF::UNIT_FIELD_FLAGS, flags);
+            RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags), flags);
+        }
+        void ReplaceAllUnitFlags(UnitFlags flags) {
+            //TODOFROST
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags), flags);
+        }
 
-        bool HasUnitFlag2(UnitFlags2 flags) const { return (*m_unitData->Flags2 & flags) != 0; }
-        void SetUnitFlag2(UnitFlags2 flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags2), flags); }
-        void RemoveUnitFlag2(UnitFlags2 flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags2), flags); }
-        void ReplaceAllUnitFlags2(UnitFlags2 flags) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags2), flags); }
+        bool HasUnitFlag2(UnitFlags2 flags) const {
+            return (*m_unitData->Flags2 & flags) != 0;
+        }
+        void SetUnitFlag2(UnitFlags2 flags) {
+            SetFlag(UF::UNIT_FIELD_FLAGS_2, flags);
+            SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags2), flags);
+        }
+        void RemoveUnitFlag2(UnitFlags2 flags) {
+            RemoveFlag(UF::UNIT_FIELD_FLAGS_2, flags);
+            RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags2), flags);
+        }
+        void ReplaceAllUnitFlags2(UnitFlags2 flags) {
+            //TODOFROST
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags2), flags);
+        }
 
-        bool HasUnitFlag3(UnitFlags3 flags) const { return (*m_unitData->Flags3 & flags) != 0; }
-        void SetUnitFlag3(UnitFlags3 flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags3), flags); }
-        void RemoveUnitFlag3(UnitFlags3 flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags3), flags); }
-        void ReplaceAllUnitFlags3(UnitFlags3 flags) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags3), flags); }
+        bool HasUnitFlag3(UnitFlags3 flags) const {
+            return (*m_unitData->Flags3 & flags) != 0;
+        }
+        void SetUnitFlag3(UnitFlags3 flags) {
+            SetFlag(UF::UNIT_FIELD_FLAGS_3, flags);
+            SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags3), flags);
+        }
+        void RemoveUnitFlag3(UnitFlags3 flags) {
+            RemoveFlag(UF::UNIT_FIELD_FLAGS_3, flags);
+            RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags3), flags);
+        }
+        void ReplaceAllUnitFlags3(UnitFlags3 flags) {
+            //TODOFROST
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags3), flags);
+        }
 
         void SetCreatedBySpell(int32 spellId) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CreatedBySpell), spellId); }
 
@@ -969,7 +1020,10 @@ class TC_GAME_API Unit : public WorldObject
 
         // faction template id
         uint32 GetFaction() const override { return m_unitData->FactionTemplate; }
-        void SetFaction(uint32 faction) override { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::FactionTemplate), faction); }
+        void SetFaction(uint32 faction) override {
+            SetUInt32Value(UF::UNIT_FIELD_FACTIONTEMPLATE, faction);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::FactionTemplate), faction);
+        }
 
         bool IsInPartyWith(Unit const* unit) const;
         bool IsInRaidWith(Unit const* unit) const;
@@ -1257,7 +1311,10 @@ class TC_GAME_API Unit : public WorldObject
         ObjectGuid GetOwnerGUID() const override { return m_unitData->SummonedBy; }
         void SetOwnerGUID(ObjectGuid owner);
         ObjectGuid GetCreatorGUID() const { return m_unitData->CreatedBy; }
-        void SetCreatorGUID(ObjectGuid creator) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CreatedBy), creator); }
+        void SetCreatorGUID(ObjectGuid creator) {
+            SetGuidValue(UF::UNIT_FIELD_CREATEDBY, creator);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CreatedBy), creator);
+        }
         ObjectGuid GetMinionGUID() const { return m_unitData->Summon; }
         void SetMinionGUID(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Summon), guid); }
         ObjectGuid GetPetGUID() const { return m_SummonSlot[SUMMON_SLOT_PET]; }
@@ -1473,9 +1530,15 @@ class TC_GAME_API Unit : public WorldObject
         void UpdateStatBuffMod(Stats stat);
         void UpdateStatBuffModForClient(Stats stat);
         void SetCreateStat(Stats stat, float val) { m_createStats[stat] = val; }
-        void SetCreateHealth(uint32 val) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BaseHealth), val); }
+        void SetCreateHealth(uint32 val) {
+            SetUInt32Value(UF::UNIT_FIELD_BASE_HEALTH, val);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BaseHealth), val);
+        }
         uint32 GetCreateHealth() const { return m_unitData->BaseHealth; }
-        void SetCreateMana(uint32 val) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BaseMana), val); }
+        void SetCreateMana(uint32 val) {
+            SetUInt32Value(UF::UNIT_FIELD_BASE_MANA, val);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BaseMana), val);
+        }
         uint32 GetCreateMana() const { return m_unitData->BaseMana; }
         int32 GetCreatePowerValue(Powers power) const;
         float GetPosStat(Stats stat) const { return m_unitData->StatPosBuff[stat]; }
@@ -1645,6 +1708,7 @@ class TC_GAME_API Unit : public WorldObject
         void RestoreDisplayId(bool ignorePositiveAurasPreventingMounting = false);
         void SetNativeDisplayId(uint32 displayId, float displayScale = 1.f)
         {
+            SetUInt32Value(UF::UNIT_FIELD_NATIVEDISPLAYID, displayId);
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NativeDisplayID), displayId);
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NativeXDisplayScale), displayScale);
         }

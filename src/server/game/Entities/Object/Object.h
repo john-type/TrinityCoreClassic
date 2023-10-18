@@ -184,10 +184,16 @@ class TC_GAME_API Object
         static ObjectGuid GetGUID(Object const* o) { return o ? o->GetGUID() : ObjectGuid::Empty; }
         ObjectGuid const& GetGUID() const { return m_guid; }
         uint32 GetEntry() const { return m_objectData->EntryID; }
-        void SetEntry(uint32 entry) { SetUpdateFieldValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::EntryID), entry); }
+        void SetEntry(uint32 entry) {
+            SetUInt32Value(UF::OBJECT_FIELD_ENTRY, entry);
+            SetUpdateFieldValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::EntryID), entry);
+        }
 
         float GetObjectScale() const { return m_objectData->Scale; }
-        virtual void SetObjectScale(float scale) { SetUpdateFieldValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::Scale), scale); }
+        virtual void SetObjectScale(float scale) {
+            SetFloatValue(UF::OBJECT_FIELD_SCALE_X, scale);
+            SetUpdateFieldValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::Scale), scale);
+        }
 
         uint32 GetDynamicFlags() const { return m_objectData->DynamicFlags; }
         bool HasDynamicFlag(uint32 flag) const { return (*m_objectData->DynamicFlags & flag) != 0; }

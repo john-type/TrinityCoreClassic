@@ -1234,7 +1234,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetLevelPlayedTime() const { return m_Played_time[PLAYED_TIME_LEVEL]; }
 
         Gender GetNativeGender() const override { return Gender(*m_playerData->NativeSex); }
-        void SetNativeGender(Gender gender) override { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::NativeSex), gender); }
+        void SetNativeGender(Gender gender) override {
+            SetByteValue(UF::UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, gender);
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::NativeSex), gender);
+        }
 
         void setDeathState(DeathState s) override;                   // overwrite Unit::setDeathState
 
@@ -1742,7 +1745,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         Player* GetSelectedPlayer() const;
 
         void SetTarget(ObjectGuid const& /*guid*/) override { } /// Used for serverside target changes, does not apply to players
-        void SetSelection(ObjectGuid const& guid) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Target), guid); }
+        void SetSelection(ObjectGuid const& guid) {
+            SetGuidValue(UF::UNIT_FIELD_TARGET, guid);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Target), guid);
+        }
 
         void SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError = 0, ObjectGuid::LowType item_guid = UI64LIT(0), uint32 item_count = 0) const;
         void SendNewMail() const;
@@ -2710,15 +2716,37 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool MeetPlayerCondition(uint32 conditionId) const;
 
-        bool HasPlayerFlag(PlayerFlags flags) const { return (*m_playerData->PlayerFlags & flags) != 0; }
-        void SetPlayerFlag(PlayerFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlags), flags); }
-        void RemovePlayerFlag(PlayerFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlags), flags); }
-        void ReplaceAllPlayerFlags(PlayerFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlags), flags); }
+        bool HasPlayerFlag(PlayerFlags flags) const {
+			return (*m_playerData->PlayerFlags & flags) != 0;
+        }
+        void SetPlayerFlag(PlayerFlags flags) {
+            SetFlag(UF::PLAYER_FLAGS, flags);
+            SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlags), flags);
+        }
+        void RemovePlayerFlag(PlayerFlags flags) {
+            RemoveFlag(UF::PLAYER_FLAGS, flags);
+            RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlags), flags);
+        }
+        void ReplaceAllPlayerFlags(PlayerFlags flags) {
+            //TODOFROST - what is the old-style equivalent?
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlags), flags);
+        }
 
-        bool HasPlayerFlagEx(PlayerFlagsEx flags) const { return (*m_playerData->PlayerFlagsEx & flags) != 0; }
-        void SetPlayerFlagEx(PlayerFlagsEx flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlagsEx), flags); }
-        void RemovePlayerFlagEx(PlayerFlagsEx flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlagsEx), flags); }
-        void ReplaceAllPlayerFlagsEx(PlayerFlagsEx flags) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlagsEx), flags); }
+        bool HasPlayerFlagEx(PlayerFlagsEx flags) const {
+            return (*m_playerData->PlayerFlagsEx & flags) != 0;
+        }
+        void SetPlayerFlagEx(PlayerFlagsEx flags) {
+            SetFlag(UF::PLAYER_FLAGS_EX, flags);
+            SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlagsEx), flags);
+        }
+        void RemovePlayerFlagEx(PlayerFlagsEx flags) {
+            RemoveFlag(UF::PLAYER_FLAGS_EX, flags);
+            RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlagsEx), flags);
+        }
+        void ReplaceAllPlayerFlagsEx(PlayerFlagsEx flags) {
+            //TODOFROST - what is the old-style equivalent?
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlagsEx), flags);
+        }
 
         void SetAverageItemLevelTotal(float newItemLevel) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::AvgItemLevel, 0), newItemLevel); }
         void SetAverageItemLevelEquipped(float newItemLevel) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::AvgItemLevel, 1), newItemLevel); }
@@ -2755,7 +2783,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetPvpTitle(uint8 pvpTitle) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PvpTitle), pvpTitle); }
         void SetArenaFaction(uint8 arenaFaction) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::ArenaFaction), arenaFaction); }
         void ApplyModFakeInebriation(int32 mod, bool apply) { ApplyModUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::FakeInebriation), mod, apply); }
-        void SetVirtualPlayerRealm(uint32 virtualRealmAddress) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::VirtualPlayerRealm), virtualRealmAddress); }
+        void SetVirtualPlayerRealm(uint32 virtualRealmAddress) {
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::VirtualPlayerRealm), virtualRealmAddress);
+        }
         void SetCurrentBattlePetBreedQuality(uint8 battlePetBreedQuality) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CurrentBattlePetBreedQuality), battlePetBreedQuality);  }
 
         void AddHeirloom(int32 itemId, uint32 flags)

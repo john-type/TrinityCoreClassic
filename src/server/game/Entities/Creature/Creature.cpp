@@ -3248,8 +3248,10 @@ void Creature::SetTarget(ObjectGuid const& guid)
 {
     if (HasSpellFocus())
         _spellFocusInfo.Target = guid;
-    else
+    else {
+        SetGuidValue(UF::UNIT_FIELD_TARGET, guid);
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Target), guid);
+    }
 }
 
 void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
@@ -3295,8 +3297,10 @@ void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
     bool const turnDisabled = HasUnitFlag2(UNIT_FLAG2_CANNOT_TURN);
     // set target, then force send update packet to players if it changed to provide appropriate facing
     ObjectGuid newTarget = (target && !noTurnDuringCast && !turnDisabled) ? target->GetGUID() : ObjectGuid::Empty;
-    if (GetTarget() != newTarget)
+    if (GetTarget() != newTarget) {
+        SetGuidValue(UF::UNIT_FIELD_TARGET, newTarget);
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Target), newTarget);
+    }
 
     // If we are not allowed to turn during cast but have a focus target, face the target
     if (!turnDisabled && noTurnDuringCast && target)
@@ -3355,6 +3359,7 @@ void Creature::ReacquireSpellFocusTarget()
         return;
     }
 
+    SetGuidValue(UF::UNIT_FIELD_TARGET, _spellFocusInfo.Target);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Target), _spellFocusInfo.Target);
 
     if (!HasUnitFlag2(UNIT_FLAG2_CANNOT_TURN))
