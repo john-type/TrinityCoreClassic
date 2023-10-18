@@ -27,6 +27,41 @@ namespace UpdateMaskHelpers
     inline constexpr uint32 GetBlockFlag(std::size_t bit) { return 1u << (bit % 32u); }
 }
 
+
+//TODOFROST can be replaced with modern verison?
+namespace LegacyUpdateMask
+{
+    typedef uint32 BlockType;
+
+    enum DynamicFieldChangeType : uint16
+    {
+        UNCHANGED = 0,
+        VALUE_CHANGED = 0x7FFF,
+        VALUE_AND_SIZE_CHANGED = 0x8000
+    };
+
+    inline std::size_t GetBlockCount(std::size_t bitCount)
+    {
+        using BitsPerBlock = std::integral_constant<std::size_t, sizeof(BlockType) * 8>;
+        return (bitCount + BitsPerBlock::value - 1) / BitsPerBlock::value;
+    }
+
+    inline std::size_t EncodeDynamicFieldChangeType(std::size_t blockCount, DynamicFieldChangeType changeType, uint8 updateType)
+    {
+        return blockCount | ((changeType & VALUE_AND_SIZE_CHANGED) * ((3 - updateType /*this part evaluates to 0 if update type is not VALUES*/) / 3));
+    }
+
+    template<typename T>
+    inline void SetUpdateBit(T* data, std::size_t bitIndex)
+    {
+        static_assert(std::is_integral<T>::value && std::is_unsigned<T>::value, "Type used for SetUpdateBit data arg is not an unsigned integer");
+        using BitsPerBlock = std::integral_constant<std::size_t, sizeof(T) * 8>;
+        data[bitIndex / BitsPerBlock::value] |= T(1) << (bitIndex % BitsPerBlock::value);
+    }
+}
+
+
+
 template<uint32 Bits>
 class UpdateMask
 {

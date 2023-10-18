@@ -83,6 +83,10 @@ Object::Object() : m_values(this)
 
     m_valuesCount = 0;
     m_dynamicValuesCount = 0;
+    m_fieldNotifyFlags = UF::UF_FLAG_DYNAMIC;
+    m_dynamicChangesArrayMask = nullptr;
+    m_uint32Values = nullptr;
+    m_dynamicValues = nullptr;
 }
 
 WorldObject::~WorldObject()
@@ -98,6 +102,8 @@ WorldObject::~WorldObject()
         }
         ResetMap();
     }
+
+
 }
 
 Object::~Object()
@@ -115,10 +121,37 @@ Object::~Object()
         TC_LOG_FATAL("misc", "Object::~Object %s deleted but still in update list!!", GetGUID().ToString().c_str());
         ABORT();
     }
+
+    delete[] m_uint32Values;
+    m_uint32Values = nullptr;
+
+    delete[] m_dynamicValues;
+    m_dynamicValues = nullptr;
+
+    delete[] m_dynamicChangesArrayMask;
+    m_dynamicChangesArrayMask = nullptr;
+}
+
+void Object::_InitValues()
+{
+    m_uint32Values = new uint32[m_valuesCount];
+    memset(m_uint32Values, 0, m_valuesCount * sizeof(uint32));
+
+    m_changesMask.resize(m_valuesCount);
+    m_dynamicChangesMask.resize(m_dynamicValuesCount);
+    if (m_dynamicValuesCount)
+    {
+        m_dynamicValues = new std::vector<uint32>[m_dynamicValuesCount];
+        m_dynamicChangesArrayMask = new std::vector<uint8>[m_dynamicValuesCount];
+    }
+
+    m_objectUpdated = false;
 }
 
 void Object::_Create(ObjectGuid const& guid)
 {
+    if (!m_uint32Values) _InitValues();
+
     m_objectUpdated = false;
     m_guid = guid;
 }
@@ -880,26 +913,25 @@ void Object::BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const*
     if (!target)
         return;
 
-    //TODOFROST
-    //std::size_t blockCount = ValuesUpdateMask::GetBlockCount(m_valuesCount);
+    std::size_t blockCount = LegacyUpdateMask::GetBlockCount(m_valuesCount);
 
-    //uint32* flags = NULL;
-    //uint32 visibleFlag = GetUpdateFieldData(target, flags);
-    //ASSERT(flags);
+    uint32* flags = NULL;
+    uint32 visibleFlag = GetUpdateFieldData(target, flags);
+    ASSERT(flags);
 
-    //*data << uint8(blockCount);
-    //std::size_t maskPos = data->wpos();
-    //data->resize(data->size() + blockCount * sizeof(UpdateMask::BlockType));
+    *data << uint8(blockCount);
+    std::size_t maskPos = data->wpos();
+    data->resize(data->size() + blockCount * sizeof(LegacyUpdateMask::BlockType));
 
-    //for (uint16 index = 0; index < m_valuesCount; ++index)
-    //{
-    //    if (_fieldNotifyFlags & flags[index] ||
-    //        ((updateType == UPDATETYPE_VALUES ? _changesMask[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)))
-    //    {
-    //        UpdateMask::SetUpdateBit(data->contents() + maskPos, index);
-    //        *data << m_uint32Values[index];
-    //    }
-    //}
+    for (uint16 index = 0; index < m_valuesCount; ++index)
+    {
+        if (m_fieldNotifyFlags & flags[index] ||
+            ((updatetype == UPDATETYPE_VALUES ? m_changesMask[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)))
+        {
+            LegacyUpdateMask::SetUpdateBit(data->contents() + maskPos, index);
+            *data << m_uint32Values[index];
+        }
+    }
 }
 
 void Object::BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const* target) const
@@ -907,41 +939,41 @@ void Object::BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer* data, Player
     if (!target)
         return;
 
-    //TODOFROST
-    //std::size_t blockCount = ValuesUpdateMask::GetBlockCount(m_dynamicValuesCount);
+    std::size_t blockCount = LegacyUpdateMask::GetBlockCount(m_dynamicValuesCount);
 
-    //uint32* flags = nullptr;
-    //uint32 visibleFlag = GetDynamicUpdateFieldData(target, flags);
+    uint32* flags = nullptr;
+    uint32 visibleFlag = GetDynamicUpdateFieldData(target, flags);
+    ASSERT(flags);
 
-    //*data << uint8(blockCount);
-    //std::size_t maskPos = data->wpos();
-    //data->resize(data->size() + blockCount * sizeof(UpdateMask::BlockType));
+    *data << uint8(blockCount);
+    std::size_t maskPos = data->wpos();
+    data->resize(data->size() + blockCount * sizeof(LegacyUpdateMask::BlockType));
 
-    //for (uint16 index = 0; index < _dynamicValuesCount; ++index)
-    //{
-    //    std::vector<uint32> const& values = _dynamicValues[index];
-    //    if (_fieldNotifyFlags & flags[index] ||
-    //        ((updateType == UPDATETYPE_VALUES ? _dynamicChangesMask[index] != UpdateMask::UNCHANGED : !values.empty()) && (flags[index] & visibleFlag)))
-    //    {
-    //        UpdateMask::SetUpdateBit(data->contents() + maskPos, index);
+    for (uint16 index = 0; index < m_dynamicValuesCount; ++index)
+    {
+        std::vector<uint32> const& values = m_dynamicValues[index];
+        if (m_fieldNotifyFlags & flags[index] ||
+           ((updatetype == UPDATETYPE_VALUES ? m_dynamicChangesMask[index] != LegacyUpdateMask::UNCHANGED : !values.empty()) && (flags[index] & visibleFlag)))
+        {
+            LegacyUpdateMask::SetUpdateBit(data->contents() + maskPos, index);
 
-    //        std::size_t arrayBlockCount = UpdateMask::GetBlockCount(values.size());
-    //        *data << uint16(UpdateMask::EncodeDynamicFieldChangeType(arrayBlockCount, _dynamicChangesMask[index], updateType));
-    //        if (_dynamicChangesMask[index] == UpdateMask::VALUE_AND_SIZE_CHANGED && updateType == UPDATETYPE_VALUES)
-    //            *data << uint32(values.size());
+            std::size_t arrayBlockCount = LegacyUpdateMask::GetBlockCount(values.size());
+            *data << uint16(LegacyUpdateMask::EncodeDynamicFieldChangeType(arrayBlockCount, m_dynamicChangesMask[index], updatetype));
+            if (m_dynamicChangesMask[index] == LegacyUpdateMask::VALUE_AND_SIZE_CHANGED && updatetype == UPDATETYPE_VALUES)
+                *data << uint32(values.size());
 
-    //        std::size_t arrayMaskPos = data->wpos();
-    //        data->resize(data->size() + arrayBlockCount * sizeof(UpdateMask::BlockType));
-    //        for (std::size_t v = 0; v < values.size(); ++v)
-    //        {
-    //            if (updateType != UPDATETYPE_VALUES || _dynamicChangesArrayMask[index][v])
-    //            {
-    //                UpdateMask::SetUpdateBit(data->contents() + arrayMaskPos, v);
-    //                *data << uint32(values[v]);
-    //            }
-    //        }
-    //    }
-    //}
+            std::size_t arrayMaskPos = data->wpos();
+            data->resize(data->size() + arrayBlockCount * sizeof(LegacyUpdateMask::BlockType));
+            for (std::size_t v = 0; v < values.size(); ++v)
+            {
+                if (updatetype != UPDATETYPE_VALUES || m_dynamicChangesArrayMask[index][v])
+                {
+                    LegacyUpdateMask::SetUpdateBit(data->contents() + arrayMaskPos, v);
+                    *data << uint32(values[v]);
+                }
+            }
+        }
+    }
 }
 
 void Object::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag /*flags*/, Player const* /*target*/) const

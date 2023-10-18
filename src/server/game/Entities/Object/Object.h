@@ -393,8 +393,23 @@ class TC_GAME_API Object
         TypeID m_objectTypeId;
         CreateObjectBits m_updateFlag;
 
+        // legacy update system
+        void _InitValues();
+        union
+        {
+            int32* m_int32Values;
+            uint32* m_uint32Values;
+            float* m_floatValues;
+        };
+
+        std::vector<uint32>* m_dynamicValues;
+        std::vector<uint8> m_changesMask;
+        std::vector<LegacyUpdateMask::DynamicFieldChangeType> m_dynamicChangesMask;
+        std::vector<uint8>* m_dynamicChangesArrayMask;
         uint16 m_valuesCount;
         uint16 m_dynamicValuesCount;
+        uint16 m_fieldNotifyFlags;
+        //
 
         virtual bool AddToObjectUpdate() = 0;
         virtual void RemoveFromObjectUpdate() = 0;
