@@ -37,6 +37,9 @@ Conversation::Conversation() : WorldObject(false), _duration(0), _textureKitId(0
     m_updateFlag.Stationary = true;
     m_updateFlag.Conversation = true;
 
+    m_valuesCount = UF::CONVERSATION_END;
+    m_dynamicValuesCount = UF::CONVERSATION_DYNAMIC_END;
+
     _lastLineEndTimes.fill(Milliseconds::zero());
 }
 

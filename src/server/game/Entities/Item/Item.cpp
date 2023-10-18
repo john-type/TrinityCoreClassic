@@ -340,6 +340,9 @@ Item::Item()
     m_objectType |= TYPEMASK_ITEM;
     m_objectTypeId = TYPEID_ITEM;
 
+    m_valuesCount = UF::ITEM_END;
+    m_dynamicValuesCount = UF::ITEM_DYNAMIC_END;
+
     m_slot = 0;
     uState = ITEM_NEW;
     uQueuePos = -1;

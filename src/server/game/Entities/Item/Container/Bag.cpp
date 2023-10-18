@@ -30,6 +30,9 @@ Bag::Bag(): Item()
     m_objectType |= TYPEMASK_CONTAINER;
     m_objectTypeId = TYPEID_CONTAINER;
 
+    m_valuesCount = UF::CONTAINER_END;
+    m_dynamicValuesCount = UF::CONTAINER_DYNAMIC_END;
+
     memset(m_bagslot, 0, sizeof(Item*) * MAX_BAG_SIZE);
 }
 

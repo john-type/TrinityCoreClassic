@@ -49,6 +49,9 @@ AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _spawnId(0), _aurE
 
     m_updateFlag.Stationary = true;
     m_updateFlag.AreaTrigger = true;
+
+    m_valuesCount = UF::AREATRIGGER_END;
+    m_dynamicValuesCount = UF::AREATRIGGER_DYNAMIC_END;
 }
 
 AreaTrigger::~AreaTrigger()
@@ -344,6 +347,9 @@ void AreaTrigger::SetDuration(int32 newDuration)
 void AreaTrigger::_UpdateDuration(int32 newDuration)
 {
     _duration = newDuration;
+
+    // should be sent in object create packets only
+    m_uint32Values[UF::AREATRIGGER_DURATION] = _duration;
 
     // should be sent in object create packets only
     DoWithSuppressingObjectUpdates([&]()
@@ -780,6 +786,9 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> splinePoints, uint32 tim
     _spline->initLengths();
 
     // should be sent in object create packets only
+    m_uint32Values[UF::AREATRIGGER_TIME_TO_TARGET] = timeToTarget;
+
+    // should be sent in object create packets only
     DoWithSuppressingObjectUpdates([&]()
     {
         SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
@@ -825,6 +834,9 @@ void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, uint32 timeToTarg
         SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
         const_cast<UF::AreaTriggerData&>(*m_areaTriggerData).ClearChanged(&UF::AreaTriggerData::TimeToTarget);
     });
+
+    // should be sent in object create packets only
+    m_uint32Values[UF::AREATRIGGER_TIME_TO_TARGET] = timeToTarget;
 
     _orbitInfo = orbit;
 

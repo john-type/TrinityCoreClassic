@@ -501,6 +501,9 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_updateFlag.Stationary = true;
     m_updateFlag.Rotation = true;
 
+    m_valuesCount = UF::GAMEOBJECT_END;
+    m_dynamicValuesCount = UF::GAMEOBJECT_DYNAMIC_END;
+
     m_respawnTime = 0;
     m_respawnDelayTime = 300;
     m_despawnDelay = 0;

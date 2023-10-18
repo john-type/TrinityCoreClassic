@@ -144,6 +144,9 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_objectType |= TYPEMASK_PLAYER;
     m_objectTypeId = TYPEID_PLAYER;
 
+    m_valuesCount = UF::PLAYER_END;
+    m_dynamicValuesCount = UF::PLAYER_DYNAMIC_END;
+
     m_session = session;
 
     m_ingametime = 0;

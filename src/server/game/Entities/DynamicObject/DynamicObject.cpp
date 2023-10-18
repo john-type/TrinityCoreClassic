@@ -38,6 +38,9 @@ DynamicObject::DynamicObject(bool isWorldObject) : WorldObject(isWorldObject),
     m_objectTypeId = TYPEID_DYNAMICOBJECT;
 
     m_updateFlag.Stationary = true;
+
+    m_valuesCount = UF::DYNAMICOBJECT_END;
+    m_dynamicValuesCount = UF::DYNAMICOBJECT_DYNAMIC_END;
 }
 
 DynamicObject::~DynamicObject()

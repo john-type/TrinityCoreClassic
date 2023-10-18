@@ -37,6 +37,9 @@ Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type
 
     m_updateFlag.Stationary = true;
 
+    m_valuesCount = UF::CORPSE_END;
+    m_dynamicValuesCount = UF::CORPSE_DYNAMIC_END;
+
     m_time = GameTime::GetGameTime();
 
     lootRecipient = nullptr;

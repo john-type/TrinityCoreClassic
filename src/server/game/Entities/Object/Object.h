@@ -142,6 +142,33 @@ namespace UF
     }
 }
 
+// Helper class used to iterate object dynamic fields while interpreting them as a structure instead of raw int array
+template<class T>
+class DynamicFieldStructuredView
+{
+public:
+    explicit DynamicFieldStructuredView(std::vector<uint32> const& data) : _data(data) { }
+
+    T const* begin() const
+    {
+        return reinterpret_cast<T const*>(_data.data());
+    }
+
+    T const* end() const
+    {
+        return reinterpret_cast<T const*>(_data.data() + _data.size());
+    }
+
+    std::size_t size() const
+    {
+        using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
+        return _data.size() / BlockCount::value;
+    }
+
+private:
+    std::vector<uint32> const& _data;
+};
+
 float const DEFAULT_COLLISION_HEIGHT = 2.03128f; // Most common value in dbc
 
 class TC_GAME_API Object
@@ -183,7 +210,109 @@ class TC_GAME_API Object
         virtual void DestroyForPlayer(Player* target) const;
         void SendOutOfRangeForPlayer(Player* target) const;
 
+        // public legacy update fields handling
         virtual void ClearUpdateMask(bool remove);
+        int32 GetInt32Value(uint16 index) const;
+        uint32 GetUInt32Value(uint16 index) const;
+        uint64 GetUInt64Value(uint16 index) const;
+        float GetFloatValue(uint16 index) const;
+        uint8 GetByteValue(uint16 index, uint8 offset) const;
+        uint16 GetUInt16Value(uint16 index, uint8 offset) const;
+        ObjectGuid const& GetGuidValue(uint16 index) const;
+
+        void SetInt32Value(uint16 index, int32 value);
+        void SetUInt32Value(uint16 index, uint32 value);
+        void UpdateUInt32Value(uint16 index, uint32 value);
+        void SetUInt64Value(uint16 index, uint64 value);
+        void SetFloatValue(uint16 index, float value);
+        void SetByteValue(uint16 index, uint8 offset, uint8 value);
+        void SetUInt16Value(uint16 index, uint8 offset, uint16 value);
+        void SetGuidValue(uint16 index, ObjectGuid const& value);
+        void SetStatFloatValue(uint16 index, float value);
+        void SetStatInt32Value(uint16 index, int32 value);
+
+        bool AddGuidValue(uint16 index, ObjectGuid const& value);
+        bool RemoveGuidValue(uint16 index, ObjectGuid const& value);
+
+        void ApplyModUInt32Value(uint16 index, int32 val, bool apply);
+        void ApplyModInt32Value(uint16 index, int32 val, bool apply);
+        void ApplyModUInt16Value(uint16 index, uint8 offset, int16 val, bool apply);
+        void ApplyModPositiveFloatValue(uint16 index, float val, bool apply);
+        void ApplyModSignedFloatValue(uint16 index, float val, bool apply);
+        void ApplyPercentModFloatValue(uint16 index, float val, bool apply);
+
+        void SetFlag(uint16 index, uint32 newFlag);
+        void RemoveFlag(uint16 index, uint32 oldFlag);
+        void ToggleFlag(uint16 index, uint32 flag);
+        bool HasFlag(uint16 index, uint32 flag) const;
+        void ApplyModFlag(uint16 index, uint32 flag, bool apply);
+
+        void SetByteFlag(uint16 index, uint8 offset, uint8 newFlag);
+        void RemoveByteFlag(uint16 index, uint8 offset, uint8 newFlag);
+        void ToggleByteFlag(uint16 index, uint8 offset, uint8 flag);
+        bool HasByteFlag(uint16 index, uint8 offset, uint8 flag) const;
+
+        void SetFlag64(uint16 index, uint64 newFlag);
+        void RemoveFlag64(uint16 index, uint64 oldFlag);
+        void ToggleFlag64(uint16 index, uint64 flag);
+        bool HasFlag64(uint16 index, uint64 flag) const;
+        void ApplyModFlag64(uint16 index, uint64 flag, bool apply);
+
+        std::vector<uint32> const& GetDynamicValues(uint16 index) const;
+        uint32 GetDynamicValue(uint16 index, uint16 offset) const;
+        bool HasDynamicValue(uint16 index, uint32 value);
+        void AddDynamicValue(uint16 index, uint32 value);
+        void RemoveDynamicValue(uint16 index, uint32 value);
+        void ClearDynamicValue(uint16 index);
+        void SetDynamicValue(uint16 index, uint16 offset, uint32 value);
+
+        template<class T>
+        DynamicFieldStructuredView<T> GetDynamicStructuredValues(uint16 index) const
+        {
+            static_assert(std::is_standard_layout<T>::value && std::is_trivially_destructible<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a trivially destructible standard layout type");
+            using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
+            ASSERT(index < m_dynamicValuesCount);
+            std::vector<uint32> const& values = m_dynamicValues[index];
+            ASSERT((values.size() % BlockCount::value) == 0, "Dynamic field value count must exactly fit into structure");
+            return DynamicFieldStructuredView<T>(values);
+        }
+
+        template<class T>
+        T const* GetDynamicStructuredValue(uint16 index, uint16 offset) const
+        {
+            static_assert(std::is_standard_layout<T>::value && std::is_trivially_destructible<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a trivially destructible standard layout type");
+            using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
+            ASSERT(index < m_dynamicValuesCount);
+            std::vector<uint32> const& values = m_dynamicValues[index];
+            ASSERT((values.size() % BlockCount::value) == 0, "Dynamic field value count must exactly fit into structure");
+            if (offset * BlockCount::value >= values.size())
+                return nullptr;
+            return reinterpret_cast<T const*>(&values[offset * BlockCount::value]);
+        }
+
+        template<class T>
+        void SetDynamicStructuredValue(uint16 index, uint16 offset, T const* value)
+        {
+            static_assert(std::is_standard_layout<T>::value && std::is_trivially_destructible<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a trivially destructible standard layout type");
+            using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
+            SetDynamicValue(index, (offset + 1) * BlockCount::value - 1, 0); // reserve space
+            for (uint16 i = 0; i < BlockCount::value; ++i)
+                SetDynamicValue(index, offset * BlockCount::value + i, *(reinterpret_cast<uint32 const*>(value) + i));
+        }
+
+        template<class T>
+        void AddDynamicStructuredValue(uint16 index, T const* value)
+        {
+            static_assert(std::is_standard_layout<T>::value && std::is_trivially_destructible<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a trivially destructible standard layout type");
+            using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
+            std::vector<uint32> const& values = m_dynamicValues[index];
+            uint16 offset = uint16(values.size() / BlockCount::value);
+            SetDynamicValue(index, (offset + 1) * BlockCount::value - 1, 0); // reserve space
+            for (uint16 i = 0; i < BlockCount::value; ++i)
+                SetDynamicValue(index, offset * BlockCount::value + i, *(reinterpret_cast<uint32 const*>(value) + i));
+        }
+
+        //
 
         virtual std::string GetNameForLocaleIdx(LocaleConstant locale) const = 0;
 
@@ -400,7 +529,7 @@ class TC_GAME_API Object
 
         // legacy update system
         void _InitValues();
-        union
+        union 
         {
             int32* m_int32Values;
             uint32* m_uint32Values;
@@ -409,7 +538,7 @@ class TC_GAME_API Object
 
         std::vector<uint32>* m_dynamicValues;
         std::vector<uint8> m_changesMask;
-        std::vector<LegacyUpdateMask::DynamicFieldChangeType> m_dynamicChangesMask;
+        std::vector<LegacyUpdateMask::DynamicFieldChangeType> m_dynamicChangesMask; 
         std::vector<uint8>* m_dynamicChangesArrayMask;
         uint16 m_valuesCount;
         uint16 m_dynamicValuesCount;
