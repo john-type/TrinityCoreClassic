@@ -77,6 +77,7 @@
 #include "TemporarySummon.h"
 #include "Totem.h"
 #include "Transport.h"
+#include "UpdateFieldFlags.h"
 #include "Util.h"
 #include "Vehicle.h"
 #include "VehiclePackets.h"
@@ -13298,6 +13299,160 @@ void Unit::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
         m_unitData->WriteUpdate(*data, flags, this, target);
 
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+}
+
+void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player const* target) const
+{
+    if (!target)
+        return;
+
+    uint32 valCount = m_valuesCount;
+    uint32* flags = UF::UnitUpdateFieldFlags;
+    uint32 visibleFlag = UF::UF_FLAG_PUBLIC;
+
+    if (target == this)
+        visibleFlag |= UF::UF_FLAG_PRIVATE;
+    else if (GetTypeId() == TYPEID_PLAYER)
+        valCount = UF::ACTIVE_PLAYER_FIELD_INV_SLOT_HEAD; // TODOFROST CHECK! UF::PLAYER_FIELD_END_NOT_SELF;
+
+    std::size_t blockCount = LegacyUpdateMask::GetBlockCount(valCount);
+
+    Player* plr = GetCharmerOrOwnerPlayerOrPlayerItself();
+    if (GetOwnerGUID() == target->GetGUID())
+        visibleFlag |= UF::UF_FLAG_OWNER;
+
+    //TODOFROST
+   /* if (HasFlag(UF::OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
+        if (HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
+            visibleFlag |= UF::UF_FLAG_SPECIAL_INFO;*/
+
+    if (plr && plr->IsInSameRaidWith(target))
+        visibleFlag |= UF::UF_FLAG_PARTY_MEMBER;
+
+    Creature const* creature = ToCreature();
+
+    *data << uint8(blockCount);
+    std::size_t maskPos = data->wpos();
+    data->resize(data->size() + blockCount * sizeof(LegacyUpdateMask::BlockType));
+
+    for (uint16 index = 0; index < valCount; ++index)
+    {
+        if (m_fieldNotifyFlags & flags[index] ||
+            ((flags[index] & visibleFlag) & UF::UF_FLAG_SPECIAL_INFO) ||
+            ((updateType == UPDATETYPE_VALUES ? m_changesMask[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)) /* TODOFROST ||
+            (index == UF::UNIT_FIELD_AURASTATE && HasFlag(UF::UNIT_FIELD_AURASTATE, PER_CASTER_AURA_STATE_MASK))*/)
+        {
+            LegacyUpdateMask::SetUpdateBit(data->contents() + maskPos, index);
+
+            if (index == UF::UNIT_NPC_FLAGS)
+            {
+                uint32 appendValue = m_uint32Values[UF::UNIT_NPC_FLAGS];
+
+                if (creature)
+                    if (!target->CanSeeSpellClickOn(creature))
+                        appendValue &= ~UNIT_NPC_FLAG_SPELLCLICK;
+
+                *data << uint32(appendValue);
+            }
+            else if (index == UF::UNIT_FIELD_AURASTATE)
+            {
+                // Check per caster aura states to not enable using a spell in client if specified aura is not by target
+                *data << BuildAuraStateUpdateForTarget(target);
+            }
+            // FIXME: Some values at server stored in float format but must be sent to client in uint32 format
+            // there are some float values which may be negative or can't get negative due to other checks
+            else if ((index >= UF::UNIT_FIELD_NEGSTAT && index < UF::UNIT_FIELD_NEGSTAT + MAX_STATS) ||
+                (index >= UF::UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE && index < (UF::UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + MAX_SPELL_SCHOOL)) ||
+                (index >= UF::UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE && index < (UF::UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + MAX_SPELL_SCHOOL)) ||
+                (index >= UF::UNIT_FIELD_POSSTAT && index < UF::UNIT_FIELD_POSSTAT + MAX_STATS))
+            {
+                *data << uint32(m_floatValues[index]);
+            }
+            // Gamemasters should be always able to select units - remove not selectable flag
+            else if (index == UF::UNIT_FIELD_FLAGS)
+            {
+                uint32 appendValue = m_uint32Values[UF::UNIT_FIELD_FLAGS];
+                //TODOFROST
+                /*if (target->IsGameMaster())
+                    appendValue &= ~UF::UNIT_FLAG_NOT_SELECTABLE;*/
+
+                *data << uint32(appendValue);
+            }
+            // use modelid_a if not gm, _h if gm for CREATURE_FLAG_EXTRA_TRIGGER creatures
+            else if (index == UF::UNIT_FIELD_DISPLAYID)
+            {
+                uint32 displayId = m_uint32Values[UF::UNIT_FIELD_DISPLAYID];
+                if (creature)
+                {
+                    CreatureTemplate const* cinfo = creature->GetCreatureTemplate();
+
+                    // this also applies for transform auras
+                    if (SpellInfo const* transform = sSpellMgr->GetSpellInfo(GetTransformSpell(), GetMap()->GetDifficultyID()))
+                        for (SpellEffectInfo const& effect : transform->GetEffects())
+                            if (effect.IsAura(SPELL_AURA_TRANSFORM))
+                                if (CreatureTemplate const* transformInfo = sObjectMgr->GetCreatureTemplate(effect.MiscValue))
+                                {
+                                    cinfo = transformInfo;
+                                    break;
+                                }
+
+                    if (cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
+                        if (target->IsGameMaster())
+                            displayId = cinfo->GetFirstVisibleModel()->CreatureDisplayID;
+                }
+
+                *data << uint32(displayId);
+            }
+            // hide lootable animation for unallowed players
+            else if (index == UF::OBJECT_DYNAMIC_FLAGS)
+            {
+                uint32 dynamicFlags = m_uint32Values[UF::OBJECT_DYNAMIC_FLAGS] & ~UNIT_DYNFLAG_TAPPED;
+
+                if (creature)
+                {
+                    if (creature->hasLootRecipient() && !creature->isTappedBy(target))
+                        dynamicFlags |= UNIT_DYNFLAG_TAPPED;
+
+                    if (!target->isAllowedToLoot(creature))
+                        dynamicFlags &= ~UNIT_DYNFLAG_LOOTABLE;
+                }
+
+                // unit UNIT_DYNFLAG_TRACK_UNIT should only be sent to caster of SPELL_AURA_MOD_STALKED auras
+                if (dynamicFlags & UNIT_DYNFLAG_TRACK_UNIT)
+                    if (!HasAuraTypeWithCaster(SPELL_AURA_MOD_STALKED, target->GetGUID()))
+                        dynamicFlags &= ~UNIT_DYNFLAG_TRACK_UNIT;
+
+                *data << dynamicFlags;
+            }
+            // FG: pretend that OTHER players in own group are friendly ("blue")
+            else if (index == UF::UNIT_FIELD_BYTES_2 || index == UF::UNIT_FIELD_FACTIONTEMPLATE)
+            {
+                if (IsControlledByPlayer() && target != this && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && IsInRaidWith(target))
+                {
+                    FactionTemplateEntry const* ft1 = GetFactionTemplateEntry();
+                    FactionTemplateEntry const* ft2 = target->GetFactionTemplateEntry();
+                    if (ft1 && ft2 && !ft1->IsFriendlyTo(ft2))
+                    {
+                        if (index == UF::UNIT_FIELD_BYTES_2)
+                            // Allow targetting opposite faction in party when enabled in config
+                            *data << (m_uint32Values[UF::UNIT_FIELD_BYTES_2] & ((UNIT_BYTE2_FLAG_SANCTUARY /*| UNIT_BYTE2_FLAG_AURAS | UNIT_BYTE2_FLAG_UNK5*/) << 8)); // this flag is at uint8 offset 1 !!
+                        else
+                            // pretend that all other HOSTILE players have own faction, to allow follow, heal, rezz (trade wont work)
+                            *data << uint32(target->GetFaction());
+                    }
+                    else
+                        *data << m_uint32Values[index];
+                }
+                else
+                    *data << m_uint32Values[index];
+            }
+            else
+            {
+                // send in current format (float as float, uint32 as uint32)
+                *data << m_uint32Values[index];
+            }
+        }
+    }
 }
 
 void Unit::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const

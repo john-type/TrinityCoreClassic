@@ -48,6 +48,7 @@
 #include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "Transport.h"
+#include "UpdateFieldFlags.h"
 #include "World.h"
 #include <G3D/Box.h>
 #include <G3D/CoordinateFrame.h>
@@ -3253,6 +3254,112 @@ void GameObject::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
 
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
+
+void GameObject::BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const* target) const
+{
+    if (!target)
+        return;
+
+    bool isStoppableTransport = false; //TODOFROST GetGoType() == GAMEOBJECT_TYPE_TRANSPORT && !m_goValue.Transport.StopFrames->empty();
+    bool forcedFlags = GetGoType() == GAMEOBJECT_TYPE_CHEST && GetGOInfo()->chest.usegrouplootrules && HasLootRecipient();
+    bool targetIsGM = target->IsGameMaster();
+
+    std::size_t blockCount = LegacyUpdateMask::GetBlockCount(m_valuesCount);
+
+    uint32* flags = UF::GameObjectUpdateFieldFlags;
+    uint32 visibleFlag = UF::UF_FLAG_PUBLIC;
+    if (GetOwnerGUID() == target->GetGUID())
+        visibleFlag |= UF::UF_FLAG_OWNER;
+
+    *data << uint8(blockCount);
+    std::size_t maskPos = data->wpos();
+    data->resize(data->size() + blockCount * sizeof(LegacyUpdateMask::BlockType));
+
+    for (uint16 index = 0; index < m_valuesCount; ++index)
+    {
+        if (m_fieldNotifyFlags & flags[index] ||
+            ((updatetype == UPDATETYPE_VALUES ? m_changesMask[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)) ||
+            (index == UF::GAMEOBJECT_FLAGS && forcedFlags))
+        {
+            LegacyUpdateMask::SetUpdateBit(data->contents() + maskPos, index);
+
+            if (index == UF::OBJECT_DYNAMIC_FLAGS)
+            {
+                uint16 dynFlags = 0;
+                int16 pathProgress = -1;
+                switch (GetGoType())
+                {
+                case GAMEOBJECT_TYPE_QUESTGIVER:
+                    if (ActivateToQuest(target))
+                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
+                    break;
+                case GAMEOBJECT_TYPE_CHEST:
+                case GAMEOBJECT_TYPE_GOOBER:
+                    if (ActivateToQuest(target))
+                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE;
+                    else if (targetIsGM)
+                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
+                    break;
+                case GAMEOBJECT_TYPE_GENERIC:
+                    if (ActivateToQuest(target))
+                        dynFlags |= GO_DYNFLAG_LO_SPARKLE;
+                    break;
+                case GAMEOBJECT_TYPE_TRANSPORT:
+                case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
+                {
+                    //TODOFROST
+            /*        if (uint32 transportPeriod = GetTransportPeriod())
+                    {
+                        float timer = float(m_goValue.Transport.PathProgress % transportPeriod);
+                        pathProgress = int16(timer / float(transportPeriod) * 65535.0f);
+                    }*/
+                    break;
+                }
+                default:
+                    break;
+                }
+
+                *data << uint16(dynFlags);
+                *data << int16(pathProgress);
+            }
+            else if (index == UF::GAMEOBJECT_FLAGS)
+            {
+                uint32 goFlags = m_uint32Values[UF::GAMEOBJECT_FLAGS];
+                if (GetGoType() == GAMEOBJECT_TYPE_CHEST)
+                    if (GetGOInfo()->chest.usegrouplootrules && !IsLootAllowedFor(target))
+                        goFlags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
+
+                *data << goFlags;
+            }
+            else if (index == UF::GAMEOBJECT_LEVEL)
+            {
+                //TODOFROST
+         /*       if (isStoppableTransport)
+                    *data << uint32(m_goValue.Transport.PathProgress);
+                else*/
+                    *data << m_uint32Values[index];
+            }
+            else if (index == UF::GAMEOBJECT_BYTES_1)
+            {
+                uint32 bytes1 = m_uint32Values[index];
+                if (isStoppableTransport && GetGoState() == GO_STATE_TRANSPORT_ACTIVE)
+                {
+                    //TODOFROST
+           /*         if ((m_goValue.Transport.StateUpdateTimer / 20000) & 1)
+                    {
+                        bytes1 &= 0xFFFFFF00;
+                        bytes1 |= GO_STATE_TRANSPORT_STOPPED;
+                    }*/
+                }
+
+                *data << bytes1;
+            }
+            else
+                *data << m_uint32Values[index];                // other cases
+        }
+    }
+}
+
 
 void GameObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
     UF::GameObjectData::Mask const& requestedGameObjectMask, Player const* target) const

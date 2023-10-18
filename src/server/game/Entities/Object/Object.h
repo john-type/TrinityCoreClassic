@@ -387,6 +387,11 @@ class TC_GAME_API Object
     public:
         virtual void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const;
 
+        // legacy update system
+        void SetFieldNotifyFlag(uint16 flag) { m_fieldNotifyFlags |= flag; }
+        void RemoveFieldNotifyFlag(uint16 flag) { m_fieldNotifyFlags &= uint16(~flag); }
+        //
+
     protected:
         uint16 m_objectType;
 

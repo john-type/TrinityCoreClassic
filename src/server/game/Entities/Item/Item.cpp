@@ -42,6 +42,7 @@
 #include "StringConvert.h"
 #include "TradeData.h"
 #include "UpdateData.h"
+#include "UpdateFieldFlags.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <sstream>
@@ -1674,6 +1675,79 @@ void Item::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
 
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
+
+void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player const* target) const
+{
+    if (!target)
+        return;
+
+    std::size_t blockCount = LegacyUpdateMask::GetBlockCount(m_dynamicValuesCount);
+
+    uint32* flags = nullptr;
+    uint32 visibleFlag = GetDynamicUpdateFieldData(target, flags);
+
+    *data << uint8(blockCount);
+    std::size_t maskPos = data->wpos();
+    data->resize(data->size() + blockCount * sizeof(LegacyUpdateMask::BlockType));
+
+    using DynamicFieldChangeTypeUT = std::underlying_type<LegacyUpdateMask::DynamicFieldChangeType>::type;
+
+    for (uint16 index = 0; index < m_dynamicValuesCount; ++index)
+    {
+        std::vector<uint32> const& values = m_dynamicValues[index];
+        if (m_fieldNotifyFlags & flags[index] ||
+            ((updateType == UPDATETYPE_VALUES ? m_dynamicChangesMask[index] != LegacyUpdateMask::UNCHANGED : !values.empty()) && (flags[index] & visibleFlag)))
+        {
+            LegacyUpdateMask::SetUpdateBit(data->contents() + maskPos, index);
+
+            std::size_t arrayBlockCount = LegacyUpdateMask::GetBlockCount(values.size());
+            *data << DynamicFieldChangeTypeUT(LegacyUpdateMask::EncodeDynamicFieldChangeType(arrayBlockCount, m_dynamicChangesMask[index], updateType));
+            if (updateType == UPDATETYPE_VALUES && m_dynamicChangesMask[index] == LegacyUpdateMask::VALUE_AND_SIZE_CHANGED)
+                *data << uint32(values.size());
+
+            std::size_t arrayMaskPos = data->wpos();
+            data->resize(data->size() + arrayBlockCount * sizeof(LegacyUpdateMask::BlockType));
+            if (index != UF::ITEM_DYNAMIC_FIELD_MODIFIERS)
+            {
+                for (std::size_t v = 0; v < values.size(); ++v)
+                {
+                    if (updateType != UPDATETYPE_VALUES || m_dynamicChangesArrayMask[index][v])
+                    {
+                        LegacyUpdateMask::SetUpdateBit(data->contents() + arrayMaskPos, v);
+                        *data << uint32(values[v]);
+                    }
+                }
+            }
+            else
+            {
+                uint32 m = 0;
+
+                // work around stupid item modifier field requirements - push back values mask by sizeof(m) bytes if size was not appended yet
+                if (updateType == UPDATETYPE_VALUES && m_dynamicChangesMask[index] != LegacyUpdateMask::VALUE_AND_SIZE_CHANGED && m_changesMask[UF::ITEM_FIELD_MODIFIERS_MASK])
+                {
+                    data->put(arrayMaskPos - sizeof(DynamicFieldChangeTypeUT), data->read<uint16>(arrayMaskPos - sizeof(DynamicFieldChangeTypeUT)) | LegacyUpdateMask::VALUE_AND_SIZE_CHANGED);
+                    *data << m;
+                    arrayMaskPos += sizeof(m);
+                }
+
+                // in case of ITEM_DYNAMIC_FIELD_MODIFIERS it is ITEM_FIELD_MODIFIERS_MASK that controls index of each value, not updatemask
+                // so we just have to write this starting from 0 index
+                for (std::size_t v = 0; v < values.size(); ++v)
+                {
+                    if (values[v])
+                    {
+                        LegacyUpdateMask::SetUpdateBit(data->contents() + arrayMaskPos, m++);
+                        *data << uint32(values[v]);
+                    }
+                }
+
+                if (updateType == UPDATETYPE_VALUES && m_changesMask[UF::ITEM_FIELD_MODIFIERS_MASK])
+                    data->put(arrayMaskPos - sizeof(m), m);
+            }
+        }
+    }
+}
+
 
 void Item::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {

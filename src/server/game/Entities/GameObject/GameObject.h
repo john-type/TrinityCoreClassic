@@ -131,6 +131,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
     protected:
         void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
         void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
+        void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
 
     public:
