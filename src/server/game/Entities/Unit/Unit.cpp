@@ -5881,11 +5881,15 @@ void Unit::SetOwnerGUID(ObjectGuid owner)
     if (!player || !player->HaveAtClient(this)) // if player cannot see this unit yet, he will receive needed data with create object
         return;
 
+    SetFieldNotifyFlag(UF::UF_FLAG_OWNER);
+
     UpdateData udata(GetMapId());
     WorldPacket packet;
     BuildValuesUpdateBlockForPlayerWithFlag(&udata, UF::UpdateFieldFlag::Owner, player);
     udata.BuildPacket(&packet);
     player->SendDirectMessage(&packet);
+
+    RemoveFieldNotifyFlag(UF::UF_FLAG_OWNER);
 }
 
 Player* Unit::GetControllingPlayer() const

@@ -40,6 +40,7 @@
 #include "Random.h"
 #include "TerrainMgr.h"
 #include "UpdateData.h"
+#include "UpdateFieldFlags.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldSession.h"
@@ -549,6 +550,8 @@ bool Group::AddMember(Player* player)
 
     {
         // Broadcast new player group member fields to rest of the group
+        player->SetFieldNotifyFlag(UF::UF_FLAG_PARTY_MEMBER);
+
         UpdateData groupData(player->GetMapId());
         WorldPacket groupDataPacket;
 
@@ -561,7 +564,11 @@ bool Group::AddMember(Player* player)
             if (Player* existingMember = itr->GetSource())
             {
                 if (player->HaveAtClient(existingMember))
+                {
+                    existingMember->SetFieldNotifyFlag(UF::UF_FLAG_PARTY_MEMBER);
                     existingMember->BuildValuesUpdateBlockForPlayerWithFlag(&groupData, UF::UpdateFieldFlag::PartyMember, player);
+                    existingMember->RemoveFieldNotifyFlag(UF::UF_FLAG_PARTY_MEMBER);
+                }
 
                 if (existingMember->HaveAtClient(player))
                 {
@@ -582,6 +589,8 @@ bool Group::AddMember(Player* player)
             groupData.BuildPacket(&groupDataPacket);
             player->SendDirectMessage(&groupDataPacket);
         }
+
+        player->RemoveFieldNotifyFlag(UF::UF_FLAG_PARTY_MEMBER);
     }
 
     if (m_maxEnchantingLevel < player->GetSkillValue(SKILL_ENCHANTING))

@@ -117,6 +117,7 @@
 #include "TradeData.h"
 #include "Transport.h"
 #include "UpdateData.h"
+#include "UpdateFieldFlags.h"
 #include "Util.h"
 #include "Vehicle.h"
 #include "VehiclePackets.h"
@@ -23872,9 +23873,11 @@ void Player::UpdateTriggerVisibility()
             if (!creature || (!creature->IsTrigger() && !creature->HasAuraType(SPELL_AURA_TRANSFORM) && !creature->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE)))
                 continue;
 
+            creature->SetFieldNotifyFlag(UF::UF_FLAG_PUBLIC);
             creature->ForceUpdateFieldChange(creature->m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DisplayID));
             creature->ForceUpdateFieldChange(creature->m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags));
             creature->BuildValuesUpdateBlockForPlayer(&udata, this);
+            creature->RemoveFieldNotifyFlag(UF::UF_FLAG_PUBLIC);
         }
         else if (itr->IsAnyTypeGameObject())
         {
@@ -23882,8 +23885,10 @@ void Player::UpdateTriggerVisibility()
             if (!go)
                 continue;
 
+            go->SetFieldNotifyFlag(UF::UF_FLAG_PUBLIC);
             go->ForceUpdateFieldChange(go->m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags));
             go->BuildValuesUpdateBlockForPlayer(&udata, this);
+            go->RemoveFieldNotifyFlag(UF::UF_FLAG_PUBLIC);
         }
     }
 
