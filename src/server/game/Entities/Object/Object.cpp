@@ -949,7 +949,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         bool HasFallDirection = unit->HasUnitMovementFlag(MOVEMENTFLAG_FALLING);
         bool HasFall = HasFallDirection || unit->m_movementInfo.jump.fallTime != 0;
         bool HasSpline = unit->IsSplineEnabled();
-        bool HasInertia = unit->m_movementInfo.inertia.has_value();
 
         *data << GetGUID();                                             // MoverGUID
 

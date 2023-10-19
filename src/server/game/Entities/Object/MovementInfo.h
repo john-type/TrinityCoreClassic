@@ -58,16 +58,6 @@ struct MovementInfo
     // swimming/flying
     float pitch;
 
-    struct Inertia
-    {
-        Inertia() : lifetime(0) { }
-
-        ObjectGuid guid;
-        Position force;
-        uint32 lifetime;
-    };
-
-    Optional<Inertia> inertia;
 
     // jumping
     struct JumpInfo

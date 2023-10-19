@@ -28,12 +28,11 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
     bool hasFallDirection = movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR);
     bool hasFallData = hasFallDirection || movementInfo.jump.fallTime != 0;
     bool hasSpline = false; // todo 6.x send this infos
-    bool hasInertia = movementInfo.inertia.has_value();
 
     data << movementInfo.guid;
-    data << uint32(movementInfo.flags);
-    data << uint32(movementInfo.flags2);
-    data << uint32(movementInfo.flags3);
+    //data << uint32(movementInfo.flags);
+    //data << uint32(movementInfo.flags2);
+    //data << uint32(movementInfo.flags3);
     data << uint32(movementInfo.time);
     data << movementInfo.pos.PositionXYZOStream();
     data << float(movementInfo.pitch);
@@ -50,25 +49,20 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
         data << ObjectGuid;
     }*/
 
+    data.WriteBits(movementInfo.flags, 30);
+    data.WriteBits(movementInfo.flags2, 18);
+
     data.WriteBit(hasTransportData);
     data.WriteBit(hasFallData);
     data.WriteBit(hasSpline);
 
     data.WriteBit(false); // HeightChangeFailed
     data.WriteBit(false); // RemoteTimeValid
-    data.WriteBit(hasInertia);
 
     data.FlushBits();
 
     if (hasTransportData)
         data << movementInfo.transport;
-
-    if (hasInertia)
-    {
-        data << movementInfo.inertia->guid;
-        data << movementInfo.inertia->force.PositionXYZStream();
-        data << uint32(movementInfo.inertia->lifetime);
-    }
 
     if (hasFallData)
     {
@@ -93,9 +87,9 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
     //bool hasSpline = false;
 
     data >> movementInfo.guid;
-    data >> movementInfo.flags;
-    data >> movementInfo.flags2;
-    data >> movementInfo.flags3;
+    //data >> movementInfo.flags;
+    //data >> movementInfo.flags2;
+    //data >> movementInfo.flags3;
     data >> movementInfo.time;
     data >> movementInfo.pos.PositionXYZOStream();
     data >> movementInfo.pitch;
@@ -113,25 +107,19 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
         data >> guid;
     }
 
+    movementInfo.flags = data.ReadBits(30);
+    movementInfo.flags2 = data.ReadBits(18);
+
     bool hasTransport = data.ReadBit();
     bool hasFall = data.ReadBit();
     /*hasSpline = */data.ReadBit(); // todo 6.x read this infos
 
     data.ReadBit(); // HeightChangeFailed
     data.ReadBit(); // RemoteTimeValid
-    bool hasInertia = data.ReadBit();
+
 
     if (hasTransport)
         data >> movementInfo.transport;
-
-    if (hasInertia)
-    {
-        movementInfo.inertia.emplace();
-
-        data >> movementInfo.inertia->guid;
-        data >> movementInfo.inertia->force.PositionXYZStream();
-        data >> movementInfo.inertia->lifetime;
-    }
 
     if (hasFall)
     {
