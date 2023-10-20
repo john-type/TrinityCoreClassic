@@ -5431,6 +5431,7 @@ void Unit::SetPowerType(Powers new_powertype, bool sendUpdate/* = true*/)
     if (GetPowerType() == new_powertype)
         return;
 
+    SetUInt32Value(UF::UNIT_FIELD_DISPLAY_POWER, new_powertype);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DisplayPower), new_powertype);
 
     if (!sendUpdate)
@@ -9120,6 +9121,7 @@ void Unit::SetMaxHealth(uint64 val)
         val = 1;
 
     uint64 health = GetHealth();
+    SetUInt64Value(UF::UNIT_FIELD_MAXHEALTH, val);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::MaxHealth), val);
 
     // group update
@@ -9167,6 +9169,7 @@ void Unit::SetPower(Powers power, int32 val, bool withPowerUpdate /*= true*/)
         val = maxPower;
 
     int32 oldPower = m_unitData->Power[powerIndex];
+    SetInt32Value(UF::UNIT_FIELD_POWER + powerIndex, val);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Power, powerIndex), val);
 
     if (IsInWorld() && withPowerUpdate)
@@ -9200,6 +9203,7 @@ void Unit::SetMaxPower(Powers power, int32 val)
         return;
 
     int32 cur_power = GetPower(power);
+    SetInt32Value(UF::UNIT_FIELD_MAXPOWER + powerIndex, val);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::MaxPower, powerIndex), val);
 
     // group update
