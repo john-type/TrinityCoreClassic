@@ -1235,7 +1235,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         Gender GetNativeGender() const override { return Gender(*m_playerData->NativeSex); }
         void SetNativeGender(Gender gender) override {
-            SetByteValue(UF::UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, gender);
+            SetByteValue(UF::PLAYER_BYTES, 2, gender);  //TODOFROST USE ENIUM FOR OFFSET
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::NativeSex), gender);
         }
 
@@ -2728,7 +2728,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlags), flags);
         }
         void ReplaceAllPlayerFlags(PlayerFlags flags) {
-            //TODOFROST - what is the old-style equivalent?
+            //TODOFROST - check
+            SetUInt32Value(UF::PLAYER_FLAGS, flags);
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlags), flags);
         }
 
@@ -2744,7 +2745,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlagsEx), flags);
         }
         void ReplaceAllPlayerFlagsEx(PlayerFlagsEx flags) {
-            //TODOFROST - what is the old-style equivalent?
+            //TODOFROST - check
+            SetUInt32Value(UF::PLAYER_FLAGS_EX, flags);
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlagsEx), flags);
         }
 
@@ -2753,16 +2755,13 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         uint32 GetCustomizationChoice(uint32 chrCustomizationOptionId) const
         {
-            //TODOFROST
-            //int32 choiceIndex = m_playerData->Customizations.FindIndexIf([chrCustomizationOptionId](UF::ChrCustomizationChoice choice)
-            //{
-            //    return choice.ChrCustomizationOptionID == chrCustomizationOptionId;
-            //});
+            int32 choiceIndex = m_playerData->Customizations.FindIndexIf([chrCustomizationOptionId](UF::ChrCustomizationChoice choice)
+            {
+                return choice.ChrCustomizationOptionID == chrCustomizationOptionId;
+            });
 
-            //if (choiceIndex >= 0)
-            //    return m_playerData->Customizations[choiceIndex].ChrCustomizationChoiceID;
-
-            return 0;
+            if (choiceIndex >= 0)
+                return m_playerData->Customizations[choiceIndex].ChrCustomizationChoiceID;
         }
 
         template<typename Iter>
@@ -2771,14 +2770,19 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             if (markChanged)
                 m_customizationsChanged = true;
 
-            //TODOFROST
-            //ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
-            //for (auto&& customization : customizations)
-            //{
-            //    UF::ChrCustomizationChoice& newChoice = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
-            //    newChoice.ChrCustomizationOptionID = customization.ChrCustomizationOptionID;
-            //    newChoice.ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID;
-            //}
+
+            ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
+            //TODOFROST - check / tidy
+            int offset = 0;
+            for (auto&& customization : customizations)
+            {
+                UF::ChrCustomizationChoice& newChoice = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
+                newChoice.ChrCustomizationOptionID = customization.ChrCustomizationOptionID;
+                newChoice.ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID;
+
+                SetUInt32Value(UF::PLAYER_FIELD_CUSTOMIZATION_CHOICES + offset++, customization.ChrCustomizationOptionID);
+                SetUInt32Value(UF::PLAYER_FIELD_CUSTOMIZATION_CHOICES + offset++, customization.ChrCustomizationChoiceID);
+            }
         }
         void SetPvpTitle(uint8 pvpTitle) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PvpTitle), pvpTitle); }
         void SetArenaFaction(uint8 arenaFaction) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::ArenaFaction), arenaFaction); }

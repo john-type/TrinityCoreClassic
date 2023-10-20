@@ -80,9 +80,8 @@ void WorldPackets::Inspect::PlayerModelDisplayInfo::Initialize(Player const* pla
     Race = player->GetRace();
     ClassID = player->GetClass();
 
-    //TODOFROST
-    //for (UF::ChrCustomizationChoice const& customization : player->m_playerData->Customizations)
-    //    Customizations.push_back(customization);
+    for (UF::ChrCustomizationChoice const& customization : player->m_playerData->Customizations)
+        Customizations.push_back(customization);
 
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         if (::Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))

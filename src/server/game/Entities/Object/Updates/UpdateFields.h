@@ -377,6 +377,7 @@ struct ArenaCooldown : public IsUpdateFieldStructureTag, public HasChangesMask<9
 
 struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<192>
 {
+    DynamicUpdateField<UF::ChrCustomizationChoice, 0, 1> Customizations;    //TODOFROST fix fields.
     UpdateField<bool, 0, 1> HasQuestSession;
     UpdateField<bool, 0, 2> HasLevelLink;
     DynamicUpdateField<UF::QuestLog, 0, 3> QuestSessionQuestLog;

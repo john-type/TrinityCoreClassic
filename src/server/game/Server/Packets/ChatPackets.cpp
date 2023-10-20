@@ -205,7 +205,7 @@ WorldPacket const* WorldPackets::Chat::Emote::Write()
     _worldPacket << Guid;
     _worldPacket << uint32(EmoteID);
     _worldPacket << uint32(SpellVisualKitIDs.size());
-    _worldPacket << int32(SequenceVariation);
+    //TODOFROST _worldPacket << int32(SequenceVariation);
     if (!SpellVisualKitIDs.empty())
         _worldPacket.append(SpellVisualKitIDs.data(), SpellVisualKitIDs.size());
 
@@ -218,11 +218,11 @@ void WorldPackets::Chat::CTextEmote::Read()
     _worldPacket >> EmoteID;
     _worldPacket >> SoundIndex;
 
-    //TODOFROST - check if these are needed
+    //TODOFROST
     //SpellVisualKitIDs.resize(_worldPacket.read<uint32>());
     //_worldPacket >> SequenceVariation;
-    //for (int32& spellVisualKitId : SpellVisualKitIDs)
-    //    _worldPacket >> spellVisualKitId;
+    for (int32& spellVisualKitId : SpellVisualKitIDs)
+        _worldPacket >> spellVisualKitId;
 }
 
 WorldPacket const* WorldPackets::Chat::STextEmote::Write()

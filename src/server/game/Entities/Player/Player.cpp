@@ -144,7 +144,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_objectType |= TYPEMASK_PLAYER;
     m_objectTypeId = TYPEID_PLAYER;
 
-    m_valuesCount = UF::PLAYER_END;
+    m_valuesCount = UF::ACTIVE_PLAYER_END;
     m_dynamicValuesCount = UF::PLAYER_DYNAMIC_END;
 
     m_session = session;
@@ -501,7 +501,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
 
     InitRunes();
 
-    //SetUInt64Value(UF::ACTIVE_PLAYER_FIELD_COINAGE, sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY)); //TODOFROST WORK OUT WHY SETTING CURRENCY THROWS AN EXCEPTION!
+    SetUInt64Value(UF::ACTIVE_PLAYER_FIELD_COINAGE, sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Coinage), sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
     SetCreateCurrency(CURRENCY_TYPE_APEXIS_CRYSTALS, sWorld->getIntConfig(CONFIG_CURRENCY_START_APEXIS_CRYSTALS));
     SetCreateCurrency(CURRENCY_TYPE_JUSTICE_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_JUSTICE_POINTS));
@@ -2627,6 +2627,7 @@ void Player::SendKnownSpells()
     knownSpells.InitialLogin = false; /// @todo
 
     knownSpells.KnownSpells.reserve(m_spells.size());
+
     for (PlayerSpellMap::value_type const& spell : m_spells)
     {
         if (spell.second.state == PLAYERSPELL_REMOVED)
@@ -4551,8 +4552,7 @@ Corpse* Player::CreateCorpse()
     corpse->SetRace(GetRace());
     corpse->SetSex(GetNativeGender());
     corpse->SetClass(GetClass());
-    //TODOFROST
-    //corpse->SetCustomizations(Trinity::Containers::MakeIteratorPair(m_playerData->Customizations.begin(), m_playerData->Customizations.end()));
+    corpse->SetCustomizations(Trinity::Containers::MakeIteratorPair(m_playerData->Customizations.begin(), m_playerData->Customizations.end()));
     corpse->ReplaceAllFlags(flags);
     corpse->SetDisplayId(GetNativeDisplayId());
     corpse->SetFactionTemplate(sChrRacesStore.AssertEntry(GetRace())->FactionID);
@@ -9852,6 +9852,7 @@ void Player::SetInventorySlotCount(uint8 slots)
         }
     }
 
+    SetByteValue(UF::ACTIVE_PLAYER_FIELD_BYTES_6, 2, slots); //TODOFROST use enum for second arg
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NumBackpackSlots), slots);
 }
 
@@ -20420,8 +20421,8 @@ void Player::_SaveCustomizations(CharacterDatabaseTransaction trans)
         return;
 
     m_customizationsChanged = false;
-    //TODOFROST
-    //SavePlayerCustomizations(trans, GetGUID().GetCounter(), Trinity::Containers::MakeIteratorPair(m_playerData->Customizations.begin(), m_playerData->Customizations.end()));
+
+    SavePlayerCustomizations(trans, GetGUID().GetCounter(), Trinity::Containers::MakeIteratorPair(m_playerData->Customizations.begin(), m_playerData->Customizations.end()));
 }
 
 void Player::_SaveActions(CharacterDatabaseTransaction trans)
@@ -24018,7 +24019,7 @@ void Player::SetMoney(uint64 value)
     if (!loading)
         MoneyChanged(value);
 
-    //SetUInt64Value(UF::ACTIVE_PLAYER_FIELD_COINAGE, value); //TODOFROST - work out why it throws exception
+    SetUInt64Value(UF::ACTIVE_PLAYER_FIELD_COINAGE, value);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Coinage), value);
 
     if (!loading)
@@ -24094,14 +24095,13 @@ void Player::SendInitialPacketsBeforeAddToMap()
     // SMSG_SET_PCT_SPELL_MODIFIER
     // SMSG_SET_FLAT_SPELL_MODIFIER
 
-    //TODOFROST - next 3 calls need to happen.
     /// SMSG_TALENTS_INFO
-    //SendTalentsInfoData(false);
-    /// SMSG_INITIAL_SPELLS
-    //SendKnownSpells();
+    SendTalentsInfoData(false);
+    // SMSG_INITIAL_SPELLS
+    SendKnownSpells();
 
-    /// SMSG_SEND_UNLEARN_SPELLS
-    //SendUnlearnSpells();
+    // SMSG_SEND_UNLEARN_SPELLS
+    SendUnlearnSpells();
 
     /// SMSG_SEND_SPELL_HISTORY
     WorldPackets::Spells::SendSpellHistory sendSpellHistory;
@@ -26037,27 +26037,27 @@ int64 Player::GetBarberShopCost(Trinity::IteratorPair<UF::ChrCustomizationChoice
     return 0;
 
     //TODOFROST
-    //if (HasAuraType(SPELL_AURA_REMOVE_BARBER_SHOP_COST))
-    //    return 0;
+    if (HasAuraType(SPELL_AURA_REMOVE_BARBER_SHOP_COST))
+        return 0;
 
-    //GtBarberShopCostBaseEntry const* bsc = sBarberShopCostBaseGameTable.GetRow(GetLevel());
-    //if (!bsc)                                                // shouldn't happen
-    //    return 0;
+    GtBarberShopCostBaseEntry const* bsc = sBarberShopCostBaseGameTable.GetRow(GetLevel());
+    if (!bsc)                                                // shouldn't happen
+        return 0;
 
-    //int64 cost = 0;
-    //for (UF::ChrCustomizationChoice const& newChoice : newCustomizations)
-    //{
-    //    int32 currentCustomizationIndex = m_playerData->Customizations.FindIndexIf([&](UF::ChrCustomizationChoice const& currentCustomization)
-    //    {
-    //        return currentCustomization.ChrCustomizationOptionID == newChoice.ChrCustomizationOptionID;
-    //    });
+    int64 cost = 0;
+    for (UF::ChrCustomizationChoice const& newChoice : newCustomizations)
+    {
+        int32 currentCustomizationIndex = m_playerData->Customizations.FindIndexIf([&](UF::ChrCustomizationChoice const& currentCustomization)
+        {
+            return currentCustomization.ChrCustomizationOptionID == newChoice.ChrCustomizationOptionID;
+        });
 
-    //    if (currentCustomizationIndex == -1 || m_playerData->Customizations[currentCustomizationIndex].ChrCustomizationChoiceID != newChoice.ChrCustomizationChoiceID)
-    //        if (ChrCustomizationOptionEntry const* customizationOption = sChrCustomizationOptionStore.LookupEntry(newChoice.ChrCustomizationOptionID))
-    //            cost += bsc->Cost * customizationOption->BarberShopCostModifier;
-    //}
+        if (currentCustomizationIndex == -1 || m_playerData->Customizations[currentCustomizationIndex].ChrCustomizationChoiceID != newChoice.ChrCustomizationChoiceID)
+            if (ChrCustomizationOptionEntry const* customizationOption = sChrCustomizationOptionStore.LookupEntry(newChoice.ChrCustomizationOptionID))
+                cost += bsc->Cost * customizationOption->BarberShopCostModifier;
+    }
 
-    //return cost;
+    return cost;
 }
 
 // Only sent on CreateObject
@@ -27103,6 +27103,9 @@ bool Player::CanSeeSpellClickOn(Creature const* c) const
 
 void Player::SendTalentsInfoData(bool /*pet*/)
 {
+    return;
+    //TODOFROST
+
     WorldPackets::Talent::UpdateTalentData packet;
     packet.UnspentTalentPoints = GetFreeTalentPoints();
     packet.ActiveGroup = 0;

@@ -11931,17 +11931,16 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
                 std::vector<uint32> displayIds;
                 displayIds.reserve(formModelData->Choices->size());
 
-                //TODOFROST
-                //for (std::size_t i = 0; i < formModelData->Choices->size(); ++i)
-                //{
-                //    if (ChrCustomizationDisplayInfoEntry const* displayInfo = formModelData->Displays[i])
-                //    {
-                //        ChrCustomizationReqEntry const* choiceReq = sChrCustomizationReqStore.LookupEntry((*formModelData->Choices)[i]->ChrCustomizationReqID);
-                //        if (!choiceReq || player->GetSession()->MeetsChrCustomizationReq(choiceReq, Classes(GetClass()), false,
-                //            MakeChrCustomizationChoiceRange(player->m_playerData->Customizations)))
-                //            displayIds.push_back(displayInfo->DisplayID);
-                //    }
-                //}
+                for (std::size_t i = 0; i < formModelData->Choices->size(); ++i)
+                {
+                    if (ChrCustomizationDisplayInfoEntry const* displayInfo = formModelData->Displays[i])
+                    {
+                        ChrCustomizationReqEntry const* choiceReq = sChrCustomizationReqStore.LookupEntry((*formModelData->Choices)[i]->ChrCustomizationReqID);
+                        if (!choiceReq || player->GetSession()->MeetsChrCustomizationReq(choiceReq, Classes(GetClass()), false,
+                            MakeChrCustomizationChoiceRange(player->m_playerData->Customizations)))
+                            displayIds.push_back(displayInfo->DisplayID);
+                    }
+                }
 
                 if (!displayIds.empty())
                     return Trinity::Containers::SelectRandomContainerElement(displayIds);
@@ -13320,10 +13319,18 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player const* t
     uint32* flags = UF::UnitUpdateFieldFlags;
     uint32 visibleFlag = UF::UF_FLAG_PUBLIC;
 
-    if (target == this)
+    if (target == this) {
         visibleFlag |= UF::UF_FLAG_PRIVATE;
-    else if (GetTypeId() == TYPEID_PLAYER)
-        valCount = UF::ACTIVE_PLAYER_FIELD_INV_SLOT_HEAD; // TODOFROST CHECK! UF::PLAYER_FIELD_END_NOT_SELF;
+        if (GetTypeId() == TYPEID_PLAYER)
+        {
+            valCount = UF::ACTIVE_PLAYER_END;
+            //TODO NEED TO HANDLE THE DYNAMIC EQUIVALENT!
+        }
+    }
+    else if (GetTypeId() == TYPEID_PLAYER) {
+        valCount = UF::PLAYER_END;
+        
+    }
 
     std::size_t blockCount = LegacyUpdateMask::GetBlockCount(valCount);
 
@@ -13331,10 +13338,9 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player const* t
     if (GetOwnerGUID() == target->GetGUID())
         visibleFlag |= UF::UF_FLAG_OWNER;
 
-    //TODOFROST
-   /* if (HasFlag(UF::OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
+   if (HasFlag(UF::OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
         if (HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
-            visibleFlag |= UF::UF_FLAG_SPECIAL_INFO;*/
+            visibleFlag |= UF::UF_FLAG_SPECIAL_INFO;
 
     if (plr && plr->IsInSameRaidWith(target))
         visibleFlag |= UF::UF_FLAG_PARTY_MEMBER;
@@ -13349,8 +13355,8 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player const* t
     {
         if (m_fieldNotifyFlags & flags[index] ||
             ((flags[index] & visibleFlag) & UF::UF_FLAG_SPECIAL_INFO) ||
-            ((updateType == UPDATETYPE_VALUES ? m_changesMask[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)) /* TODOFROST ||
-            (index == UF::UNIT_FIELD_AURASTATE && HasFlag(UF::UNIT_FIELD_AURASTATE, PER_CASTER_AURA_STATE_MASK))*/)
+            ((updateType == UPDATETYPE_VALUES ? m_changesMask[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)) ||
+            (index == UF::UNIT_FIELD_AURASTATE && HasFlag(UF::UNIT_FIELD_AURASTATE, PER_CASTER_AURA_STATE_MASK)))
         {
             LegacyUpdateMask::SetUpdateBit(data->contents() + maskPos, index);
 

@@ -241,7 +241,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
             RemoveUpdateFieldFlagValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags);
         }
         void ReplaceAllFlags(GameObjectFlags flags) {
-            //TODOFROST
+            //TODOFROST - check!
+            Object::SetUInt32Value(UF::GAMEOBJECT_FLAGS, flags);
             SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags);
         }
 

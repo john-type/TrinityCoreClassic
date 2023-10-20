@@ -191,7 +191,8 @@ class TC_GAME_API Item : public Object
             RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags), flags);
         }
         void ReplaceAllItemFlags(ItemFieldFlags flags) {
-            //TODOFROST
+            //TODOFROST - check
+            Object::SetUInt32Value(UF::ITEM_FIELD_FLAGS, flags);
             SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags), flags);
         }
 

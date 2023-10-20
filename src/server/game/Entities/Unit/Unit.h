@@ -974,7 +974,8 @@ class TC_GAME_API Unit : public WorldObject
             RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags), flags);
         }
         void ReplaceAllUnitFlags(UnitFlags flags) {
-            //TODOFROST
+            //TODOFROST - check
+            SetUInt32Value(UF::UNIT_FIELD_FLAGS, flags);
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags), flags);
         }
 
@@ -990,7 +991,8 @@ class TC_GAME_API Unit : public WorldObject
             RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags2), flags);
         }
         void ReplaceAllUnitFlags2(UnitFlags2 flags) {
-            //TODOFROST
+            //TODOFROST - check
+            SetUInt32Value(UF::UNIT_FIELD_FLAGS_2, flags);
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags2), flags);
         }
 
@@ -1006,7 +1008,8 @@ class TC_GAME_API Unit : public WorldObject
             RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags3), flags);
         }
         void ReplaceAllUnitFlags3(UnitFlags3 flags) {
-            //TODOFROST
+            //TODOFROST - check
+            SetUInt32Value(UF::UNIT_FIELD_FLAGS_3, flags);
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags3), flags);
         }
 

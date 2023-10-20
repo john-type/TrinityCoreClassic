@@ -440,7 +440,7 @@ bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
         player->m_clientGUIDs.clear();
 
     player->UpdateObjectVisibility(false);
-    //PhasingHandler::SendToPlayer(player); //TODOFROST
+    PhasingHandler::SendToPlayer(player);
 
     if (player->IsAlive())
         ConvertCorpseToBones(player->GetGUID());

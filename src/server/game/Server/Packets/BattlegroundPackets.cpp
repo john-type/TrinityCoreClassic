@@ -20,7 +20,6 @@
 WorldPacket const* WorldPackets::Battleground::SeasonInfo::Write()
 {
     _worldPacket << int32(MythicPlusDisplaySeasonID);
-    _worldPacket << int32(MythicPlusMilestoneSeasonID);
     _worldPacket << int32(CurrentArenaSeason);
     _worldPacket << int32(PreviousArenaSeason);
     _worldPacket << int32(ConquestWeeklyProgressCurrencyID);

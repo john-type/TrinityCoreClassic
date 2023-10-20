@@ -33,7 +33,7 @@ namespace WorldPackets
         class SeasonInfo final : public ServerPacket
         {
         public:
-            SeasonInfo() : ServerPacket(SMSG_SEASON_INFO, 4 + 4 + 4 + 4 + 4 + 1) { }
+            SeasonInfo() : ServerPacket(SMSG_SEASON_INFO, 4 + 4 + 4 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 

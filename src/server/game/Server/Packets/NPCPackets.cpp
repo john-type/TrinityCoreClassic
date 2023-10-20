@@ -79,7 +79,7 @@ WorldPacket const* GossipMessage::Write()
         _worldPacket << uint8(options.OptionNPC);
         _worldPacket << int8(options.OptionFlags);
         _worldPacket << int32(options.OptionCost);
-        _worldPacket << uint32(options.OptionLanguage);
+        //TODOFROST _worldPacket << uint32(options.OptionLanguage);
         _worldPacket.WriteBits(options.Text.size(), 12);
         _worldPacket.WriteBits(options.Confirm.size(), 12);
         _worldPacket.WriteBits(AsUnderlyingType(options.Status), 2);

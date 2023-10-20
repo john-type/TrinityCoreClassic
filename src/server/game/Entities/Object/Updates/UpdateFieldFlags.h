@@ -43,7 +43,7 @@ namespace UF
 
     TC_GAME_API extern uint32 ItemUpdateFieldFlags[CONTAINER_END];
     TC_GAME_API extern uint32 ItemDynamicUpdateFieldFlags[CONTAINER_DYNAMIC_END];
-    TC_GAME_API extern uint32 UnitUpdateFieldFlags[PLAYER_END];
+    TC_GAME_API extern uint32 UnitUpdateFieldFlags[ACTIVE_PLAYER_END];
     TC_GAME_API extern uint32 UnitDynamicUpdateFieldFlags[PLAYER_DYNAMIC_END];
     TC_GAME_API extern uint32 GameObjectUpdateFieldFlags[GAMEOBJECT_END];
     TC_GAME_API extern uint32 GameObjectDynamicUpdateFieldFlags[GAMEOBJECT_DYNAMIC_END];
