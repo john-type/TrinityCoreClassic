@@ -2788,6 +2788,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetArenaFaction(uint8 arenaFaction) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::ArenaFaction), arenaFaction); }
         void ApplyModFakeInebriation(int32 mod, bool apply) { ApplyModUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::FakeInebriation), mod, apply); }
         void SetVirtualPlayerRealm(uint32 virtualRealmAddress) {
+            SetUInt32Value(UF::PLAYER_FIELD_VIRTUAL_PLAYER_REALM, virtualRealmAddress);
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::VirtualPlayerRealm), virtualRealmAddress);
         }
         void SetCurrentBattlePetBreedQuality(uint8 battlePetBreedQuality) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CurrentBattlePetBreedQuality), battlePetBreedQuality);  }
@@ -2837,12 +2838,17 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool HasPlayerLocalFlag(PlayerLocalFlags flags) const { return (*m_activePlayerData->LocalFlags & flags) != 0; }
         void SetPlayerLocalFlag(PlayerLocalFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::LocalFlags), flags); }
         void RemovePlayerLocalFlag(PlayerLocalFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::LocalFlags), flags); }
-        void ReplaceAllPlayerLocalFlags(PlayerLocalFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::LocalFlags), flags); }
+        void ReplaceAllPlayerLocalFlags(PlayerLocalFlags flags) {
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::LocalFlags), flags);
+        }
 
         uint8 GetNumRespecs() const { return m_activePlayerData->NumRespecs; }
         void SetNumRespecs(uint8 numRespecs) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NumRespecs), numRespecs); }
 
-        void SetWatchedFactionIndex(int32 index) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::WatchedFactionIndex), index); }
+        void SetWatchedFactionIndex(int32 index) {
+            SetInt32Value(UF::ACTIVE_PLAYER_FIELD_WATCHED_FACTION_INDEX, index);
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::WatchedFactionIndex), index);
+        }
 
         void AddAuraVision(PlayerFieldByte2Flags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::AuraVision), flags); }
         void RemoveAuraVision(PlayerFieldByte2Flags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::AuraVision), flags); }

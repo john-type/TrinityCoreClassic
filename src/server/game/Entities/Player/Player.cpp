@@ -2601,6 +2601,9 @@ void Player::InitStatsForLevel(bool reapplyMods)
     RemovePvpFlag(UNIT_BYTE2_FLAG_FFA_PVP | UNIT_BYTE2_FLAG_SANCTUARY);
 
     // restore if need some important flags
+    //TODOFROST TIDY
+    SetByteFlag(UF::ACTIVE_PLAYER_FIELD_BYTES_6, 0, 0);
+    SetByteFlag(UF::ACTIVE_PLAYER_FIELD_BYTES_6, 1, 0);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::LocalRegenFlags), 0);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::AuraVision), 0);
 

@@ -406,17 +406,19 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
     data << uint32(spellCastData.CastFlagsEx);
     data << uint32(spellCastData.CastTime);
     data << spellCastData.MissileTrajectory;
-    data << int32(spellCastData.Ammo.DisplayID);
+    /*data << int32(spellCastData.Ammo.DisplayID);*/    //TODOFROST
     data << uint8(spellCastData.DestLocSpellCastIndex);
     data << spellCastData.Immunities;
     data << spellCastData.Predict;
     data.WriteBits(spellCastData.HitTargets.size(), 16);
     data.WriteBits(spellCastData.MissTargets.size(), 16);
-    data.WriteBits(spellCastData.HitStatus.size(), 16);
+    /*data.WriteBits(spellCastData.HitStatus.size(), 16); //TODOFROST */
     data.WriteBits(spellCastData.MissStatus.size(), 16);
     data.WriteBits(spellCastData.RemainingPower.size(), 9);
     data.WriteBit(spellCastData.RemainingRunes.has_value());
     data.WriteBits(spellCastData.TargetPoints.size(), 16);
+    data.WriteBit(spellCastData.Ammo.DisplayID > 0);    //TODOFROST
+    data.WriteBit(spellCastData.Ammo.InventoryType > 0); //TODOFROST
     data.FlushBits();
 
     for (WorldPackets::Spells::SpellMissStatus const& missStatus : spellCastData.MissStatus)
@@ -430,8 +432,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
     for (ObjectGuid const& missTarget : spellCastData.MissTargets)
         data << missTarget;
 
-    for (WorldPackets::Spells::SpellHitStatus const& hitStatus : spellCastData.HitStatus)
-        data << hitStatus;
+    //for (WorldPackets::Spells::SpellHitStatus const& hitStatus : spellCastData.HitStatus) //TODOFROST
+    //    data << hitStatus;
 
     for (WorldPackets::Spells::SpellPowerData const& power : spellCastData.RemainingPower)
         data << power;
@@ -441,6 +443,14 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
 
     for (WorldPackets::Spells::TargetLocation const& targetLoc : spellCastData.TargetPoints)
         data << targetLoc;
+
+    if (spellCastData.Ammo.DisplayID > 0) {
+        data << spellCastData.Ammo.DisplayID;
+    }
+
+    if (spellCastData.Ammo.InventoryType > 0) {
+        data << spellCastData.Ammo.InventoryType;
+    }
 
     return data;
 }
