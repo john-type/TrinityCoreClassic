@@ -130,6 +130,18 @@ enum PlayerExplorationConstants
     PLAYER_EXPLORED_ZONES_BITS  = UF::size_of_value_type<decltype(UF::ActivePlayerData::ExploredZones)>() * 8
 };
 
+
+enum SkillFieldOffset
+{
+    SKILL_ID_OFFSET = 0,
+    SKILL_STEP_OFFSET = 64,
+    SKILL_RANK_OFFSET = SKILL_STEP_OFFSET + 64,
+    SUBSKILL_START_RANK_OFFSET = SKILL_RANK_OFFSET + 64,
+    SKILL_MAX_RANK_OFFSET = SUBSKILL_START_RANK_OFFSET + 64,
+    SKILL_TEMP_BONUS_OFFSET = SKILL_MAX_RANK_OFFSET + 64,
+    SKILL_PERM_BONUS_OFFSET = SKILL_TEMP_BONUS_OFFSET + 64
+};
+
 enum SpellModType : uint8
 {
     SPELLMOD_FLAT         = 0,                            // SPELL_AURA_ADD_FLAT_MODIFIER
@@ -2208,13 +2220,48 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool HasSkill(uint32 skill) const;
         void LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue, Races race);
         int32 FindProfessionSlotFor(uint32 skillId) const;
-        void SetSkillLineId(uint32 pos, uint16 skillLineId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillLineID, pos), skillLineId); }
-        void SetSkillStep(uint32 pos, uint16 step) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillStep, pos), step); };
-        void SetSkillRank(uint32 pos, uint16 rank) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillRank, pos), rank); }
-        void SetSkillStartingRank(uint32 pos, uint16 starting) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillStartingRank, pos), starting); }
-        void SetSkillMaxRank(uint32 pos, uint16 max) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillMaxRank, pos), max); }
-        void SetSkillTempBonus(uint32 pos, uint16 bonus) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillTempBonus, pos), bonus); }
-        void SetSkillPermBonus(uint32 pos, uint16 bonus) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillPermBonus, pos), bonus); }
+        void SetSkillLineId(uint32 pos, uint16 skillLineId) {
+            uint16 field = pos / 2;
+            uint8 offset = pos & 1;
+            SetUInt16Value(UF::ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_ID_OFFSET + field, offset, skillLineId);
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillLineID, pos), skillLineId);
+        }
+        void SetSkillStep(uint32 pos, uint16 step) {
+            uint16 field = pos / 2;
+            uint8 offset = pos & 1;
+            SetUInt16Value(UF::ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_STEP_OFFSET + field, offset, step);
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillStep, pos), step);
+        };
+        void SetSkillRank(uint32 pos, uint16 rank) {
+            uint16 field = pos / 2;
+            uint8 offset = pos & 1;
+            SetUInt16Value(UF::ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, rank);
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillRank, pos), rank);
+        }
+        void SetSkillStartingRank(uint32 pos, uint16 starting) {
+            uint16 field = pos / 2;
+            uint8 offset = pos & 1;
+            SetUInt16Value(UF::ACTIVE_PLAYER_FIELD_SKILL_LINEID + SUBSKILL_START_RANK_OFFSET + field, offset, starting);
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillStartingRank, pos), starting);
+        }
+        void SetSkillMaxRank(uint32 pos, uint16 max) {
+            uint16 field = pos / 2;
+            uint8 offset = pos & 1;
+            SetUInt16Value(UF::ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset, max);
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillMaxRank, pos), max);
+        }
+        void SetSkillTempBonus(uint32 pos, uint16 bonus) {
+            uint16 field = pos / 2;
+            uint8 offset = pos & 1;
+            SetUInt16Value(UF::ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_TEMP_BONUS_OFFSET + field, offset, bonus);
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillTempBonus, pos), bonus);
+        }
+        void SetSkillPermBonus(uint32 pos, uint16 bonus) {
+            uint16 field = pos / 2;
+            uint8 offset = pos & 1;
+            SetUInt16Value(UF::ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET + field, offset, bonus);
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillPermBonus, pos), bonus);
+        }
 
         WorldLocation& GetTeleportDest() { return m_teleport_dest; }
         Optional<uint32> GetTeleportDestInstanceId() const { return m_teleport_instanceId; }
