@@ -465,12 +465,39 @@ namespace WorldPackets
 
         class GetAccountCharacterListResult final : public ServerPacket {
         public:
+
+            struct CharacterListEntry {
+
+                //TODOFROST - better constructor
+                /**
+                 * @fn  void WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields);
+                 *
+                 * @brief   Initialize the struct with values from QueryResult
+                 *
+                 * @param   fields         Field set of CharacterDatabaseStatements::CHAR_SEL_ENUM
+                 */
+                CharacterListEntry(Field* fields);
+
+                ObjectGuid AccountGuid;
+                ObjectGuid CharacterGuid;
+                uint32 RealmVirtualAddress;
+                uint8 RaceID = RACE_NONE;
+                uint8 ClassID = CLASS_NONE;
+                uint8 SexID = GENDER_NONE;
+                uint8 Level = 1;
+                uint64 lastLoginUnixSec = 0;
+
+                std::string Name;
+                std::string RealmName;
+            };
+
             GetAccountCharacterListResult() : ServerPacket(SMSG_GET_ACCOUNT_CHARACTER_LIST_RESULT, 3) {}
 
             WorldPacket const* Write() override;
 
             uint32 Token = 0;
-            //TODOFROST other fields - see hermes
+            std::vector<CharacterListEntry> Characters;
+
         };
 
         class PlayerLogin final : public ClientPacket

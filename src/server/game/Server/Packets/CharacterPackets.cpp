@@ -247,6 +247,39 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::UnlockedCondition
     return data;
 }
 
+
+GetAccountCharacterListResult::CharacterListEntry::CharacterListEntry(Field* fields)
+{
+    CharacterGuid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
+    Name = fields[1].GetString();
+    RaceID = fields[2].GetUInt8();
+    ClassID = fields[3].GetUInt8();
+    SexID = fields[4].GetUInt8();
+    Level = fields[5].GetUInt8();
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, GetAccountCharacterListResult::CharacterListEntry const& characterListEntry)
+{
+    data << characterListEntry.AccountGuid;
+    data << characterListEntry.CharacterGuid;
+    data << characterListEntry.RealmVirtualAddress;
+    data << characterListEntry.RaceID;
+    data << characterListEntry.ClassID;
+    data << characterListEntry.SexID;
+    data << characterListEntry.Level;
+
+    data << characterListEntry.lastLoginUnixSec;
+
+    data.ResetBitPos();
+    data.WriteBits(characterListEntry.Name.length(), 6);
+    data.WriteBits(characterListEntry.RealmName.length(), 9);
+
+    data.WriteString(characterListEntry.Name);
+    data.WriteString(characterListEntry.RealmName);
+
+    return data;
+}
+
 WorldPacket const* EnumCharactersResult::Write()
 {
     _worldPacket.reserve(9 + Characters.size() * sizeof(CharacterInfo) + RaceUnlockData.size() * sizeof(RaceUnlock));
@@ -470,10 +503,17 @@ void GetAccountCharacterList::Read()
 
 WorldPacket const* GetAccountCharacterListResult::Write()
 {
+
+    //TODOFROST RESERVE PACKET SIZE.
     _worldPacket << Token;
-    _worldPacket << uint32(0);
+    _worldPacket << uint32(Characters.size());
     _worldPacket.ResetBitPos();
     _worldPacket.WriteBit(false);
+
+    for (CharacterListEntry& character : Characters)
+        _worldPacket << character;
+
+
     return &_worldPacket;
 }
 

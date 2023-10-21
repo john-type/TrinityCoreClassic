@@ -989,11 +989,45 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin&
 
 void WorldSession::HandleGetAccountCharListOpcode(WorldPackets::Character::GetAccountCharacterList& accountCharList)
 {
-    //TODOFROST - real result
-    WorldPackets::Character::GetAccountCharacterListResult result;
-    result.Token = accountCharList.Token;
+    //TODOFROST - real result, tidy and confir safe!!
+    //TODOFROST - this doesnt work for multiple realms!
+    auto handler = [this, token = accountCharList.Token](EnumCharactersQueryHolder const& holder) {
 
-    SendPacket(result.Write());
+        WorldPackets::Character::GetAccountCharacterListResult list_result;
+        list_result.Token = token;
+
+        if (PreparedQueryResult result = holder.GetPreparedResult(EnumCharactersQueryHolder::CHARACTERS))
+        {
+            do {
+                WorldPackets::Character::GetAccountCharacterListResult::CharacterListEntry temp{result->Fetch()};
+                temp.AccountGuid = GetAccountGUID();
+                temp.lastLoginUnixSec = 0; //TODOFROST
+                temp.RealmName = realm.Name;
+                temp.RealmVirtualAddress = GetVirtualRealmAddress();
+                list_result.Characters.push_back(temp);
+            } while (result->NextRow() && list_result.Characters.size() < MAX_CHARACTERS_PER_REALM);
+        }
+
+        SendPacket(list_result.Write());
+    };
+
+
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
+    CharacterDatabase.Execute(stmt);
+
+    /// get all the data necessary for loading all characters (along with their pets) on the account
+    std::shared_ptr<EnumCharactersQueryHolder> holder = std::make_shared<EnumCharactersQueryHolder>();
+    if (!holder->Initialize(GetAccountId(), sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED), false))
+    {
+        handler(*holder);
+        return;
+    }
+
+    AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(holder)).AfterComplete([handler, this](SQLQueryHolderBase const& result)
+        {
+            handler(static_cast<EnumCharactersQueryHolder const&>(result));
+        });
+    
 }
 
 void WorldSession::HandleContinuePlayerLogin()
