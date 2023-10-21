@@ -72,14 +72,20 @@ void Unit::UpdateDamagePhysical(WeaponAttackType attType)
     {
         case BASE_ATTACK:
         default:
+            SetStatFloatValue(UF::UNIT_FIELD_MINDAMAGE, minDamage);
+            SetStatFloatValue(UF::UNIT_FIELD_MAXDAMAGE, maxDamage);
             SetUpdateFieldStatValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::MinDamage), minDamage);
             SetUpdateFieldStatValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::MaxDamage), maxDamage);
             break;
         case OFF_ATTACK:
+            SetStatFloatValue(UF::UNIT_FIELD_MINOFFHANDDAMAGE, minDamage);
+            SetStatFloatValue(UF::UNIT_FIELD_MAXOFFHANDDAMAGE, maxDamage);
             SetUpdateFieldStatValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::MinOffHandDamage), minDamage);
             SetUpdateFieldStatValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::MaxOffHandDamage), maxDamage);
             break;
         case RANGED_ATTACK:
+            SetStatFloatValue(UF::UNIT_FIELD_MINRANGEDDAMAGE, minDamage);
+            SetStatFloatValue(UF::UNIT_FIELD_MAXRANGEDDAMAGE, maxDamage);
             SetUpdateFieldStatValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::MinRangedDamage), minDamage);
             SetUpdateFieldStatValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::MaxRangedDamage), maxDamage);
             break;
@@ -165,6 +171,7 @@ void Player::UpdateSpellDamageAndHealingBonus()
     // Magic damage modifiers implemented in Unit::SpellDamageBonusDone
     // This information for client side use only
     // Get healing bonus for all schools
+    SetStatInt32Value(UF::ACTIVE_PLAYER_FIELD_MOD_HEALING_DONE_POS, SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL));
     SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModHealingDonePos), SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL));
     // Get damage bonus for all schools
     Unit::AuraEffectList const& modDamageAuras = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
@@ -818,6 +825,8 @@ void Player::UpdateManaRegen()
     if (modManaRegenInterrupt > 100)
         modManaRegenInterrupt = 100;
 
+    //TODOFROST - interupped regen?
+    SetStatFloatValue(UF::UNIT_FIELD_MOD_POWER_REGEN + manaIndex, power_regen_mp5 + power_regen);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, manaIndex), power_regen_mp5 + power_regen);
 }
 
@@ -833,6 +842,7 @@ void Player::UpdateAllRunesRegen()
     PowerTypeEntry const* runeEntry = sDB2Manager.GetPowerTypeEntry(POWER_RUNES);
 
     uint32 cooldown = GetRuneBaseCooldown();
+    SetStatFloatValue(UF::UNIT_FIELD_MOD_POWER_REGEN + runeIndex, float(1 * IN_MILLISECONDS) / float(cooldown) - runeEntry->RegenPeace);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, runeIndex), float(1 * IN_MILLISECONDS) / float(cooldown) - runeEntry->RegenPeace);
 }
 
@@ -1278,6 +1288,8 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
     float mindamage = ((base_value + weapon_mindamage) * base_pct + total_value) * total_pct;
     float maxdamage = ((base_value + weapon_maxdamage) * base_pct + total_value) * total_pct;
 
+    SetStatFloatValue(UF::UNIT_FIELD_MINDAMAGE, mindamage);
+    SetStatFloatValue(UF::UNIT_FIELD_MAXDAMAGE, maxdamage);
     SetUpdateFieldStatValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::MinDamage), mindamage);
     SetUpdateFieldStatValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::MaxDamage), maxdamage);
 }

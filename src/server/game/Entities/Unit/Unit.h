@@ -935,7 +935,10 @@ class TC_GAME_API Unit : public WorldObject
 
         Powers GetPowerType() const { return Powers(*m_unitData->DisplayPower); }
         void SetPowerType(Powers power, bool sendUpdate = true);
-        void SetOverrideDisplayPowerId(uint32 powerDisplayId) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::OverrideDisplayPowerID), powerDisplayId); }
+        void SetOverrideDisplayPowerId(uint32 powerDisplayId) {
+            SetUInt32Value(UF::UNIT_FIELD_OVERRIDE_DISPLAY_POWER_ID, powerDisplayId);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::OverrideDisplayPowerID), powerDisplayId);
+        }
         void UpdateDisplayPower();
         int32 GetPower(Powers power) const;
         int32 GetMinPower(Powers power) const { return power == POWER_LUNAR_POWER ? -100 : 0; }
@@ -955,12 +958,30 @@ class TC_GAME_API Unit : public WorldObject
         void ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply);
         void ApplyCastTimePercentMod(float val, bool apply);
 
-        void SetModCastingSpeed(float castingSpeed) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModCastingSpeed), castingSpeed); }
-        void SetModSpellHaste(float spellHaste) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModSpellHaste), spellHaste); }
-        void SetModHaste(float haste) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModHaste), haste); }
-        void SetModRangedHaste(float rangedHaste) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModRangedHaste), rangedHaste); }
-        void SetModHasteRegen(float hasteRegen) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModHasteRegen), hasteRegen); }
-        void SetModTimeRate(float timeRate) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModTimeRate), timeRate); }
+        void SetModCastingSpeed(float castingSpeed) {
+            SetFloatValue(UF::UNIT_MOD_CAST_SPEED, castingSpeed);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModCastingSpeed), castingSpeed);
+        }
+        void SetModSpellHaste(float spellHaste) {
+            SetFloatValue(UF::UNIT_MOD_CAST_HASTE, spellHaste);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModSpellHaste), spellHaste);
+        }
+        void SetModHaste(float haste) {
+            SetFloatValue(UF::UNIT_FIELD_MOD_HASTE, haste);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModHaste), haste);
+        }
+        void SetModRangedHaste(float rangedHaste) {
+            SetFloatValue(UF::UNIT_FIELD_MOD_RANGED_HASTE, rangedHaste);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModRangedHaste), rangedHaste);
+        }
+        void SetModHasteRegen(float hasteRegen) {
+            SetFloatValue(UF::UNIT_FIELD_MOD_HASTE_REGEN, hasteRegen);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModHasteRegen), hasteRegen);
+        }
+        void SetModTimeRate(float timeRate) {
+            SetFloatValue(UF::UNIT_FIELD_MOD_TIME_RATE, timeRate);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModTimeRate), timeRate);
+        }
 
         bool HasUnitFlag(UnitFlags flags) const {
             return (*m_unitData->Flags & flags) != 0;
@@ -1657,14 +1678,38 @@ class TC_GAME_API Unit : public WorldObject
         virtual void UpdateMaxPower(Powers power) = 0;
         virtual uint32 GetPowerIndex(Powers power) const = 0;
         virtual void UpdateAttackPowerAndDamage(bool ranged = false) = 0;
-        void SetAttackPower(int32 attackPower) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AttackPower), attackPower); }
-        void SetAttackPowerModPos(int32 attackPowerMod) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AttackPowerModPos), attackPowerMod); }
-        void SetAttackPowerModNeg(int32 attackPowerMod) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AttackPowerModNeg), attackPowerMod); }
-        void SetAttackPowerMultiplier(float attackPowerMult) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AttackPowerMultiplier), attackPowerMult); }
-        void SetRangedAttackPower(int32 attackPower) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::RangedAttackPower), attackPower); }
-        void SetRangedAttackPowerModPos(int32 attackPowerMod) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::RangedAttackPowerModPos), attackPowerMod); }
-        void SetRangedAttackPowerModNeg(int32 attackPowerMod) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::RangedAttackPowerModNeg), attackPowerMod); }
-        void SetRangedAttackPowerMultiplier(float attackPowerMult) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::RangedAttackPowerMultiplier), attackPowerMult); }
+        void SetAttackPower(int32 attackPower) {
+            SetInt32Value(UF::UNIT_FIELD_ATTACK_POWER, attackPower);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AttackPower), attackPower);
+        }
+        void SetAttackPowerModPos(int32 attackPowerMod) {
+            SetInt32Value(UF::UNIT_FIELD_ATTACK_POWER_MOD_POS, attackPowerMod);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AttackPowerModPos), attackPowerMod);
+        }
+        void SetAttackPowerModNeg(int32 attackPowerMod) {
+            SetInt32Value(UF::UNIT_FIELD_ATTACK_POWER_MOD_NEG, attackPowerMod);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AttackPowerModNeg), attackPowerMod);
+        }
+        void SetAttackPowerMultiplier(float attackPowerMult) {
+            SetFloatValue(UF::UNIT_FIELD_ATTACK_POWER_MULTIPLIER, attackPowerMult);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AttackPowerMultiplier), attackPowerMult);
+        }
+        void SetRangedAttackPower(int32 attackPower) {
+            SetInt32Value(UF::UNIT_FIELD_RANGED_ATTACK_POWER, attackPower);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::RangedAttackPower), attackPower);
+        }
+        void SetRangedAttackPowerModPos(int32 attackPowerMod) {
+            SetInt32Value(UF::UNIT_FIELD_ATTACK_POWER_MOD_POS, attackPowerMod);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::RangedAttackPowerModPos), attackPowerMod);
+        }
+        void SetRangedAttackPowerModNeg(int32 attackPowerMod) {
+            SetInt32Value(UF::UNIT_FIELD_ATTACK_POWER_MOD_NEG, attackPowerMod);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::RangedAttackPowerModNeg), attackPowerMod);
+        }
+        void SetRangedAttackPowerMultiplier(float attackPowerMult) {
+            SetFloatValue(UF::UNIT_FIELD_ATTACK_POWER_MULTIPLIER, attackPowerMult);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::RangedAttackPowerMultiplier), attackPowerMult);
+        }
         virtual void UpdateDamagePhysical(WeaponAttackType attType);
         float GetTotalAttackPowerValue(WeaponAttackType attType, bool includeWeapon = true) const;
         float GetWeaponDamageRange(WeaponAttackType attType, WeaponDamageRange type) const;

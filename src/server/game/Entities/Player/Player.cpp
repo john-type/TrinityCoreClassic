@@ -1898,6 +1898,7 @@ void Player::Regenerate(Powers power)
         // throttle packet sending
         DoWithSuppressingObjectUpdates([&]()
         {
+            SetInt32Value(UF::UNIT_FIELD_POWER + powerIndex, curValue);
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Power, powerIndex), curValue);
             const_cast<UF::UnitData&>(*m_unitData).ClearChanged(&UF::UnitData::Power, powerIndex);
         });
@@ -17601,6 +17602,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         return false;
     }
 
+    SetGuidValue(UF::PLAYER_WOW_ACCOUNT, GetSession()->GetAccountGUID());
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::WowAccount), GetSession()->GetAccountGUID());
 
     if (!IsValidGender(fields.gender))
@@ -26254,6 +26256,7 @@ void Player::InitRunes()
     for (uint8 i = 0; i < MAX_RUNES; ++i)
         SetRuneCooldown(i, 0);                                          // reset cooldowns
 
+    SetStatFloatValue(UF::UNIT_FIELD_MOD_POWER_REGEN + runeIndex, 0.0f);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, runeIndex), 0.0f);
 }
 

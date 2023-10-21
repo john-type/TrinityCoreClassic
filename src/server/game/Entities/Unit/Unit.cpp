@@ -5783,6 +5783,8 @@ void Unit::ModifyAuraState(AuraStateType flag, bool apply)
     {
         if (!(*m_unitData->AuraState & mask))
         {
+
+            SetFlag(UF::UNIT_FIELD_AURASTATE, mask);
             SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AuraState), mask);
             if (GetTypeId() == TYPEID_PLAYER)
             {
