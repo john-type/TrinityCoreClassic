@@ -1037,7 +1037,10 @@ class TC_GAME_API Unit : public WorldObject
         void SetCreatedBySpell(int32 spellId) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CreatedBySpell), spellId); }
 
         Emote GetEmoteState() const { return Emote(*m_unitData->EmoteState); }
-        void SetEmoteState(Emote emote) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::EmoteState), emote); }
+        void SetEmoteState(Emote emote) {
+            SetUInt32Value(UF::UNIT_NPC_EMOTESTATE, emote);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::EmoteState), emote);
+        }
 
         SheathState GetSheath() const { return SheathState(*m_unitData->SheatheState); }
         void SetSheath(SheathState sheathed);
@@ -1170,15 +1173,33 @@ class TC_GAME_API Unit : public WorldObject
 
         NPCFlags GetNpcFlags() const { return NPCFlags(m_unitData->NpcFlags[0]); }
         bool HasNpcFlag(NPCFlags flags) const { return (m_unitData->NpcFlags[0] & flags) != 0; }
-        void SetNpcFlag(NPCFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 0), flags); }
-        void RemoveNpcFlag(NPCFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 0), flags); }
-        void ReplaceAllNpcFlags(NPCFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 0), flags); }
+        void SetNpcFlag(NPCFlags flags) {
+            SetFlag(UF::UNIT_NPC_FLAGS, flags);//TODOFROST - check
+            SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 0), flags);
+        }
+        void RemoveNpcFlag(NPCFlags flags) {
+            RemoveFlag(UF::UNIT_NPC_FLAGS, flags);//TODOFROST - check
+            RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 0), flags);
+        }
+        void ReplaceAllNpcFlags(NPCFlags flags) {
+            SetUInt32Value(UF::UNIT_NPC_FLAGS, flags); //TODOFROST - check
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 0), flags);
+        }
 
         NPCFlags2 GetNpcFlags2() const { return NPCFlags2(m_unitData->NpcFlags[1]); }
         bool HasNpcFlag2(NPCFlags2 flags) const { return (m_unitData->NpcFlags[1] & flags) != 0; }
-        void SetNpcFlag2(NPCFlags2 flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 1), flags); }
-        void RemoveNpcFlag2(NPCFlags2 flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 1), flags); }
-        void ReplaceAllNpcFlags2(NPCFlags2 flags) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 1), flags); }
+        void SetNpcFlag2(NPCFlags2 flags) {
+            RemoveFlag(UF::UNIT_NPC_FLAGS + 1, flags);//TODOFROST - check
+            SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 1), flags);
+        }
+        void RemoveNpcFlag2(NPCFlags2 flags) {
+            RemoveFlag(UF::UNIT_NPC_FLAGS + 1, flags);//TODOFROST - check
+            RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 1), flags);
+        }
+        void ReplaceAllNpcFlags2(NPCFlags2 flags) {
+            SetUInt32Value(UF::UNIT_NPC_FLAGS + 1, flags); //TODOFROST - check
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 1), flags);
+        }
 
         bool IsVendor()         const { return HasNpcFlag(UNIT_NPC_FLAG_VENDOR); }
         bool IsTrainer()        const { return HasNpcFlag(UNIT_NPC_FLAG_TRAINER); }

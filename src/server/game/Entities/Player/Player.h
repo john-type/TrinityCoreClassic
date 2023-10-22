@@ -1956,7 +1956,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendInitialActionButtons() const { SendActionButtons(0); }
         void SendActionButtons(uint32 state) const;
         bool IsActionButtonDataValid(uint8 button, uint32 action, uint8 type) const;
-        void SetMultiActionBars(uint8 mask) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::MultiActionBars), mask); }
+        void SetMultiActionBars(uint8 mask) {
+            SetByteValue(UF::ACTIVE_PLAYER_FIELD_BYTES, 1, mask); //TODOFROST - use enum for offset
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::MultiActionBars), mask);
+        }
 
         PvPInfo pvpInfo;
         void InitPvP();
@@ -2831,8 +2834,15 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
                 SetUInt32Value(UF::PLAYER_FIELD_CUSTOMIZATION_CHOICES + offset++, customization.ChrCustomizationChoiceID);
             }
         }
-        void SetPvpTitle(uint8 pvpTitle) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PvpTitle), pvpTitle); }
-        void SetArenaFaction(uint8 arenaFaction) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::ArenaFaction), arenaFaction); }
+        void SetPvpTitle(uint8 pvpTitle)
+        {
+            SetByteValue(UF::PLAYER_BYTES_2, 0, pvpTitle);   //TODOFROST use enum for offset
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PvpTitle), pvpTitle);
+        }
+        void SetArenaFaction(uint8 arenaFaction) {
+            SetByteValue(UF::PLAYER_BYTES_2, 1, arenaFaction);   //TODOFROST use enum for offset
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::ArenaFaction), arenaFaction);
+        }
         void ApplyModFakeInebriation(int32 mod, bool apply) { ApplyModUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::FakeInebriation), mod, apply); }
         void SetVirtualPlayerRealm(uint32 virtualRealmAddress) {
             SetUInt32Value(UF::PLAYER_FIELD_VIRTUAL_PLAYER_REALM, virtualRealmAddress);
@@ -2890,7 +2900,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         }
 
         uint8 GetNumRespecs() const { return m_activePlayerData->NumRespecs; }
-        void SetNumRespecs(uint8 numRespecs) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NumRespecs), numRespecs); }
+        void SetNumRespecs(uint8 numRespecs) {
+            SetByteValue(UF::ACTIVE_PLAYER_FIELD_BYTES, 3, numRespecs); //TODOFROST use enum for offset
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NumRespecs), numRespecs);
+        }
 
         void SetWatchedFactionIndex(int32 index) {
             SetInt32Value(UF::ACTIVE_PLAYER_FIELD_WATCHED_FACTION_INDEX, index);
