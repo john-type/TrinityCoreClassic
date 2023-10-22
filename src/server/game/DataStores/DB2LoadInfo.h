@@ -5870,7 +5870,7 @@ struct SpellXSpellVisualLoadInfo
             { false, FT_INT, "SpellVisualID" },
             { false, FT_FLOAT, "Probability" },
             { false, FT_BYTE, "Flags" },
-            { true, FT_INT, "Priority" },
+            { false, FT_BYTE, "Priority" },
             { true, FT_INT, "SpellIconFileID" },
             { true, FT_INT, "ActiveIconFileID" },
             { false, FT_SHORT, "ViewerUnitConditionID" },

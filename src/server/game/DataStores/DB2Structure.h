@@ -3545,7 +3545,7 @@ struct SpellXSpellVisualEntry
     uint32 SpellVisualID;
     float Probability;
     uint8 Flags;
-    int32 Priority;
+    uint8 Priority;
     int32 SpellIconFileID;
     int32 ActiveIconFileID;
     uint16 ViewerUnitConditionID;

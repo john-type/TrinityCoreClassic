@@ -864,7 +864,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sSpellVisualEffectNameStore);
     LOAD_DB2(sSpellVisualMissileStore);
     LOAD_DB2(sSpellVisualKitStore);
-    //LOAD_DB2(sSpellXSpellVisualStore); //TODOFROST - needs to work!
+    LOAD_DB2(sSpellXSpellVisualStore);
     LOAD_DB2(sSummonPropertiesStore);
     LOAD_DB2(sTactKeyStore);
     LOAD_DB2(sTalentStore);
