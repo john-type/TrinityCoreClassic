@@ -160,13 +160,24 @@ class TC_GAME_API Item : public Object
         BonusData const* GetBonus() const { return &_bonusData; }
 
         ObjectGuid GetOwnerGUID()    const { return m_itemData->Owner; }
-        void SetOwnerGUID(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Owner), guid); }
+        void SetOwnerGUID(ObjectGuid guid) {
+            SetGuidValue(UF::ITEM_FIELD_OWNER, guid);
+            SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Owner), guid);
+        }
         ObjectGuid GetContainedIn()    const { return m_itemData->ContainedIn; }
-        void SetContainedIn(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ContainedIn), guid); }
+        void SetContainedIn(ObjectGuid guid) {
+            SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ContainedIn), guid);
+        }
         ObjectGuid GetCreator()    const { return m_itemData->Creator; }
-        void SetCreator(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Creator), guid); }
+        void SetCreator(ObjectGuid guid) {
+            SetGuidValue(UF::ITEM_FIELD_CREATOR, guid);
+            SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Creator), guid);
+        }
         ObjectGuid GetGiftCreator()    const { return m_itemData->GiftCreator; }
-        void SetGiftCreator(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::GiftCreator), guid); }
+        void SetGiftCreator(ObjectGuid guid) {
+            SetGuidValue(UF::ITEM_FIELD_GIFTCREATOR, guid);
+            SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::GiftCreator), guid);
+        }
         Player* GetOwner() const;
 
         void SetExpiration(uint32 expiration) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Expiration), expiration); }
@@ -245,8 +256,14 @@ class TC_GAME_API Item : public Object
         bool IsCurrencyToken() const { return GetTemplate()->IsCurrencyToken(); }
         bool IsNotEmptyBag() const;
         bool IsBroken() const { return *m_itemData->MaxDurability > 0 && *m_itemData->Durability == 0; }
-        void SetDurability(uint32 durability) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Durability), durability); }
-        void SetMaxDurability(uint32 maxDurability) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::MaxDurability), maxDurability); }
+        void SetDurability(uint32 durability) {
+            SetUInt32Value(UF::ITEM_FIELD_DURABILITY, durability);
+			SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Durability), durability);
+        }
+        void SetMaxDurability(uint32 maxDurability) {
+            SetUInt32Value(UF::ITEM_FIELD_MAXDURABILITY, maxDurability);
+            SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::MaxDurability), maxDurability);
+        }
         bool CanBeTraded(bool mail = false, bool trade = false) const;
         void SetInTrade(bool b = true) { mb_in_trade = b; }
         bool IsInTrade() const { return mb_in_trade; }
@@ -337,7 +354,10 @@ class TC_GAME_API Item : public Object
         float GetItemStatValue(uint32 index, Player const* owner) const;
         SocketColor GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return SocketColor(_bonusData.SocketColor[index]); }
         uint32 GetAppearanceModId() const { return m_itemData->ItemAppearanceModID; }
-        void SetAppearanceModId(uint32 appearanceModId) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ItemAppearanceModID), appearanceModId); }
+        void SetAppearanceModId(uint32 appearanceModId) {
+            SetUInt32Value(UF::ITEM_FIELD_APPEARANCE_MOD_ID, appearanceModId);
+            SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ItemAppearanceModID), appearanceModId);
+        }
         uint32 GetDisplayId(Player const* owner) const;
         ItemModifiedAppearanceEntry const* GetItemModifiedAppearance() const;
         float GetRepairCostMultiplier() const { return _bonusData.RepairCostMultiplier; }

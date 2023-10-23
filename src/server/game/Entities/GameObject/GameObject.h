@@ -197,6 +197,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
                 ABORT();
             }
             m_spawnedByDefault = false;                     // all object with owner is despawned after delay
+            SetGuidValue(UF::GAMEOBJECT_FIELD_CREATED_BY, owner);
             SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::CreatedBy), owner);
         }
         ObjectGuid GetOwnerGUID() const override { return m_gameObjectData->CreatedBy; }
@@ -246,9 +247,14 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
             SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags);
         }
 
-        void SetLevel(uint32 level) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Level), level); }
+        void SetLevel(uint32 level) {
+            SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Level), level);
+        }
         GameobjectTypes GetGoType() const { return GameobjectTypes(*m_gameObjectData->TypeID); }
-        void SetGoType(GameobjectTypes type) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::TypeID), type); }
+        void SetGoType(GameobjectTypes type) {
+            SetByteValue(UF::GAMEOBJECT_BYTES_1, 1, type);  //TODOFROST enum offset
+            SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::TypeID), type);
+        }
         GOState GetGoState() const { return GOState(*m_gameObjectData->State); }
         void SetGoState(GOState state);
         uint32 GetGoArtKit() const { return m_gameObjectData->ArtKit; }
@@ -352,7 +358,10 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint8 GetNameSetId() const;
 
         uint32 GetFaction() const override { return m_gameObjectData->FactionTemplate; }
-        void SetFaction(uint32 faction) override { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::FactionTemplate), faction); }
+        void SetFaction(uint32 faction) override {
+            SetUInt32Value(UF::GAMEOBJECT_FACTION, faction);
+            SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::FactionTemplate), faction);
+        }
 
         GameObjectModel* m_model;
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = nullptr) const;

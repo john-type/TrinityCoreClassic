@@ -3082,6 +3082,7 @@ void GameObject::SetLootGenerationTime()
 void GameObject::SetGoState(GOState state)
 {
     GOState oldState = GetGoState();
+    SetByteValue(UF::GAMEOBJECT_BYTES_1, 0, state); //TODOFROST enum offset
     SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::State), state);
     if (AI())
         AI()->OnStateChanged(state);
@@ -3105,6 +3106,7 @@ void GameObject::SetGoState(GOState state)
 
 void GameObject::SetDisplayId(uint32 displayid)
 {
+    SetUInt32Value(UF::GAMEOBJECT_DISPLAYID, displayid);
     SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::DisplayID), displayid);
     UpdateModel();
 }

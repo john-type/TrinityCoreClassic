@@ -1468,7 +1468,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         */
         void ModifyCurrency(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false);
 
-        void SetInvSlot(uint32 slot, ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::InvSlots, slot), guid); }
+        void SetInvSlot(uint32 slot, ObjectGuid guid) {
+            SetGuidValue(UF::ACTIVE_PLAYER_FIELD_INV_SLOT_HEAD + (slot * 4), guid);
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::InvSlots, slot), guid);
+        }
 
         void ApplyEquipCooldown(Item* pItem);
         void QuickEquipItem(uint16 pos, Item* pItem);
