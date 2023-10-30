@@ -512,7 +512,7 @@ struct BroadcastTextEntry
     uint16 EmotesID;
     uint8 Flags;
     uint32 ChatBubbleDurationMs;
-    int32 VoiceOverPriorityID;
+    //int32 VoiceOverPriorityID;
     std::array<uint32, 2> SoundKitID;
     std::array<uint16, MAX_BROADCAST_TEXT_EMOTES> EmoteID;
     std::array<uint16, MAX_BROADCAST_TEXT_EMOTES> EmoteDelay;

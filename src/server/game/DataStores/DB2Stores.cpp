@@ -646,7 +646,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     //LOAD_DB2(sBattlePetSpeciesStore);
     //LOAD_DB2(sBattlePetSpeciesStateStore);
     LOAD_DB2(sBattlemasterListStore);
-    //LOAD_DB2(sBroadcastTextStore);
+    LOAD_DB2(sBroadcastTextStore);
     LOAD_DB2(sCfgRegionsStore);
     LOAD_DB2(sCharTitlesStore);
     LOAD_DB2(sCharacterLoadoutStore);
@@ -1587,12 +1587,18 @@ void DB2Manager::LoadHotfixData()
         uint32 tableHash = fields[2].GetUInt32();
         int32 recordId = fields[3].GetInt32();
         HotfixRecord::Status status = static_cast<HotfixRecord::Status>(fields[4].GetUInt8());
+
+        //TODOFROST
+        if (tableHash != 0x021826BB) {
+            continue;
+        }
+
         if (status == HotfixRecord::Status::Valid && _stores.find(tableHash) == _stores.end())
         {
             HotfixBlobKey key = std::make_pair(tableHash, recordId);
             if (std::none_of(_hotfixBlob.begin(), _hotfixBlob.end(), [key](HotfixBlobMap const& blob) { return blob.find(key) != blob.end(); }))
             {
-                TC_LOG_ERROR("sql.sql", "Table `hotfix_data` references unknown DB2 store by hash 0x%X and has no reference to `hotfix_blob` in hotfix id %d with RecordID: %d", tableHash, id, recordId);
+                //TODOFROST TC_LOG_ERROR("sql.sql", "Table `hotfix_data` references unknown DB2 store by hash 0x%X and has no reference to `hotfix_blob` in hotfix id %d with RecordID: %d", tableHash, id, recordId);
                 continue;
             }
         }

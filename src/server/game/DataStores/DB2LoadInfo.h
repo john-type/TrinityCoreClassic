@@ -855,7 +855,6 @@ struct BroadcastTextLoadInfo
             { false, FT_SHORT, "EmotesID" },
             { false, FT_BYTE, "Flags" },
             { false, FT_INT, "ChatBubbleDurationMs" },
-            { true, FT_INT, "VoiceOverPriorityID" },
             { false, FT_INT, "SoundKitID1" },
             { false, FT_INT, "SoundKitID2" },
             { false, FT_SHORT, "EmoteID1" },
