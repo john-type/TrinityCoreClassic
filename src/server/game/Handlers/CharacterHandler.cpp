@@ -1217,8 +1217,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
         }
     }
 
-    //TODOFROST
-   /* pCurrChar->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Login);*/
+    pCurrChar->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Login);
 
     pCurrChar->SendInitialPacketsAfterAddToMap();
 

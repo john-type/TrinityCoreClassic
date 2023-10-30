@@ -26,6 +26,13 @@
 
 void WorldSession::HandleDBQueryBulk(WorldPackets::Hotfix::DBQueryBulk& dbQuery)
 {
+
+    //TODOFROST - currently only supporting broadcast text
+    if (dbQuery.TableHash != 0x021826BB) {
+        return;
+    }
+
+
     DB2StorageBase const* store = sDB2Manager.GetStorage(dbQuery.TableHash);
     for (WorldPackets::Hotfix::DBQueryBulk::DBQueryRecord const& record : dbQuery.Queries)
     {
@@ -65,14 +72,6 @@ void WorldSession::SendAvailableHotfixes()
 
 void WorldSession::HandleHotfixRequest(WorldPackets::Hotfix::HotfixRequest& hotfixQuery)
 {
-    WorldPackets::Hotfix::HotfixConnect hotfixQueryResponse_tmp;
-    SendPacket(hotfixQueryResponse_tmp.Write());
-
-    return;
-
-    //TODOFROST - remove hotfix placeholder
-
-
     DB2Manager::HotfixContainer const& hotfixes = sDB2Manager.GetHotfixData();
     WorldPackets::Hotfix::HotfixConnect hotfixQueryResponse;
     hotfixQueryResponse.Hotfixes.reserve(hotfixQuery.Hotfixes.size());
@@ -82,6 +81,11 @@ void WorldSession::HandleHotfixRequest(WorldPackets::Hotfix::HotfixRequest& hotf
         {
             for (DB2Manager::HotfixRecord const& hotfixRecord : *hotfixRecords)
             {
+                //TODOFROST
+                if (hotfixRecord.TableHash != 0x021826BB) {
+                    continue;
+                }
+
                 hotfixQueryResponse.Hotfixes.emplace_back();
 
                 WorldPackets::Hotfix::HotfixConnect::HotfixData& hotfixData = hotfixQueryResponse.Hotfixes.back();

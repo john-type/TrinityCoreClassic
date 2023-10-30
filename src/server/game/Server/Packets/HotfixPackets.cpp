@@ -79,13 +79,6 @@ WorldPacket const* DBReply::Write()
 WorldPacket const* AvailableHotfixes::Write()
 {
     _worldPacket << int32(VirtualRealmAddress);
-    _worldPacket << uint32(0);
-    return &_worldPacket;
-
-    //TODOFROST - remove early exit
-
-
-    _worldPacket << int32(VirtualRealmAddress);
     _worldPacket << uint32(Hotfixes.size());
     for (DB2Manager::HotfixContainer::value_type const& hotfixRecord : Hotfixes)
         _worldPacket << hotfixRecord.second.front().ID;
