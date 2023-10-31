@@ -285,7 +285,7 @@ enum Powers : int8
     POWER_ALL                           = 127 // SKIP
 };
 
-#define MAX_POWERS_PER_CLASS            7
+#define MAX_POWERS_PER_CLASS            6
 
 // EnumUtils: DESCRIBE THIS
 enum SpellSchools : uint16
