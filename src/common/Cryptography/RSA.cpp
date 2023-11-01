@@ -503,19 +503,22 @@ bool RsaSignature::SignHash(uint8 const* message, std::size_t messageLength, Dig
     static_assert(false, "not yet implemented")
 #endif
 
-    EVP_PKEY_CTX* pkey_ctx = EVP_PKEY_CTX_new(_key, nullptr);
+    auto delete_key = [](EVP_PKEY_CTX* key) {
+        EVP_PKEY_CTX_free(key);
+    };
+    std::unique_ptr<EVP_PKEY_CTX, decltype(delete_key)> pkey_ctx(EVP_PKEY_CTX_new(_key, nullptr), delete_key);
 
-    int result = EVP_PKEY_sign_init(pkey_ctx);
-
-    if (result == 0)
-        return false;
-
-    result = EVP_PKEY_CTX_set_rsa_padding(pkey_ctx, RSA_PKCS1_PADDING);
+    int result = EVP_PKEY_sign_init(pkey_ctx.get());
 
     if (result == 0)
         return false;
 
-    result = EVP_PKEY_CTX_set_signature_md(pkey_ctx, digestGenerator.get());
+    result = EVP_PKEY_CTX_set_rsa_padding(pkey_ctx.get(), RSA_PKCS1_PADDING);
+
+    if (result == 0)
+        return false;
+
+    result = EVP_PKEY_CTX_set_signature_md(pkey_ctx.get(), digestGenerator.get());
 
     if (!result)
         return false;
@@ -524,17 +527,14 @@ bool RsaSignature::SignHash(uint8 const* message, std::size_t messageLength, Dig
 
     size_t signatureLength = 0;
 
-    result = EVP_PKEY_sign(pkey_ctx, nullptr, &signatureLength, message, messageLength);
+    result = EVP_PKEY_sign(pkey_ctx.get(), nullptr, &signatureLength, message, messageLength);
 
     if (result == 0)
         return false;
 
     output.resize(signatureLength);
-    result = EVP_PKEY_sign(pkey_ctx, output.data(), &signatureLength, message, messageLength);
+    result = EVP_PKEY_sign(pkey_ctx.get(), output.data(), &signatureLength, message, messageLength);
     std::reverse(output.begin(), output.end());
-
-    //TODOFROST - this needs to be in a guard, because of early returns, this may not get called.
-    EVP_PKEY_CTX_free(pkey_ctx);
 
     return result != 0;
 }
