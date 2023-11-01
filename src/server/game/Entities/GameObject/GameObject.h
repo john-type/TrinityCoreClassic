@@ -248,6 +248,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         }
 
         void SetLevel(uint32 level) {
+            SetUInt32Value(UF::GAMEOBJECT_LEVEL, level);
             SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Level), level);
         }
         GameobjectTypes GetGoType() const { return GameobjectTypes(*m_gameObjectData->TypeID); }
@@ -260,7 +261,10 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32 GetGoArtKit() const { return m_gameObjectData->ArtKit; }
         void SetGoArtKit(uint32 artkit);
         uint8 GetGoAnimProgress() const { return m_gameObjectData->PercentHealth; }
-        void SetGoAnimProgress(uint8 animprogress) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::PercentHealth), animprogress); }
+        void SetGoAnimProgress(uint8 animprogress) {
+            //TODOFROST
+            SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::PercentHealth), animprogress);
+        }
         static void SetGoArtKit(uint32 artkit, GameObject* go, ObjectGuid::LowType lowguid = UI64LIT(0));
 
         std::vector<uint32> const* GetPauseTimes() const;

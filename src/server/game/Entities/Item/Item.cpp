@@ -1231,6 +1231,7 @@ bool Item::CanBeTraded(bool mail, bool trade) const
 
 void Item::SetCount(uint32 value)
 {
+    SetUInt32Value(UF::ITEM_FIELD_STACK_COUNT, value);
     SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::StackCount), value);
 
     if (Player* player = GetOwner())

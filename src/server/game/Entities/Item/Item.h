@@ -180,7 +180,10 @@ class TC_GAME_API Item : public Object
         }
         Player* GetOwner() const;
 
-        void SetExpiration(uint32 expiration) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Expiration), expiration); }
+        void SetExpiration(uint32 expiration) {
+            //TODOFROST
+            SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Expiration), expiration);
+        }
 
         ItemBondingType GetBonding() const { return _bonusData.Bonding; }
         void SetBinding(bool val)

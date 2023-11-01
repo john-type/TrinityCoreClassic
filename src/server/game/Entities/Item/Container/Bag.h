@@ -79,8 +79,14 @@ class TC_GAME_API Bag : public Item
         UF::UpdateField<UF::ContainerData, 0, TYPEID_CONTAINER> m_containerData;
 
     protected:
-        void SetBagSize(uint32 numSlots) { SetUpdateFieldValue(m_values.ModifyValue(&Bag::m_containerData).ModifyValue(&UF::ContainerData::NumSlots), numSlots); }
-        void SetSlot(uint32 slot, ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Bag::m_containerData).ModifyValue(&UF::ContainerData::Slots, slot), guid); }
+        void SetBagSize(uint32 numSlots) {
+            SetUInt32Value(UF::CONTAINER_FIELD_NUM_SLOTS, numSlots);
+            SetUpdateFieldValue(m_values.ModifyValue(&Bag::m_containerData).ModifyValue(&UF::ContainerData::NumSlots), numSlots);
+        }
+        void SetSlot(uint32 slot, ObjectGuid guid) {
+            SetGuidValue(UF::CONTAINER_FIELD_SLOT_1 + (slot * 4), guid);
+            SetUpdateFieldValue(m_values.ModifyValue(&Bag::m_containerData).ModifyValue(&UF::ContainerData::Slots, slot), guid);
+        }
 
         // Bag Storage space
         Item* m_bagslot[MAX_BAG_SIZE];

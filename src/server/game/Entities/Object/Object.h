@@ -197,9 +197,18 @@ class TC_GAME_API Object
 
         uint32 GetDynamicFlags() const { return m_objectData->DynamicFlags; }
         bool HasDynamicFlag(uint32 flag) const { return (*m_objectData->DynamicFlags & flag) != 0; }
-        void SetDynamicFlag(uint32 flag) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags), flag); }
-        void RemoveDynamicFlag(uint32 flag) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags), flag); }
-        void ReplaceAllDynamicFlags(uint32 flag) { SetUpdateFieldValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags), flag); }
+        void SetDynamicFlag(uint32 flag) {
+            SetFlag(UF::OBJECT_DYNAMIC_FLAGS, flag);
+            SetUpdateFieldFlagValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags), flag);
+        }
+        void RemoveDynamicFlag(uint32 flag) {
+            RemoveFlag(UF::OBJECT_DYNAMIC_FLAGS, flag);
+            RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags), flag);
+        }
+        void ReplaceAllDynamicFlags(uint32 flag) {
+            SetUInt32Value(UF::OBJECT_DYNAMIC_FLAGS, flag);
+            SetUpdateFieldValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags), flag);
+        }
 
         TypeID GetTypeId() const { return m_objectTypeId; }
         bool isType(uint16 mask) const { return (mask & m_objectType) != 0; }
