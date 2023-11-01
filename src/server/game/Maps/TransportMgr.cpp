@@ -537,15 +537,19 @@ bool TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
     if (!leg->Spline)
         InitializeLeg(leg, &transport->Events, pathPoints, pauses, events, goInfo, totalTime);
 
+    //TODOFROST check instancable logic
+
     if (transport->MapIds.size() > 1)
     {
         for (uint32 mapId : transport->MapIds)
         {
-            if (!sMapStore.LookupEntry(mapId))
+            const auto* mapEntry = sMapStore.LookupEntry(mapId);
+
+            if (!mapEntry)
                 return false;
 
-            if (!sMapStore.LookupEntry(mapId)->Instanceable())
-                return false;
+          /*  if (!mapEntry->Instanceable())
+                return false;*/
         }
 
         transport->InInstance = false;
@@ -555,8 +559,8 @@ bool TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
         if (!sMapStore.LookupEntry(*transport->MapIds.begin()))
             return false;
 
-        if (!sMapStore.LookupEntry(*transport->MapIds.begin())->Instanceable())
-            return false;
+        //if (!sMapStore.LookupEntry(*transport->MapIds.begin())->Instanceable())
+        //    return false;
 
         transport->InInstance = sMapStore.LookupEntry(*transport->MapIds.begin())->Instanceable();
     }
