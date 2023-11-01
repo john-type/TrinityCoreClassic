@@ -2330,15 +2330,12 @@ void Player::GiveLevel(uint8 level)
     packet.Level = level;
     packet.HealthDelta = 0;
 
-    /// @todo find some better solution
-    // for (int i = 0; i < MAX_STORED_POWERS; ++i)
     packet.PowerDelta[0] = int32(basemana) - int32(GetCreateMana());
-    packet.PowerDelta[1] = 0;
-    packet.PowerDelta[2] = 0;
-    packet.PowerDelta[3] = 0;
-    packet.PowerDelta[4] = 0;
-    packet.PowerDelta[5] = 0;
-    packet.PowerDelta[6] = 0;
+    if constexpr (MAX_POWERS_PER_CLASS > 1) {
+        for (int i = 1; i < MAX_POWERS_PER_CLASS; i++) {
+            packet.PowerDelta[i] = 0;
+        }
+    }
 
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
         packet.StatDelta[i] = int32(info.stats[i]) - GetCreateStat(Stats(i));
