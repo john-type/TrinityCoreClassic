@@ -130,6 +130,8 @@ enum PlayerExplorationConstants
     PLAYER_EXPLORED_ZONES_BITS  = UF::size_of_value_type<decltype(UF::ActivePlayerData::ExploredZones)>() * 8
 };
 
+static_assert(PlayerExplorationConstants::PLAYER_EXPLORED_ZONES_SIZE == 480);
+
 
 enum SkillFieldOffset
 {
@@ -2281,8 +2283,14 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ProcessDelayedOperations();
 
         void CheckAreaExploreAndOutdoor(void);
-        void AddExploredZones(uint32 pos, uint64 mask) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ExploredZones, pos), mask); }
-        void RemoveExploredZones(uint32 pos, uint64 mask) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ExploredZones, pos), mask); }
+        void AddExploredZones(uint32 pos, uint64 mask) {
+            SetUInt64Value(UF::ACTIVE_PLAYER_FIELD_EXPLORED_ZONES + pos, mask);
+            SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ExploredZones, pos), mask);
+        }
+        void RemoveExploredZones(uint32 pos, uint64 mask) {
+            SetUInt64Value(UF::ACTIVE_PLAYER_FIELD_EXPLORED_ZONES + pos, mask);
+            RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ExploredZones, pos), mask);
+        }
 
         static uint32 TeamForRace(uint8 race);
         static TeamId TeamIdForRace(uint8 race);

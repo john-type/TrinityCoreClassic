@@ -6464,6 +6464,8 @@ void Player::CheckAreaExploreAndOutdoor()
 
     if (!(currFields & val))
     {
+        
+        AddExploredZones(offset, val);//TODOFROST CHECK!
         SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ExploredZones, offset), val);
 
         UpdateCriteria(CriteriaType::RevealWorldMapOverlay, GetAreaId());
