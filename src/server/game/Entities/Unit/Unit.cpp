@@ -10165,6 +10165,7 @@ void Unit::RecalculateObjectScale()
 void Unit::SetDisplayId(uint32 modelId, float displayScale /*= 1.f*/)
 {
     SetUInt32Value(UF::UNIT_FIELD_DISPLAYID, modelId);
+    SetFloatValue(UF::UNIT_FIELD_DISPLAY_SCALE, displayScale);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DisplayID), modelId);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DisplayScale), displayScale);
 
