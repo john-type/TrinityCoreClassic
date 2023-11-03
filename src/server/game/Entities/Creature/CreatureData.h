@@ -531,6 +531,7 @@ struct TC_GAME_API CreatureTemplate
             case DIFFICULTY_40:
             case DIFFICULTY_3_MAN_SCENARIO_N:
             case DIFFICULTY_NORMAL_RAID:
+            case DIFFICULTY_20:
                 return -1;
             case DIFFICULTY_HEROIC:
             case DIFFICULTY_25_N:

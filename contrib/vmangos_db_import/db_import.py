@@ -4,6 +4,23 @@ import mysql.connector
 
 target_build = 40618
 
+NormalMaps = [
+    0, 1, 25, 35, 37, 42, 369, 449, 450, 451
+]
+
+DungeonMaps = [
+    13, 29, 33, 34, 36, 43, 44, 47, 48, 70, 90, 109, 129,  189, 209, 229, 230, 269, 289,  329, 349, 389, 429, 
+]
+
+RaidMaps = [
+    169, 249, 309, 409, 469, 509, 531, 533
+]
+
+BgMaps = [
+    30, 489, 529, 
+]
+
+
 vmangos_world_con = mysql.connector.connect(
     host='localhost',
     user='root',
@@ -77,6 +94,183 @@ def remove_obsolete_worldstates():
 # # #TODO Clean up waypoint_data, waypoint scripts
 # remove_obsolete_world_safe_locs()
 # remove_obsolete_worldstates()
+
+def creatue_template_check_vmangos():
+    has_more = True
+    src_creature_query = ("SELECT entry, name FROM creature_template LIMIT 500 OFFSET %s") 
+    dest_creature_query = ("SELECT entry, name FROM creature_template "
+                    "WHERE entry = %s "
+                    "ORDER BY patch DESC LIMIT 1")
+    
+    src_find_creature_query = ("SELECT guid FROM creature WHERE id = %s")
+    
+    delete_src_creature_entity_queries = [
+        ("DELETE FROM creature_addon WHERE guid = %s"),
+        ("DELETE FROM creature_formations WHERE leaderGUID = %s"),
+        ("DELETE FROM creature_formations WHERE memberGUID = %s"),
+        ("DELETE FROM creature WHERE guid = %s"),
+    ]
+    
+    delete_src_queries = [
+        ("DELETE FROM creature_equip_template WHERE CreatureID = %s"),
+        ("DELETE FROM creature_loot_template WHERE Entry = %s"),
+        ("DELETE FROM creature_onkill_reputation WHERE creature_id = %s"),
+        ("DELETE FROM creature_questender WHERE id = %s"),
+        ("DELETE FROM creature_questitem WHERE CreatureEntry = %s"),
+        ("DELETE FROM creature_queststarter WHERE id = %s"),
+        ("DELETE FROM creature_template_addon WHERE entry = %s"),
+        ("DELETE FROM creature_template_locale WHERE entry = %s"),
+        ("DELETE FROM creature_template_model WHERE CreatureID = %s"),
+        ("DELETE FROM creature_template_movement WHERE CreatureId = %s"),
+        ("DELETE FROM creature_template_resistance WHERE CreatureID = %s"),
+        ("DELETE FROM creature_template_scaling WHERE Entry = %s"),
+        ("DELETE FROM creature_template_spell WHERE CreatureID = %s"),
+        ("DELETE FROM creature_text WHERE CreatureID = %s"),
+        ("DELETE FROM creature_text_locale WHERE CreatureID = %s"),
+        ("DELETE FROM creature_template WHERE entry = %s"),
+    ]
+    
+    offset = 0
+    missing = 0
+    name_mismatch = 0
+    
+    while has_more:
+        tri_world_cur.execute(src_creature_query, (offset,))
+        results = tri_world_cur.fetchall()
+        
+        for result in results:
+            vm_world_cur.execute(dest_creature_query,(result[0],))
+            match = vm_world_cur.fetchall()
+            
+            if len(match) == 0:
+                
+                tri_world_cur.execute(src_find_creature_query, (result[0],))
+                entities = tri_world_cur.fetchall()
+                
+                for entity in entities:
+                    for del_q in delete_src_creature_entity_queries:
+                        tri_world_cur.execute(del_q, (entity[0],))
+                        
+                for del_q in delete_src_queries:
+                    tri_world_cur.execute(del_q, (result[0],))
+                    
+                offset -= 1
+                missing += 1
+                trinity_world_con.commit()
+            else: 
+                
+                if match[0][1] != result[1]:
+                    name_mismatch += 1
+                
+        
+        offset = offset + 500  
+        has_more = len(results) > 0
+        
+    print('missing')
+    print(missing)
+    
+    print("name mismatch")
+    print(name_mismatch)
+    
+def creature_check_vmangos():
+    has_more = True
+    src_creature_query = ("SELECT guid, id, map, position_x, position_y, position_z FROM creature LIMIT 500 OFFSET %s") 
+    dest_creature_query = ("SELECT guid, id, map, position_x, position_y, position_z FROM creature "
+                    "WHERE id = %s AND map = %s AND patch_max = 10")
+    
+    delete_src_obj_creature_queries = [
+        ("DELETE FROM creature_addon WHERE guid = %s"),
+        ("DELETE FROM creature_formations WHERE leaderGUID = %s"),
+        ("DELETE FROM creature_formations WHERE memberGUID = %s"),
+        ("DELETE FROM creature WHERE guid = %s"),
+    ]
+    
+    missing = 0
+    offset = 0
+    while has_more:
+        tri_world_cur.execute(src_creature_query, (offset,))
+        results = tri_world_cur.fetchall()
+            
+        for result in results:
+            vm_world_cur.execute(dest_creature_query,(result[1],result[2]))
+            matches = vm_world_cur.fetchall()
+            matches_len = len(matches)
+            
+            if(matches_len == 0):
+                for del_q in delete_src_obj_creature_queries:
+                        tri_world_cur.execute(del_q, (result[0],))
+                        
+                offset -= 1
+                missing += 1
+                trinity_world_con.commit()
+        
+        offset += 500
+        has_more = len(results) > 0
+        
+    print("missing")
+    print(missing)
+
+def create_creature_template(vm_ct_id, tri_ct_id = None):
+    #TODO
+    return    
+
+def creature_template_update_against_vmangos():
+    has_more = True
+    src_ct_query = ("SELECT entry, name FROM creature_template LIMIT 1000 OFFSET %s") 
+    dest_ct_query = ("SELECT entry, name FROM creature_template "
+                    "WHERE entry = %s ")
+    missing = 0
+    simple_match = 0
+    name_mismatch = 0
+    offset = 0
+    while has_more:
+        vm_world_cur.execute(src_ct_query, (offset,))
+        results = vm_world_cur.fetchall()
+            
+        for result in results:
+            tri_world_cur.execute(dest_ct_query,(result[0],))
+            matches = tri_world_cur.fetchall()
+            
+            matches_len = len(matches)
+            if(matches_len == 0):
+                missing += 1
+                offset -= 1
+                create_creature_template(result[0])
+            elif(matches_len == 1):
+                simple_match += 1
+                create_creature_template(result[0], matches[0][0])
+        
+        offset += 1000
+        print(offset)
+        has_more = len(results) > 0
+        
+    print("missing")
+    print(missing)
+    
+    print("simple match")
+    print(simple_match)
+    
+    print("name mismatch")
+    print(name_mismatch)
+    
+def creatures_update_instance_info():
+    dest_update = 'UPDATE creature SET spawnDifficulties = "1,2", VerifiedBuild = 40618 WHERE map = %s'
+    for instance_id in DungeonMaps:
+        tri_world_cur.execute(dest_update, (instance_id,))
+        trinity_world_con.commit()
+    
+    dest_update = 'UPDATE creature SET spawnDifficulties = "3,4,5,6,9,148", VerifiedBuild = 40618 WHERE map = %s'
+    for instance_id in RaidMaps:
+        tri_world_cur.execute(dest_update, (instance_id,))
+        trinity_world_con.commit()
+        
+    #TODO BG maps (AV)
+
+# creatue_template_check_vmangos()
+# creature_check_vmangos()
+# TODO - not yet ran - creature_template_update_against_vmangos()
+
+creatures_update_instance_info()
     
 def gameobject_template_check_vmangos():
     has_more = True

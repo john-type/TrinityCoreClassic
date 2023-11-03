@@ -2269,6 +2269,11 @@ void ObjectMgr::LoadCreatures()
             continue;
         }
 
+        //TODOFROST - workout phase logic
+        data.phaseId = 0;
+        data.phaseGroup = 0;
+        //data.phaseUseFlags = 0;
+
         if (sWorld->getBoolConfig(CONFIG_CREATURE_CHECK_INVALID_POSITION))
         {
             if (VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager())
