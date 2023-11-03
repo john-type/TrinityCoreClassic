@@ -264,9 +264,9 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_HomebindTimer = 0;
     m_InstanceValid = true;
     m_dungeonDifficulty = DIFFICULTY_NORMAL;
-    m_raidDifficulty = DIFFICULTY_NORMAL_RAID;
+    m_raidDifficulty = DIFFICULTY_40;
     m_legacyRaidDifficulty = DIFFICULTY_10_N;
-    m_prevMapDifficulty = DIFFICULTY_NORMAL_RAID;
+    m_prevMapDifficulty = DIFFICULTY_40;
 
     m_lastPotionId = 0;
 
@@ -24266,22 +24266,22 @@ void Player::SendInitialPacketsAfterAddToMap()
     SendEnchantmentDurations();                             // must be after add to map
     SendItemDurations();                                    // must be after add to map
 
-    //if (GetMap()->IsRaid())
-    //{
-    //    m_prevMapDifficulty = GetMap()->GetDifficultyID();
-    //    DifficultyEntry const* difficulty = sDifficultyStore.AssertEntry(m_prevMapDifficulty);
-    //    SendRaidDifficulty((difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0, m_prevMapDifficulty);
-    //}
-    //else if (GetMap()->IsNonRaidDungeon())
-    //{
-    //    m_prevMapDifficulty = GetMap()->GetDifficultyID();
-    //    SendDungeonDifficulty(m_prevMapDifficulty);
-    //}
-    //else if (!GetMap()->Instanceable())
-    //{
-    //    DifficultyEntry const* difficulty = sDifficultyStore.AssertEntry(m_prevMapDifficulty);
-    //    SendRaidDifficulty((difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0);
-    //}
+    if (GetMap()->IsRaid())
+    {
+        m_prevMapDifficulty = GetMap()->GetDifficultyID();
+        DifficultyEntry const* difficulty = sDifficultyStore.AssertEntry(m_prevMapDifficulty);
+        SendRaidDifficulty((difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0, m_prevMapDifficulty);
+    }
+    else if (GetMap()->IsNonRaidDungeon())
+    {
+        m_prevMapDifficulty = GetMap()->GetDifficultyID();
+        SendDungeonDifficulty(m_prevMapDifficulty);
+    }
+    else if (!GetMap()->Instanceable())
+    {
+        DifficultyEntry const* difficulty = sDifficultyStore.AssertEntry(m_prevMapDifficulty);
+        SendRaidDifficulty((difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0);
+    }
 
     PhasingHandler::OnMapChange(this);
 
