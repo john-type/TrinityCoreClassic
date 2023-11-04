@@ -216,6 +216,8 @@ namespace WorldPackets
             MythicPlus::DungeonScoreSummary DungeonScore;
         };
 
+        //TODOFROST need to implement partial state packet
+
         class PartyMemberFullState final : public ServerPacket
         {
         public:
@@ -509,10 +511,10 @@ namespace WorldPackets
             uint8 Subgroup = 0u;
             uint8 Flags = 0u;
             uint8 RolesAssigned = 0u;
-            uint8 FactionGroup = 0u;
+            uint8 FactionGroup = 0u;    //TODOFROST remove
             bool FromSocialQueue = false;
             bool VoiceChatSilenced = false;
-            bool Connected = false;
+            bool Connected = false; //TODOFROST see GroupMemberOnlineStatus in hermes
         };
 
         struct PartyLFGInfo
