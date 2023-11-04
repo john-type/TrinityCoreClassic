@@ -7741,6 +7741,8 @@ void ObjectMgr::LoadGameObjectTemplate()
         for (uint8 i = 0; i < MAX_GAMEOBJECT_DATA; ++i)
             got.raw.data[i] = fields[8 + i].GetUInt32();
 
+        static_assert((8 + MAX_GAMEOBJECT_DATA - 1) < 43);
+
         got.ContentTuningId = fields[43].GetInt32();
         got.AIName = fields[44].GetString();
         got.ScriptId = GetScriptId(fields[45].GetString());
