@@ -11855,12 +11855,12 @@ struct UiMapMeta
     {
         static constexpr DB2MetaField fields[13] =
         {
-            { FT_STRING, 1, true },
+            { FT_STRING, 1, false },
             { FT_INT, 1, false },
             { FT_INT, 1, true },
             { FT_INT, 1, true },
-            { FT_INT, 1, false },
-            { FT_INT, 1, false },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
             { FT_INT, 1, true },
             { FT_INT, 1, false },
             { FT_INT, 1, true },
@@ -12006,7 +12006,7 @@ struct UiMapLinkMeta
             { FT_FLOAT, 2, true },
             { FT_FLOAT, 2, true },
             { FT_INT, 1, false },
-            { FT_INT, 1, true },
+            { FT_INT, 1, false },
             { FT_INT, 1, true },
             { FT_INT, 1, true },
             { FT_INT, 1, true },

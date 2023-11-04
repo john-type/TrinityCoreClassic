@@ -667,7 +667,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     //LOAD_DB2(sChrSpecializationStore);
     LOAD_DB2(sCinematicCameraStore);
     LOAD_DB2(sCinematicSequencesStore);
-    //LOAD_DB2(sContentTuningStore); //TODOFROST - this needs to work!
+    LOAD_DB2(sContentTuningStore);
     LOAD_DB2(sConversationLineStore);
     LOAD_DB2(sCreatureDisplayInfoStore);
     LOAD_DB2(sCreatureDisplayInfoExtraStore);
@@ -734,7 +734,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     //LOAD_DB2(sItemBonusTreeNodeStore);
     //LOAD_DB2(sItemChildEquipmentStore);
     LOAD_DB2(sItemClassStore);
-    //LOAD_DB2(sItemCurrencyCostStore); //TODOFROST - this needs to work!
+    //LOAD_DB2(sItemCurrencyCostStore);
     LOAD_DB2(sItemDamageAmmoStore);
     LOAD_DB2(sItemDamageOneHandStore);
     LOAD_DB2(sItemDamageOneHandCasterStore);
@@ -788,7 +788,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sNamesProfanityStore);
     LOAD_DB2(sNamesReservedStore);
     LOAD_DB2(sNamesReservedLocaleStore);
-    // LOAD_DB2(sNumTalentsAtLevelStore); //TODOFROST - this needs to work!
+    // LOAD_DB2(sNumTalentsAtLevelStore);
     LOAD_DB2(sOverrideSpellDataStore);
     //LOAD_DB2(sParagonReputationStore);
     LOAD_DB2(sPhaseStore);
@@ -880,9 +880,9 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     //LOAD_DB2(sTransmogSetItemStore);
     LOAD_DB2(sTransportAnimationStore);
     LOAD_DB2(sTransportRotationStore);
-    //LOAD_DB2(sUiMapStore); //TODOFROST - needs to work!
+    LOAD_DB2(sUiMapStore); 
     LOAD_DB2(sUiMapAssignmentStore);
-    //LOAD_DB2(sUiMapLinkStore); //TODOFROST - needs to work!
+    LOAD_DB2(sUiMapLinkStore);
     LOAD_DB2(sUiMapXMapArtStore);
     LOAD_DB2(sUnitConditionStore);
     //LOAD_DB2(sUnitPowerBarStore);
