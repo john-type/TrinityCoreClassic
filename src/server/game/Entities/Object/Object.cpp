@@ -2930,7 +2930,7 @@ float WorldObject::GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const
     if (!target)
         return spellInfo->GetMaxRange(true);
 
-    return spellInfo->GetMaxRange(!IsHostileTo(target));
+    return spellInfo->GetMaxRange(IsFriendlyTo(target)); //TODOFROST - check - previously these used '!IsHostileTo', however this appeared to cause issue with yellow neutral mobs
 }
 
 float WorldObject::GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const
@@ -2944,7 +2944,7 @@ float WorldObject::GetSpellMinRangeForTarget(Unit const* target, SpellInfo const
     if (!target)
         return spellInfo->GetMinRange(true);
 
-    return spellInfo->GetMinRange(!IsHostileTo(target));
+    return spellInfo->GetMinRange(IsFriendlyTo(target));    //TODOFROST - CHECK
 }
 
 float WorldObject::ApplyEffectModifiers(SpellInfo const* spellInfo, uint8 effIndex, float value) const
