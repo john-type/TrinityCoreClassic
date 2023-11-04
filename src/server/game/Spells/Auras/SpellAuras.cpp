@@ -122,7 +122,7 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
                 break;
             }
         }
-        _flags |= negativeFound ? AFLAG_NEGATIVE : AFLAG_POSITIVE;
+        _flags |= negativeFound ? AFLAG_NEGATIVE : (AFLAG_POSITIVE | AFLAG_CANCELABLE);
     }
     // aura is cast by friend
     // one positive effect and we know aura is positive
@@ -137,7 +137,7 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
                 break;
             }
         }
-        _flags |= positiveFound ? AFLAG_POSITIVE : AFLAG_NEGATIVE;
+        _flags |= positiveFound ? (AFLAG_POSITIVE | AFLAG_CANCELABLE) : AFLAG_NEGATIVE;
     }
 
     auto effectNeedsAmount = [this](AuraEffect const* effect)

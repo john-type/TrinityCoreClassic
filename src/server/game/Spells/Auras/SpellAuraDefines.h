@@ -32,7 +32,7 @@ enum AURA_FLAGS
 {
     AFLAG_NONE                   = 0x0000,
     AFLAG_NOCASTER               = 0x0001,
-    AFLAG_CANCELABLE             = 0x0002,  //TODOFROST implement
+    AFLAG_CANCELABLE             = 0x0002,
     AFLAG_DURATION               = 0x0004,
     AFLAG_SCALABLE               = 0x0008,
     AFLAG_NEGATIVE               = 0x0010,
