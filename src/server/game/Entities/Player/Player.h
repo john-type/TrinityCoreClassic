@@ -2284,11 +2284,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void CheckAreaExploreAndOutdoor(void);
         void AddExploredZones(uint32 pos, uint64 mask) {
-            SetUInt64Value(UF::ACTIVE_PLAYER_FIELD_EXPLORED_ZONES + pos, mask);
+            SetFlag64(UF::ACTIVE_PLAYER_FIELD_EXPLORED_ZONES + pos, mask);
             SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ExploredZones, pos), mask);
         }
         void RemoveExploredZones(uint32 pos, uint64 mask) {
-            SetUInt64Value(UF::ACTIVE_PLAYER_FIELD_EXPLORED_ZONES + pos, mask);
+            RemoveFlag64(UF::ACTIVE_PLAYER_FIELD_EXPLORED_ZONES + pos, mask);
             RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ExploredZones, pos), mask);
         }
 

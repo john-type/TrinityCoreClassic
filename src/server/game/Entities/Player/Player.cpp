@@ -17633,9 +17633,11 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     SetXP(fields.xp);
 
     std::vector<std::string_view> exploredZones = Trinity::Tokenize(fields.exploredZones, ' ', false);
-    for (std::size_t i = 0; i < exploredZones.size() && i / 2 < PLAYER_EXPLORED_ZONES_SIZE; ++i)
-        SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ExploredZones, i / 2),
-            Trinity::StringTo<uint64>(exploredZones[i]).value_or(UI64LIT(0)) << (32 * (i % 2)));
+    for (std::size_t i = 0; i < exploredZones.size() && i / 2 < PLAYER_EXPLORED_ZONES_SIZE; ++i) {
+        const auto exploredZone = Trinity::StringTo<uint64>(exploredZones[i]).value_or(UI64LIT(0)) << (32 * (i % 2));
+        AddExploredZones(i / 2, exploredZone);
+        SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ExploredZones, i / 2), exploredZone);
+    }
 
     std::vector<std::string_view> knownTitles = Trinity::Tokenize(fields.knownTitles, ' ', false);
     for (std::size_t i = 0; i < knownTitles.size(); ++i)
