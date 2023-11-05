@@ -24162,7 +24162,13 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     /// SMSG_WORLD_SERVER_INFO
     WorldPackets::Misc::WorldServerInfo worldServerInfo;
-    worldServerInfo.InstanceGroupSize = GetMap()->GetMapDifficulty()->MaxPlayers;
+    //TODOFROST - better logic needed here, this has been specifically added because deeprun tram having a MapDifficulty entry of normal difficulty, but world maps are expected to be difficulty none.
+    const auto* map_difficulty = GetMap()->GetMapDifficulty();
+    int8 map_max_players = 0;
+    if (map_difficulty != nullptr) {
+        map_max_players = map_difficulty->MaxPlayers;
+    }
+    worldServerInfo.InstanceGroupSize = map_max_players;
     worldServerInfo.IsTournamentRealm = 0; /// @todo
     // worldServerInfo.RestrictedAccountMaxLevel; /// @todo
     // worldServerInfo.RestrictedAccountMaxMoney; /// @todo
