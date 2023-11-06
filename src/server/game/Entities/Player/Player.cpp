@@ -2460,13 +2460,25 @@ void Player::InitStatsForLevel(bool reapplyMods)
 
     uint8 exp_max_lvl = GetMaxLevelForExpansion(GetSession()->GetExpansion());
     uint8 conf_max_lvl = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
-    if (exp_max_lvl == DEFAULT_MAX_LEVEL || exp_max_lvl >= conf_max_lvl)
+    if (exp_max_lvl == DEFAULT_MAX_LEVEL || exp_max_lvl >= conf_max_lvl) {
+        SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_MAX_LEVEL, conf_max_lvl);
         SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::MaxLevel), conf_max_lvl);
-    else
+    }
+    else {
+        SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_MAX_LEVEL, exp_max_lvl);
         SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::MaxLevel), exp_max_lvl);
-    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NextLevelXP), sObjectMgr->GetXPForLevel(GetLevel()));
-    if (m_activePlayerData->XP >= m_activePlayerData->NextLevelXP)
+    }
+
+    {
+        const auto next_level_xp = sObjectMgr->GetXPForLevel(GetLevel());
+        SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_NEXT_LEVEL_XP, next_level_xp);
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NextLevelXP), next_level_xp);
+    }
+
+    if (m_activePlayerData->XP >= m_activePlayerData->NextLevelXP) {
+        SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_XP, m_activePlayerData->NextLevelXP - 1);
         SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::XP), m_activePlayerData->NextLevelXP - 1);
+    }
 
     // reset before any aura state sources (health set/aura apply)
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AuraState), 0);
