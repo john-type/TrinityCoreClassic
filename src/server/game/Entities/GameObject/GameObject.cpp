@@ -2877,6 +2877,7 @@ void GameObject::SetLocalRotation(float qx, float qy, float qz, float qw)
 
 void GameObject::SetParentRotation(QuaternionData const& rotation)
 {
+    //TODOFROST GAMEOBJECT_PARENTROTATION
     SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::ParentRotation), rotation);
 }
 

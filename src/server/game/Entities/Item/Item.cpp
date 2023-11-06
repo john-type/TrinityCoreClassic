@@ -1397,6 +1397,7 @@ void Item::SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint
     ApplyArtifactPowerEnchantmentBonuses(slot, GetEnchantmentId(slot), false, owner);
     ApplyArtifactPowerEnchantmentBonuses(slot, id, true, owner);
 
+    //TODOFROST 
     auto enchantmentField = m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Enchantment, slot);
     SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::ID), id);
     SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Duration), duration);

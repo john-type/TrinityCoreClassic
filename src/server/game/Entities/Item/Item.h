@@ -166,6 +166,7 @@ class TC_GAME_API Item : public Object
         }
         ObjectGuid GetContainedIn()    const { return m_itemData->ContainedIn; }
         void SetContainedIn(ObjectGuid guid) {
+            SetGuidValue(UF::ITEM_FIELD_CONTAINED, guid);
             SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ContainedIn), guid);
         }
         ObjectGuid GetCreator()    const { return m_itemData->Creator; }
@@ -322,11 +323,17 @@ class TC_GAME_API Item : public Object
 
         void SendTimeUpdate(Player* owner);
         void UpdateDuration(Player* owner, uint32 diff);
-        void SetCreatePlayedTime(uint32 createPlayedTime) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::CreatePlayedTime), createPlayedTime); }
+        void SetCreatePlayedTime(uint32 createPlayedTime) {
+            SetUInt32Value(UF::ITEM_FIELD_CREATE_PLAYED_TIME, createPlayedTime);
+            SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::CreatePlayedTime), createPlayedTime);
+        }
 
         // spell charges (signed but stored as unsigned)
         int32 GetSpellCharges(uint8 index/*0..5*/ = 0) const { return m_itemData->SpellCharges[index]; }
-        void SetSpellCharges(uint8 index/*0..5*/, int32 value) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::SpellCharges, index), value); }
+        void SetSpellCharges(uint8 index/*0..5*/, int32 value) {
+            SetInt32Value(UF::ITEM_FIELD_SPELL_CHARGES + index, value);
+            SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::SpellCharges, index), value);
+        }
 
         std::unique_ptr<Loot> m_loot;
         bool m_lootGenerated;
@@ -456,7 +463,10 @@ class TC_GAME_API Item : public Object
         void GiveArtifactXp(uint64 amount, Item* sourceItem, uint32 artifactCategoryId);
 
         ItemContext GetContext() const { return ItemContext(*m_itemData->Context); }
-        void SetContext(ItemContext context) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Context), int32(context)); }
+        void SetContext(ItemContext context) {
+            SetUInt32Value(UF::ITEM_FIELD_CONTEXT, int32(context));
+            SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Context), int32(context));
+        }
 
         void SetPetitionId(uint32 petitionId) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Enchantment, 0).ModifyValue(&UF::ItemEnchantment::ID), petitionId); }
         void SetPetitionNumSignatures(uint32 signatures) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Enchantment, 0).ModifyValue(&UF::ItemEnchantment::Duration), signatures); }

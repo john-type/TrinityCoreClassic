@@ -262,7 +262,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetGoArtKit(uint32 artkit);
         uint8 GetGoAnimProgress() const { return m_gameObjectData->PercentHealth; }
         void SetGoAnimProgress(uint8 animprogress) {
-            //TODOFROST
+            SetByteValue(UF::GAMEOBJECT_BYTES_1, 3, animprogress);  //TODOFROST enum offset
             SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::PercentHealth), animprogress);
         }
         static void SetGoArtKit(uint32 artkit, GameObject* go, ObjectGuid::LowType lowguid = UI64LIT(0));
