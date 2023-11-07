@@ -15,6 +15,7 @@ import importer.quest
 import importer.skill
 import importer.spell
 import importer.transport
+import importer.cleanup
 
 print("Starting VMangos -> Trinity DB Import...")
 
@@ -57,6 +58,9 @@ importer.spell.Import()
 print("Transports...")
 importer.transport.Import()
 
+print("Cleanup...")
+importer.cleanup.Clean()
+
 print("Closing DB...")
 db.CloseAll()
 
@@ -68,47 +72,6 @@ print("Done")
 # print('Starting...')
 
 # #TODO import player race stats
-
-# def remove_obsolete_battleground_templates():
-#     print('Battlegrounds...')
-#     query = 'DELETE FROM battleground_template WHERE ID >= 4'
-#     tri_world_cur.execute(query)
-#     query2 = 'DELETE FROM battlemaster_entry WHERE bg_template >= 4'
-#     tri_world_cur.execute(query2)
-#     trinity_world_con.commit()
-
-# def remove_obsolete_instances():
-#     delete_instance = "DELETE FROM instance_template WHERE map >= 534"
-#     tri_world_cur.execute(delete_instance)
-#     trinity_world_con.commit()
-
-# def remove_obsolete_transports():
-#     print('Transports...')
-#     query = 'DELETE FROM transports WHERE guid >= 9'
-#     tri_world_cur.execute(query)  
-#     trinity_world_con.commit()
-
-# def remove_obsolete_world_safe_locs():
-#     print('safe locs')
-#     query = 'DELETE FROM world_safe_locs WHERE MapID > 533'
-#     tri_world_cur.execute(query)  
-#     trinity_world_con.commit() 
-
-# def remove_obsolete_worldstates():
-#     print('world states...')
-#     query = 'DELETE FROM world_state WHERE ID >= 2400'
-#     tri_world_cur.execute(query)
-#     trinity_world_con.commit()
-    
-    
-# # remove_obsolete_area_triggers()
-# # remove_obsolete_battleground_templates()
-# # remove_obsolete_instances()
-
-# # remove_obsolete_transports()    
-# # # #TODO Clean up waypoint_data, waypoint scripts
-# # remove_obsolete_world_safe_locs()
-# # remove_obsolete_worldstates()
 
 # def creatue_template_check_vmangos():
 #     has_more = True

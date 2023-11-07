@@ -9,6 +9,7 @@ def Import():
     handle_access_requirements()
     handle_areatriggers()
     handle_areatrigger_templates()
+    remove_instances()
 
 
 def handle_taverns():
@@ -149,3 +150,7 @@ def handle_areatriggers():
 def handle_areatrigger_templates():
     pass
     #TODO
+    
+def remove_instances():
+    query = "DELETE FROM instance_template WHERE map > %s"
+    db.Execute(query, 'tri_world', (constants.MaxMapId,))
