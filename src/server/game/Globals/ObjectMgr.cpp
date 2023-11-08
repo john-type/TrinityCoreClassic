@@ -3372,6 +3372,16 @@ void ObjectMgr::LoadItemTemplates()
         ++sparseCount;
     }
 
+    // Load item effects (spells)
+    for (ItemEffectEntry const* effectEntry : sItemEffectStore)
+    {
+        auto itemItr = _itemTemplateStore.find(effectEntry->ParentItemID);
+        if (itemItr == _itemTemplateStore.end())
+            continue;
+
+        itemItr->second.Effects.push_back(effectEntry);
+    }
+
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " item templates in %u ms", _itemTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
