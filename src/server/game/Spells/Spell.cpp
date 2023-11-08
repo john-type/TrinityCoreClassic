@@ -7115,7 +7115,7 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
             return SPELL_FAILED_ITEM_NOT_READY;
 
         for (ItemEffectEntry const* itemEffect : m_CastItem->GetEffects())
-            if (itemEffect->LegacySlotIndex < m_CastItem->m_itemData->SpellCharges.size() && itemEffect->Charges)
+            if (itemEffect->LegacySlotIndex < m_CastItem->m_itemData->SpellCharges.size() && itemEffect->Charges > 0)
                 if (m_CastItem->GetSpellCharges(itemEffect->LegacySlotIndex) == 0)
                     return SPELL_FAILED_NO_CHARGES_REMAIN;
 
