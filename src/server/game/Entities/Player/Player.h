@@ -1907,7 +1907,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void LoadActions(PreparedQueryResult result);
 
         uint32 GetFreePrimaryProfessionPoints() const { return m_activePlayerData->CharacterPoints; }
-        void SetFreePrimaryProfessions(uint16 profs) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::CharacterPoints), profs); }
+        void SetFreePrimaryProfessions(uint16 profs) {
+            SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_CHARACTER_POINTS, profs);
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::CharacterPoints), profs);
+        }
         void InitPrimaryProfessions();
 
         PlayerSpellMap const& GetSpellMap() const { return m_spells; }

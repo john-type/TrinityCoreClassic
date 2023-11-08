@@ -3615,6 +3615,7 @@ void Player::ResetPvpTalents()
 void Player::SetFreeTalentPoints(uint32 points)
 {
     sScriptMgr->OnPlayerFreeTalentPointsChanged(this, points);
+    SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_CHARACTER_POINTS, points);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::CharacterPoints), points);
 }
 

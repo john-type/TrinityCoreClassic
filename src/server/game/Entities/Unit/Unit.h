@@ -907,7 +907,10 @@ class TC_GAME_API Unit : public WorldObject
 
         int32 GetResistance(SpellSchools school) const { return m_unitData->Resistances[school]; }
         int32 GetResistance(SpellSchoolMask mask) const;
-        void SetResistance(SpellSchools school, int32 val) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Resistances, school), val); }
+        void SetResistance(SpellSchools school, int32 val) {
+            SetInt32Value(UF::UNIT_FIELD_RESISTANCES + school, val);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Resistances, school), val);
+        }
         static float CalculateAverageResistReduction(WorldObject const* caster, SpellSchoolMask schoolMask, Unit const* victim, SpellInfo const* spellInfo = nullptr);
 
         uint64 GetHealth()    const { return m_unitData->Health; }
@@ -1082,16 +1085,25 @@ class TC_GAME_API Unit : public WorldObject
         bool IsStandState() const;
         void SetStandState(UnitStandStateType state, uint32 animKitID = 0);
 
-        void SetVisFlag(UnitVisFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::VisFlags), flags); }
-        void RemoveVisFlag(UnitVisFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::VisFlags), flags); }
-        void ReplaceAllVisFlags(UnitVisFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::VisFlags), flags); }
+        void SetVisFlag(UnitVisFlags flags) {
+            SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::VisFlags), flags);
+        }
+        void RemoveVisFlag(UnitVisFlags flags) {
+            RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::VisFlags), flags);
+        }
+        void ReplaceAllVisFlags(UnitVisFlags flags) {
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::VisFlags), flags);
+        }
 
         AnimTier GetAnimTier() const { return AnimTier(*m_unitData->AnimTier); }
         void SetAnimTier(AnimTier animTier, bool notifyClient = true);
 
         bool IsMounted() const { return HasUnitFlag(UNIT_FLAG_MOUNT); }
         uint32 GetMountDisplayId() const { return m_unitData->MountDisplayID; }
-        void SetMountDisplayId(uint32 mountDisplayId) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::MountDisplayID), mountDisplayId); }
+        void SetMountDisplayId(uint32 mountDisplayId) {
+            SetUInt32Value(UF::UNIT_FIELD_MOUNTDISPLAYID, mountDisplayId);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::MountDisplayID), mountDisplayId);
+        }
         void Mount(uint32 mount, uint32 vehicleId = 0, uint32 creatureEntry = 0);
         void Dismount();
         MountCapabilityEntry const* GetMountCapability(uint32 mountType) const;

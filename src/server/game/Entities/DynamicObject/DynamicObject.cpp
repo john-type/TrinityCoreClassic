@@ -103,6 +103,12 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
     SetEntry(spell->Id);
     SetObjectScale(1.0f);
     auto dynamicObjectData = m_values.ModifyValue(&DynamicObject::m_dynamicObjectData);
+    SetGuidValue(UF::DYNAMICOBJECT_CASTER, caster->GetGUID());
+    SetUInt32Value(UF::DYNAMICOBJECT_TYPE, type);
+    SetUInt32Value(UF::DYNAMICOBJECT_SPELL_X_SPELL_VISUAL_ID, spellVisual.SpellXSpellVisualID);
+    SetUInt32Value(UF::DYNAMICOBJECT_SPELLID, spell->Id);
+    SetFloatValue(UF::DYNAMICOBJECT_RADIUS, radius);
+    SetUInt32Value(UF::DYNAMICOBJECT_CASTTIME, GameTime::GetGameTimeMS());
     SetUpdateFieldValue(dynamicObjectData.ModifyValue(&UF::DynamicObjectData::Caster), caster->GetGUID());
     SetUpdateFieldValue(dynamicObjectData.ModifyValue(&UF::DynamicObjectData::Type), type);
     SetUpdateFieldValue(dynamicObjectData.ModifyValue(&UF::DynamicObjectData::SpellXSpellVisualID), spellVisual.SpellXSpellVisualID);
