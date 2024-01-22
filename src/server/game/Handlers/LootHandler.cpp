@@ -35,6 +35,7 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellMgr.h"
+#include "World.h"
 
 class AELootCreatureCheck
 {
@@ -305,10 +306,14 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
 
     GetPlayer()->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Looting);
 
+    bool const aeLootEnabled = sWorld->getBoolConfig(CONFIG_ENABLE_AE_LOOT);
     std::list<Creature*> corpses;
     AELootCreatureCheck check(_player, packet.Unit);
-    Trinity::CreatureListSearcher<AELootCreatureCheck> searcher(_player, corpses, check);
-    Cell::VisitGridObjects(_player, searcher, AELootCreatureCheck::LootDistance);
+    if (aeLootEnabled)
+    {
+        Trinity::CreatureListSearcher<AELootCreatureCheck> searcher(_player, corpses, check);
+        Cell::VisitGridObjects(_player, searcher, AELootCreatureCheck::LootDistance);
+    }
 
     if (!corpses.empty())
         SendPacket(WorldPackets::Loot::AELootTargets(uint32(corpses.size() + 1)).Write());
