@@ -2048,6 +2048,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         float GetHealthBonusFromStamina() const;
         Stats GetPrimaryStat() const;
+        float GetManaBonusFromIntellect() const;
 
         bool UpdateStats(Stats stat) override;
         bool UpdateAllStats() override;
