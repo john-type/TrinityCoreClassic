@@ -6474,49 +6474,50 @@ void Player::CheckAreaExploreAndOutdoor()
 
     if (!(currFields & val))
     {
-        
         AddExploredZones(offset, val);//TODOFROST CHECK!
         SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ExploredZones, offset), val);
 
         UpdateCriteria(CriteriaType::RevealWorldMapOverlay, GetAreaId());
 
-        if (IsMaxLevel())
-        {
-            SendExplorationExperience(areaId, 0);
-        }
-        else
-        {
-            // int16 areaLevel = std::min(std::max(int16(GetLevel()), areaLevels->MinLevel), areaLevels->MaxLevel); // @TODO wotlk_classic
-            int16 areaLevel = GetLevel();
-            int32 diff = int32(GetLevel()) - areaLevel;
-            uint32 XP;
-            if (diff < -5)
+        if (areaEntry->ExplorationLevel > 0) {
+            if (IsMaxLevel())
             {
-                XP = uint32(sObjectMgr->GetBaseXP(GetLevel() + 5) * sWorld->getRate(RATE_XP_EXPLORE));
-            }
-            else if (diff > 5)
-            {
-                int32 exploration_percent = 100 - ((diff - 5) * 5);
-                if (exploration_percent < 0)
-                    exploration_percent = 0;
-
-                XP = uint32(sObjectMgr->GetBaseXP(areaLevel) * exploration_percent / 100 * sWorld->getRate(RATE_XP_EXPLORE));
+                SendExplorationExperience(areaId, 0);
             }
             else
             {
-                XP = uint32(sObjectMgr->GetBaseXP(areaLevel) * sWorld->getRate(RATE_XP_EXPLORE));
-            }
+                // int16 areaLevel = std::min(std::max(int16(GetLevel()), areaLevels->MinLevel), areaLevels->MaxLevel); // @TODO wotlk_classic
+                int16 areaLevel = GetLevel();
+                int32 diff = int32(GetLevel()) - areaLevel;
+                uint32 XP;
+                if (diff < -5)
+                {
+                    XP = uint32(sObjectMgr->GetBaseXP(GetLevel() + 5) * sWorld->getRate(RATE_XP_EXPLORE));
+                }
+                else if (diff > 5)
+                {
+                    int32 exploration_percent = 100 - ((diff - 5) * 5);
+                    if (exploration_percent < 0)
+                        exploration_percent = 0;
 
-            if (sWorld->getIntConfig(CONFIG_MIN_DISCOVERED_SCALED_XP_RATIO))
-            {
-                uint32 minScaledXP = uint32(sObjectMgr->GetBaseXP(areaLevel)*sWorld->getRate(RATE_XP_EXPLORE)) * sWorld->getIntConfig(CONFIG_MIN_DISCOVERED_SCALED_XP_RATIO) / 100;
-                XP = std::max(minScaledXP, XP);
-            }
+                    XP = uint32(sObjectMgr->GetBaseXP(areaLevel) * exploration_percent / 100 * sWorld->getRate(RATE_XP_EXPLORE));
+                }
+                else
+                {
+                    XP = uint32(sObjectMgr->GetBaseXP(areaLevel) * sWorld->getRate(RATE_XP_EXPLORE));
+                }
 
-            GiveXP(XP, nullptr);
-            SendExplorationExperience(areaId, XP);
+                if (sWorld->getIntConfig(CONFIG_MIN_DISCOVERED_SCALED_XP_RATIO))
+                {
+                    uint32 minScaledXP = uint32(sObjectMgr->GetBaseXP(areaLevel)*sWorld->getRate(RATE_XP_EXPLORE)) * sWorld->getIntConfig(CONFIG_MIN_DISCOVERED_SCALED_XP_RATIO) / 100;
+                    XP = std::max(minScaledXP, XP);
+                }
+
+                GiveXP(XP, nullptr);
+                SendExplorationExperience(areaId, XP);
+            }
+            TC_LOG_DEBUG("entities.player", "Player '%s' (%s) discovered a new area: %u", GetName().c_str(),GetGUID().ToString().c_str(), areaId);
         }
-        TC_LOG_DEBUG("entities.player", "Player '%s' (%s) discovered a new area: %u", GetName().c_str(),GetGUID().ToString().c_str(), areaId);
     }
 }
 
