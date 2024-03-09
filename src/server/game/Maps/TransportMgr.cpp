@@ -225,7 +225,24 @@ void TransportMgr::LoadTransportTemplates()
 
         if (!sTaxiPathStore.LookupEntry(goInfo->moTransport.taxiPathID))
         {
-            TC_LOG_ERROR("sql.sql", "Transport %u (name: %s) has an invalid path specified in `gameobject_template`.`Data0` (%u) field, skipped.", entry, goInfo->name.c_str(), goInfo->moTransport.taxiPathID);
+            TC_LOG_ERROR("sql.sql", "Transport {} (name: {}) has an invalid path specified in `gameobject_template`.`Data0` ({}) field, skipped.", entry, goInfo->name.c_str(), goInfo->moTransport.taxiPathID);
+            continue;
+        }
+
+        bool hasValidMaps = true;
+        for (uint32 mapId : _transportTemplates[entry].MapIds)
+        {
+            if (!sMapStore.LookupEntry(mapId))
+            {
+                hasValidMaps = false;
+                break;
+            }
+        }
+
+        if (!hasValidMaps)
+        {
+            TC_LOG_ERROR("sql.sql", "Transport {} (name: {}) is trying to spawn on a map which does not exist, skipped.", entry, goInfo->name.c_str());
+            _transportTemplates.erase(entry);
             continue;
         }
 
