@@ -280,12 +280,11 @@ void Player::UpdateArmor()
 
 float Player::GetHealthBonusFromStamina() const
 {
-    float ratio = 10.0f;
     float stamina = GetStat(STAT_STAMINA);
     float baseStam = std::min(20.0f, stamina);
     float moreStam = stamina - baseStam;
 
-    return moreStam * ratio;
+    return baseStam + (moreStam * 10.0f);
 }
 
 Stats Player::GetPrimaryStat() const

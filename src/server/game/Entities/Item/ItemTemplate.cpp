@@ -16,6 +16,7 @@
  */
 
 #include "DB2Stores.h"
+#include "GameTables.h"
 #include "World.h"
 #include "ItemTemplate.h"
 #include "Player.h"
@@ -274,4 +275,10 @@ bool ItemTemplate::IsUsableByLootSpecialization(Player const* player, bool alway
 std::size_t ItemTemplate::CalculateItemSpecBit(ChrSpecializationEntry const* spec)
 {
     return (spec->ClassID - 1) * MAX_SPECIALIZATIONS + spec->OrderIndex;
+}
+
+int16 ItemTemplate::GetShieldBlockValue(uint32 itemLevel) const
+{
+    GtShieldBlockRegularEntry const* blockEntry = sShieldBlockRegularGameTable.GetRow(itemLevel);
+    return static_cast<int16>(GetShieldBlockRegularColumnForQuality(blockEntry, static_cast<ItemQualities>(GetQuality())));
 }

@@ -37,6 +37,7 @@ GameTable<GtNpcManaCostScalerEntry>             sNpcManaCostScalerGameTable;
 GameTable<GtOCTRegenHPEntry>                    sOCTRegenHPGameTable;
 GameTable<GtRegenHPPerSptEntry>                 sRegenHPPerSptGameTable;
 GameTable<GtRegenMPPerSptEntry>                 sRegenMPPerSptGameTable;
+GameTable<GtShieldBlockRegularEntry>            sShieldBlockRegularGameTable;
 GameTable<GtSpellScalingEntry>                  sSpellScalingGameTable;
 
 template<class T>
@@ -124,6 +125,7 @@ void LoadGameTables(std::string const& dataPath)
     LOAD_GT(sOCTRegenHPGameTable, "OCTRegenHP.txt");
     LOAD_GT(sRegenHPPerSptGameTable, "RegenHPPerSpt.txt");
     LOAD_GT(sRegenMPPerSptGameTable, "RegenMPPerSpt.txt");
+    LOAD_GT(sShieldBlockRegularGameTable, "ShieldBlockRegular.txt");
     LOAD_GT(sSpellScalingGameTable, "SpellScaling.txt");
 
 #undef LOAD_GT
