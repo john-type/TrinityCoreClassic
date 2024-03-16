@@ -306,7 +306,6 @@ struct PlayerCurrency
 
 typedef std::unordered_map<uint32, PlayerTalent> PlayerTalentMap;
 typedef std::array<uint16, MAX_GLYPH_SLOT_INDEX> PlayerGlyphs;
-typedef std::array<uint32, MAX_PVP_TALENT_SLOTS> PlayerPvpTalentMap;
 typedef std::unordered_map<uint32, PlayerSpell> PlayerSpellMap;
 typedef std::unordered_set<SpellModifier*> SpellModContainer;
 typedef std::unordered_map<uint32, PlayerCurrency> PlayerCurrenciesMap;
@@ -883,7 +882,6 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_BG_DATA,
     PLAYER_LOGIN_QUERY_LOAD_GLYPHS,
     PLAYER_LOGIN_QUERY_LOAD_TALENTS,
-    PLAYER_LOGIN_QUERY_LOAD_PVP_TALENTS,
     PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA,
     PLAYER_LOGIN_QUERY_LOAD_SKILLS,
     PLAYER_LOGIN_QUERY_LOAD_WEEKLY_QUEST_STATUS,
@@ -1100,18 +1098,14 @@ enum TalentLearnResult
 
 struct TC_GAME_API SpecializationInfo
 {
-    SpecializationInfo() : Glyphs(), PvpTalents(), ResetTalentsCost(0), ResetTalentsTime(0), UsedTalentCount(0), QuestRewardTalentCount(0), ActiveGroup(0), TalentGroupCount(1)
+    SpecializationInfo() : Glyphs(), ResetTalentsCost(0), ResetTalentsTime(0), UsedTalentCount(0), QuestRewardTalentCount(0), ActiveGroup(0), TalentGroupCount(1)
     {
         for (PlayerGlyphs& glyphs : Glyphs)
             glyphs.fill(0);
-
-        for (PlayerPvpTalentMap& pvpTalents : PvpTalents)
-            pvpTalents.fill(0);
     }
 
     PlayerTalentMap Talents[MAX_SPECIALIZATIONS];
     PlayerGlyphs Glyphs[MAX_TALENT_SPECS];
-    PlayerPvpTalentMap PvpTalents[MAX_SPECIALIZATIONS];
     uint32 ResetTalentsCost;
     time_t ResetTalentsTime;
     uint32 UsedTalentCount;
@@ -1865,7 +1859,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetFreeTalentPoints() const { return m_activePlayerData->CharacterPoints; }
         void SetFreeTalentPoints(uint32 points);
         bool ResetTalents(bool noCost = false);
-        void ResetPvpTalents();
         uint32 GetNextResetTalentsCost() const;
         void InitTalentForLevel();
         void SendTalentsInfoData(bool pet);
@@ -1876,11 +1869,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetNumTalentsAtLevel(uint32 level) const;
         void ResetTalentSpecialization();
 
-        TalentLearnResult LearnPvpTalent(uint32 talentID, uint8 slot, int32* spellOnCooldown);
-        bool AddPvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup, uint8 slot);
-        void RemovePvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup);
-        void TogglePvpTalents(bool enable);
-        bool HasPvpTalent(uint32 talentID, uint8 activeTalentGroup) const;
         void EnablePvpRules(bool dueToCombat = false);
         void DisablePvpRules();
         bool HasPvpRulesEnabled() const;
@@ -1899,8 +1887,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetGlyph(uint8 slotIndex) { return _specializationInfo.Glyphs[GetActiveTalentGroup()][slotIndex]; }
         PlayerTalentMap const* GetTalentMap(uint8 spec) const { return &_specializationInfo.Talents[spec]; }
         PlayerTalentMap* GetTalentMap(uint8 spec) { return &_specializationInfo.Talents[spec]; }
-        PlayerPvpTalentMap const& GetPvpTalentMap(uint8 spec) const { return _specializationInfo.PvpTalents[spec]; }
-        PlayerPvpTalentMap& GetPvpTalentMap(uint8 spec) { return _specializationInfo.PvpTalents[spec]; }
         PlayerGlyphs const& GetGlyphs(uint8 spec) const { return _specializationInfo.Glyphs[spec]; }
         PlayerGlyphs& GetGlyphs(uint8 spec) { return _specializationInfo.Glyphs[spec]; }
         ActionButtonList const& GetActionButtons() const { return m_actionButtons; }
@@ -3027,7 +3013,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadBGData(PreparedQueryResult result);
         void _LoadGlyphs(PreparedQueryResult result);
         void _LoadTalents(PreparedQueryResult result);
-        void _LoadPvpTalents(PreparedQueryResult result);
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
         void _LoadPetStable(uint32 summonedPetNumber, PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);

@@ -34,26 +34,7 @@ void WorldSession::HandleLearnTalentOpcode(WorldPackets::Talent::LearnTalent& pa
 
 void WorldSession::HandleLearnPvpTalentsOpcode(WorldPackets::Talent::LearnPvpTalents& packet)
 {
-    WorldPackets::Talent::LearnPvpTalentFailed learnPvpTalentFailed;
-    bool anythingLearned = false;
-    for (WorldPackets::Talent::PvPTalent pvpTalent : packet.Talents)
-    {
-        if (TalentLearnResult result = _player->LearnPvpTalent(pvpTalent.PvPTalentID, pvpTalent.Slot, &learnPvpTalentFailed.SpellID))
-        {
-            if (!learnPvpTalentFailed.Reason)
-                learnPvpTalentFailed.Reason = result;
 
-            learnPvpTalentFailed.Talents.push_back(pvpTalent);
-        }
-        else
-            anythingLearned = true;
-    }
-
-    if (learnPvpTalentFailed.Reason)
-        SendPacket(learnPvpTalentFailed.Write());
-
-    if (anythingLearned)
-        _player->SendTalentsInfoData(false);
 }
 
 void WorldSession::HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRespecWipe& confirmRespecWipe)

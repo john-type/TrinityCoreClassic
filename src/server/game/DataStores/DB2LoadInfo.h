@@ -4482,58 +4482,6 @@ struct PvpItemLoadInfo
     }
 };
 
-struct PvpTalentLoadInfo
-{
-    static DB2LoadInfo const* Instance()
-    {
-        static constexpr DB2FieldMeta fields[] =
-        {
-            { false, FT_STRING, "Description" },
-            { false, FT_INT, "ID" },
-            { false, FT_INT, "SpecID" },
-            { true, FT_INT, "SpellID" },
-            { true, FT_INT, "OverridesSpellID" },
-            { true, FT_INT, "Flags" },
-            { true, FT_INT, "ActionBarSpellID" },
-            { true, FT_INT, "PvpTalentCategoryID" },
-            { true, FT_INT, "LevelRequired" },
-        };
-        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), PvpTalentMeta::Instance(), HOTFIX_SEL_PVP_TALENT);
-        return &loadInfo;
-    }
-};
-
-struct PvpTalentCategoryLoadInfo
-{
-    static DB2LoadInfo const* Instance()
-    {
-        static constexpr DB2FieldMeta fields[] =
-        {
-            { false, FT_INT, "ID" },
-            { false, FT_BYTE, "TalentSlotMask" },
-        };
-        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), PvpTalentCategoryMeta::Instance(), HOTFIX_SEL_PVP_TALENT_CATEGORY);
-        return &loadInfo;
-    }
-};
-
-struct PvpTalentSlotUnlockLoadInfo
-{
-    static DB2LoadInfo const* Instance()
-    {
-        static constexpr DB2FieldMeta fields[] =
-        {
-            { false, FT_INT, "ID" },
-            { true, FT_BYTE, "Slot" },
-            { true, FT_INT, "LevelRequired" },
-            { true, FT_INT, "DeathKnightLevelRequired" },
-            { true, FT_INT, "DemonHunterLevelRequired" },
-        };
-        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), PvpTalentSlotUnlockMeta::Instance(), HOTFIX_SEL_PVP_TALENT_SLOT_UNLOCK);
-        return &loadInfo;
-    }
-};
-
 struct PvpTierLoadInfo
 {
     static DB2LoadInfo const* Instance()

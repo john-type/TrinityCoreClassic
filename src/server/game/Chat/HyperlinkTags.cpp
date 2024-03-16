@@ -337,8 +337,6 @@ bool Trinity::Hyperlinks::LinkTags::pvptal::StoreTo(PvpTalentEntry const*& val, 
     uint32 pvpTalentId;
     if (!(t.TryConsumeTo(pvpTalentId) && t.IsEmpty()))
         return false;
-    if (!(val = sPvpTalentStore.LookupEntry(pvpTalentId)))
-        return false;
     return true;
 }
 

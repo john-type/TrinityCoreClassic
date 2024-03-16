@@ -1679,7 +1679,6 @@ DEFINE_ENUM_FLAG(SummonPropertiesFlags);
 
 #define MAX_TALENT_TIERS 11
 #define MAX_TALENT_COLUMNS 4
-#define MAX_PVP_TALENT_SLOTS 4
 
 enum TaxiNodeFlags
 {
