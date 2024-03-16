@@ -1749,19 +1749,19 @@ void World::SetInitialWorldSettings()
     sObjectMgr->SetHighestGuids();
 
     ///- Check the existence of the map files for all races' startup areas.
-    if (!TerrainMgr::ExistMapAndVMap(0, -6240.32f, 331.033f)
-        || !TerrainMgr::ExistMapAndVMap(0, -8949.95f, -132.493f)
-        || !TerrainMgr::ExistMapAndVMap(1, -618.518f, -4251.67f)
-        || !TerrainMgr::ExistMapAndVMap(0, 1676.35f, 1677.45f)
-        || !TerrainMgr::ExistMapAndVMap(1, 10311.3f, 832.463f)
-        || !TerrainMgr::ExistMapAndVMap(1, -2917.58f, -257.98f)
-        || (m_int_configs[CONFIG_EXPANSION] && (
-            !TerrainMgr::ExistMapAndVMap(530, 10349.6f, -6357.29f) ||
-            !TerrainMgr::ExistMapAndVMap(530, -3961.64f, -13931.2f))))
-    {
-        TC_LOG_FATAL("server.loading", "Unable to load critical files - server shutting down !!!");
-        exit(1);
-    }
+    //if (!TerrainMgr::ExistMapAndVMap(0, -6240.32f, 331.033f)
+    //    || !TerrainMgr::ExistMapAndVMap(0, -8949.95f, -132.493f)
+    //    || !TerrainMgr::ExistMapAndVMap(1, -618.518f, -4251.67f)
+    //    || !TerrainMgr::ExistMapAndVMap(0, 1676.35f, 1677.45f)
+    //    || !TerrainMgr::ExistMapAndVMap(1, 10311.3f, 832.463f)
+    //    || !TerrainMgr::ExistMapAndVMap(1, -2917.58f, -257.98f)
+    //    || (m_int_configs[CONFIG_EXPANSION] && (
+    //        !TerrainMgr::ExistMapAndVMap(530, 10349.6f, -6357.29f) ||
+    //        !TerrainMgr::ExistMapAndVMap(530, -3961.64f, -13931.2f))))
+    //{
+    //    TC_LOG_FATAL("server.loading", "Unable to load critical files - server shutting down !!!");
+    //    exit(1);
+    //}
 
     ///- Initialize pool manager
     sPoolMgr->Initialize();
@@ -2003,8 +2003,8 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading instance spawn groups...");
     sObjectMgr->LoadInstanceSpawnGroups();
 
-    TC_LOG_INFO("server.loading", "Loading Creature Data...");
-    sObjectMgr->LoadCreatures();
+    //TC_LOG_INFO("server.loading", "Loading Creature Data...");
+    //sObjectMgr->LoadCreatures();
 
     TC_LOG_INFO("server.loading", "Loading Temporary Summon Data...");
     sObjectMgr->LoadTempSummons();                               // must be after LoadCreatureTemplates() and LoadGameObjectTemplates()
@@ -2105,14 +2105,15 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading AreaTrigger script names...");
     sObjectMgr->LoadAreaTriggerScripts();
 
-    TC_LOG_INFO("server.loading", "Loading LFG entrance positions..."); // Must be after areatriggers
-    sLFGMgr->LoadLFGDungeons();
+    //TODOFROST
+    //TC_LOG_INFO("server.loading", "Loading LFG entrance positions..."); // Must be after areatriggers
+    //sLFGMgr->LoadLFGDungeons();
 
     TC_LOG_INFO("server.loading", "Loading Dungeon boss data...");
     sObjectMgr->LoadInstanceEncounters();
 
-    TC_LOG_INFO("server.loading", "Loading LFG rewards...");
-    sLFGMgr->LoadRewards();
+    //TC_LOG_INFO("server.loading", "Loading LFG rewards...");
+    //sLFGMgr->LoadRewards();
 
     TC_LOG_INFO("server.loading", "Loading Graveyard-zone links...");
     sObjectMgr->LoadGraveyardZones();
@@ -2153,16 +2154,18 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Player Choices Locales...");
     sObjectMgr->LoadPlayerChoicesLocale();
 
-    TC_LOG_INFO("server.loading", "Loading Jump Charge Params...");
-    sObjectMgr->LoadJumpChargeParams();
+    //TODOFROST
+    /*TC_LOG_INFO("server.loading", "Loading Jump Charge Params...");
+    sObjectMgr->LoadJumpChargeParams();*/
 
     CharacterDatabaseCleaner::CleanDatabase();
 
-    TC_LOG_INFO("server.loading", "Loading the max pet number...");
-    sObjectMgr->LoadPetNumber();
+    //TODOFROST
+    //TC_LOG_INFO("server.loading", "Loading the max pet number...");
+    //sObjectMgr->LoadPetNumber();
 
-    TC_LOG_INFO("server.loading", "Loading pet level stats...");
-    sObjectMgr->LoadPetLevelInfo();
+    //TC_LOG_INFO("server.loading", "Loading pet level stats...");
+    //sObjectMgr->LoadPetLevelInfo();
 
     TC_LOG_INFO("server.loading", "Loading Player level dependent mail rewards...");
     sObjectMgr->LoadMailLevelRewards();
@@ -2191,42 +2194,45 @@ void World::SetInitialWorldSettings()
     sCriteriaMgr->LoadCriteriaList();
     TC_LOG_INFO("server.loading", "Loading Criteria Data...");
     sCriteriaMgr->LoadCriteriaData();
-    TC_LOG_INFO("server.loading", "Loading Achievements...");
-    sAchievementMgr->LoadAchievementReferenceList();
-    TC_LOG_INFO("server.loading", "Loading Achievements Scripts...");
-    sAchievementMgr->LoadAchievementScripts();
-    TC_LOG_INFO("server.loading", "Loading Achievement Rewards...");
-    sAchievementMgr->LoadRewards();
-    TC_LOG_INFO("server.loading", "Loading Achievement Reward Locales...");
-    sAchievementMgr->LoadRewardLocales();
-    TC_LOG_INFO("server.loading", "Loading Completed Achievements...");
-    sAchievementMgr->LoadCompletedAchievements();
+    //TODOFROST
+    //TC_LOG_INFO("server.loading", "Loading Achievements...");
+    //sAchievementMgr->LoadAchievementReferenceList();
+    //TC_LOG_INFO("server.loading", "Loading Achievements Scripts...");
+    //sAchievementMgr->LoadAchievementScripts();
+    //TC_LOG_INFO("server.loading", "Loading Achievement Rewards...");
+    //sAchievementMgr->LoadRewards();
+    //TC_LOG_INFO("server.loading", "Loading Achievement Reward Locales...");
+    //sAchievementMgr->LoadRewardLocales();
+    //TC_LOG_INFO("server.loading", "Loading Completed Achievements...");
+    //sAchievementMgr->LoadCompletedAchievements();
 
     // Load before guilds and arena teams
     TC_LOG_INFO("server.loading", "Loading character cache store...");
     sCharacterCache->LoadCharacterCacheStorage();
 
-    ///- Load dynamic data tables from the database
+    
+    //- Load dynamic data tables from the database
     TC_LOG_INFO("server.loading", "Loading Auctions...");
     sAuctionMgr->LoadAuctions();
 
-    if (m_bool_configs[CONFIG_BLACKMARKET_ENABLED])
-    {
-        TC_LOG_INFO("server.loading", "Loading Black Market Templates...");
-        sBlackMarketMgr->LoadTemplates();
+    //TODOFROST
+    //if (m_bool_configs[CONFIG_BLACKMARKET_ENABLED])
+    //{
+    //    TC_LOG_INFO("server.loading", "Loading Black Market Templates...");
+    //    sBlackMarketMgr->LoadTemplates();
 
-        TC_LOG_INFO("server.loading", "Loading Black Market Auctions...");
-        sBlackMarketMgr->LoadAuctions();
-    }
+    //    TC_LOG_INFO("server.loading", "Loading Black Market Auctions...");
+    //    sBlackMarketMgr->LoadAuctions();
+    //}
 
-    TC_LOG_INFO("server.loading", "Loading Guild rewards...");
-    sGuildMgr->LoadGuildRewards();
+    //TC_LOG_INFO("server.loading", "Loading Guild rewards...");
+    //sGuildMgr->LoadGuildRewards();
 
     TC_LOG_INFO("server.loading", "Loading Guilds...");
     sGuildMgr->LoadGuilds();
 
-    TC_LOG_INFO("server.loading", "Loading ArenaTeams...");
-    sArenaTeamMgr->LoadArenaTeams();
+    //TC_LOG_INFO("server.loading", "Loading ArenaTeams...");
+    //sArenaTeamMgr->LoadArenaTeams();
 
     TC_LOG_INFO("server.loading", "Loading Groups...");
     sGroupMgr->LoadGroups();
@@ -2284,7 +2290,8 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Conditions...");
     sConditionMgr->LoadConditions();
 
-    TC_LOG_INFO("server.loading", "Loading faction change achievement pairs...");
+    //TODOFROST
+    /*TC_LOG_INFO("server.loading", "Loading faction change achievement pairs...");
     sObjectMgr->LoadFactionChangeAchievements();
 
     TC_LOG_INFO("server.loading", "Loading faction change spell pairs...");
@@ -2301,10 +2308,10 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading faction change title pairs...");
     sObjectMgr->LoadFactionChangeTitles();
-
+    */
     TC_LOG_INFO("server.loading", "Loading mount definitions...");
     CollectionMgr::LoadMountDefinitions();
-
+    /*
     TC_LOG_INFO("server.loading", "Loading GM bugs...");
     sSupportMgr->LoadBugTickets();
 
@@ -2312,15 +2319,15 @@ void World::SetInitialWorldSettings()
     sSupportMgr->LoadComplaintTickets();
 
     TC_LOG_INFO("server.loading", "Loading GM suggestions...");
-    sSupportMgr->LoadSuggestionTickets();
+    sSupportMgr->LoadSuggestionTickets();*/
 
     /*TC_LOG_INFO("server.loading", "Loading GM surveys...");
     sSupportMgr->LoadSurveys();*/
 
-    TC_LOG_INFO("server.loading", "Loading garrison info...");
-    sGarrisonMgr.Initialize();
+    //TC_LOG_INFO("server.loading", "Loading garrison info...");
+    //sGarrisonMgr.Initialize();
 
-    ///- Handle outdated emails (delete/return)
+    //- Handle outdated emails (delete/return)
     TC_LOG_INFO("server.loading", "Returning old mails...");
     sObjectMgr->ReturnOrDeleteOldMails(false);
 
@@ -2351,14 +2358,15 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading SmartAI scripts...");
     sSmartScriptMgr->LoadSmartAIFromDB();
 
-    TC_LOG_INFO("server.loading", "Loading Calendar data...");
-    sCalendarMgr->LoadFromDB();
+    //TODOFROST
+    //TC_LOG_INFO("server.loading", "Loading Calendar data...");
+    //sCalendarMgr->LoadFromDB();
 
-    TC_LOG_INFO("server.loading", "Loading Petitions...");
-    sPetitionMgr->LoadPetitions();
+    //TC_LOG_INFO("server.loading", "Loading Petitions...");
+    //sPetitionMgr->LoadPetitions();
 
-    TC_LOG_INFO("server.loading", "Loading Signatures...");
-    sPetitionMgr->LoadSignatures();
+    //TC_LOG_INFO("server.loading", "Loading Signatures...");
+    //sPetitionMgr->LoadSignatures();
 
     TC_LOG_INFO("server.loading", "Loading Item loot...");
     sLootItemStorage->LoadStorageFromDB();
@@ -2455,11 +2463,11 @@ void World::SetInitialWorldSettings()
     sBattlefieldMgr->InitBattlefield();
 
     ///- Initialize Warden
-    TC_LOG_INFO("server.loading", "Loading Warden Checks...");
-    sWardenCheckMgr->LoadWardenChecks();
+    //TC_LOG_INFO("server.loading", "Loading Warden Checks...");
+    //sWardenCheckMgr->LoadWardenChecks();
 
-    TC_LOG_INFO("server.loading", "Loading Warden Action Overrides...");
-    sWardenCheckMgr->LoadWardenOverrides();
+    //TC_LOG_INFO("server.loading", "Loading Warden Action Overrides...");
+    //sWardenCheckMgr->LoadWardenOverrides();
 
     TC_LOG_INFO("server.loading", "Deleting expired bans...");
     LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");      // One-time query
@@ -2471,14 +2479,14 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Calculate random battleground reset time...");
     InitRandomBGResetTime();
 
-    TC_LOG_INFO("server.loading", "Calculate deletion of old calendar events time...");
-    InitCalendarOldEventsDeletionTime();
+    //TC_LOG_INFO("server.loading", "Calculate deletion of old calendar events time...");
+    //InitCalendarOldEventsDeletionTime();
 
     TC_LOG_INFO("server.loading", "Calculate guild limitation(s) reset time...");
     InitGuildResetTime();
 
-    TC_LOG_INFO("server.loading", "Calculate next currency reset time...");
-    InitCurrencyResetTime();
+    //TC_LOG_INFO("server.loading", "Calculate next currency reset time...");
+    //InitCurrencyResetTime();
 
     TC_LOG_INFO("server.loading", "Loading race and class expansion requirements...");
     sObjectMgr->LoadRaceAndClassExpansionRequirements();
@@ -2489,8 +2497,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading realm names...");
     sObjectMgr->LoadRealmNames();
 
-    TC_LOG_INFO("server.loading", "Loading battle pets info...");
-    BattlePets::BattlePetMgr::Initialize();
+    //TODOFROST
+    //TC_LOG_INFO("server.loading", "Loading battle pets info...");
+    //BattlePets::BattlePetMgr::Initialize();
 
     TC_LOG_INFO("server.loading", "Loading scenarios");
     sScenarioMgr->LoadDB2Data();
@@ -2604,11 +2613,11 @@ void World::Update(uint32 diff)
         ResetRandomBG();
     }
 
-    if (currentGameTime > m_NextCalendarOldEventsDeletionTime)
-    {
-        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Delete old calendar events"));
-        CalendarDeleteOldEvents();
-    }
+    //if (currentGameTime > m_NextCalendarOldEventsDeletionTime)
+    //{
+    //    TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Delete old calendar events"));
+    //    CalendarDeleteOldEvents();
+    //}
 
     if (currentGameTime > m_NextGuildReset)
     {
@@ -2616,65 +2625,65 @@ void World::Update(uint32 diff)
         ResetGuildCap();
     }
 
-    if (currentGameTime > m_NextCurrencyReset)
-    {
-        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Reset currency weekly cap"));
-        ResetCurrencyWeekCap();
-    }
+    //if (currentGameTime > m_NextCurrencyReset)
+    //{
+    //    TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Reset currency weekly cap"));
+    //    ResetCurrencyWeekCap();
+    //}
 
     /// <ul><li> Handle auctions when the timer has passed
-    if (m_timers[WUPDATE_AUCTIONS].Passed())
-    {
-        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update expired auctions"));
-        m_timers[WUPDATE_AUCTIONS].Reset();
+    //if (m_timers[WUPDATE_AUCTIONS].Passed())
+    //{
+    //    TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update expired auctions"));
+    //    m_timers[WUPDATE_AUCTIONS].Reset();
 
-        ///- Update mails (return old mails with item, or delete them)
-        //(tested... works on win)
-        if (++mail_timer > mail_timer_expires)
-        {
-            mail_timer = 0;
-            sObjectMgr->ReturnOrDeleteOldMails(true);
-        }
+    //    ///- Update mails (return old mails with item, or delete them)
+    //    //(tested... works on win)
+    //    if (++mail_timer > mail_timer_expires)
+    //    {
+    //        mail_timer = 0;
+    //        sObjectMgr->ReturnOrDeleteOldMails(true);
+    //    }
 
-        ///- Handle expired auctions
-        sAuctionMgr->Update();
-    }
+    //    ///- Handle expired auctions
+    //    sAuctionMgr->Update();
+    //}
 
-    if (m_timers[WUPDATE_AUCTIONS_PENDING].Passed())
-    {
-        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update pending auctions"));
-        m_timers[WUPDATE_AUCTIONS_PENDING].Reset();
+    //if (m_timers[WUPDATE_AUCTIONS_PENDING].Passed())
+    //{
+    //    TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update pending auctions"));
+    //    m_timers[WUPDATE_AUCTIONS_PENDING].Reset();
 
-        sAuctionMgr->UpdatePendingAuctions();
-    }
+    //    sAuctionMgr->UpdatePendingAuctions();
+    //}
 
-    if (m_timers[WUPDATE_BLACKMARKET].Passed())
-    {
-        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update pending black market auctions"));
-        m_timers[WUPDATE_BLACKMARKET].Reset();
+    //if (m_timers[WUPDATE_BLACKMARKET].Passed())
+    //{
+    //    TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update pending black market auctions"));
+    //    m_timers[WUPDATE_BLACKMARKET].Reset();
 
-        ///- Update blackmarket, refresh auctions if necessary
-        if ((blackmarket_timer *  m_timers[WUPDATE_BLACKMARKET].GetInterval() >=
-            getIntConfig(CONFIG_BLACKMARKET_UPDATE_PERIOD) * HOUR * IN_MILLISECONDS)
-            || !blackmarket_timer)
-        {
-            sBlackMarketMgr->RefreshAuctions();
-            blackmarket_timer = 1; // timer is 0 on startup
-        }
-        else
-        {
-            ++blackmarket_timer;
-            sBlackMarketMgr->Update();
-        }
-    }
+    //    ///- Update blackmarket, refresh auctions if necessary
+    //    if ((blackmarket_timer *  m_timers[WUPDATE_BLACKMARKET].GetInterval() >=
+    //        getIntConfig(CONFIG_BLACKMARKET_UPDATE_PERIOD) * HOUR * IN_MILLISECONDS)
+    //        || !blackmarket_timer)
+    //    {
+    //        sBlackMarketMgr->RefreshAuctions();
+    //        blackmarket_timer = 1; // timer is 0 on startup
+    //    }
+    //    else
+    //    {
+    //        ++blackmarket_timer;
+    //        sBlackMarketMgr->Update();
+    //    }
+    //}
 
-    /// <li> Handle AHBot operations
-    if (m_timers[WUPDATE_AHBOT].Passed())
-    {
-        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update AHBot"));
-        sAuctionBot->Update();
-        m_timers[WUPDATE_AHBOT].Reset();
-    }
+    ///// <li> Handle AHBot operations
+    //if (m_timers[WUPDATE_AHBOT].Passed())
+    //{
+    //    TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update AHBot"));
+    //    sAuctionBot->Update();
+    //    m_timers[WUPDATE_AHBOT].Reset();
+    //}
 
     /// Synchronize all scripts with their ids before updating the sScriptReloadMgr
     sScriptMgr->SyncScripts();

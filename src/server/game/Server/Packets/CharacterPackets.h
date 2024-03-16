@@ -132,8 +132,8 @@ namespace WorldPackets
                 TaggedPosition<Position::XYZ> PreloadPos;
                 ObjectGuid GuildGUID;
                 uint32 Flags             = 0; ///< Character flag @see enum CharacterFlags
-                uint32 Flags2            = 0; ///< Character customization flags @see enum CharacterCustomizeFlags
-                uint32 Flags3            = 0; ///< Character flags 3 @todo research
+                uint32 Flags2            = 402685956; ///< Character customization flags @see enum CharacterCustomizeFlags
+                uint32 Flags3            = 855688192; ///< Character flags 3 @todo research
                 uint32 Flags4            = 0;
                 bool FirstLogin      = false;
                 uint8 unkWod61x          = 0;

@@ -6458,7 +6458,8 @@ void ObjectMgr::LoadNPCText()
             {
                 if (!sBroadcastTextStore.LookupEntry(npcText.Data[i].BroadcastTextID))
                 {
-                    TC_LOG_ERROR("sql.sql", "NPCText (ID: %u) has a non-existing BroadcastText (ID: %u, Index: %u)", textID, npcText.Data[i].BroadcastTextID, i);
+                    //TODOFROST
+                    //TC_LOG_ERROR("sql.sql", "NPCText (ID: %u) has a non-existing BroadcastText (ID: %u, Index: %u)", textID, npcText.Data[i].BroadcastTextID, i);
                     npcText.Data[i].Probability = 0.0f;
                     npcText.Data[i].BroadcastTextID = 0;
                 }
@@ -6469,7 +6470,8 @@ void ObjectMgr::LoadNPCText()
         {
             if (npcText.Data[i].Probability > 0 && npcText.Data[i].BroadcastTextID == 0)
             {
-                TC_LOG_ERROR("sql.sql", "NPCText (ID: %u) has a probability (Index: %u) set, but no BroadcastTextID to go with it", textID, i);
+                //TODOFROST
+                //TC_LOG_ERROR("sql.sql", "NPCText (ID: %u) has a probability (Index: %u) set, but no BroadcastTextID to go with it", textID, i);
                 npcText.Data[i].Probability = 0;
             }
         }
@@ -6477,7 +6479,8 @@ void ObjectMgr::LoadNPCText()
         float probabilitySum = std::accumulate(std::begin(npcText.Data), std::end(npcText.Data), 0.0f, [](float sum, NpcTextData const& data) { return sum + data.Probability; });
         if (probabilitySum <= 0.0f)
         {
-            TC_LOG_ERROR("sql.sql", "NPCText (ID: %u) has a probability sum 0, no text can be selected from it, skipped.", textID);
+            //TODOFROST
+            //TC_LOG_ERROR("sql.sql", "NPCText (ID: %u) has a probability sum 0, no text can be selected from it, skipped.", textID);
             continue;
         }
 
@@ -9656,7 +9659,8 @@ void ObjectMgr::LoadGossipMenu()
 
         if (!GetNpcText(gMenu.TextID))
         {
-            TC_LOG_ERROR("sql.sql", "Table gossip_menu: ID %u is using non-existing TextID %u", gMenu.MenuID, gMenu.TextID);
+            //TODOFROST
+            //TC_LOG_ERROR("sql.sql", "Table gossip_menu: ID %u is using non-existing TextID %u", gMenu.MenuID, gMenu.TextID);
             continue;
         }
 
