@@ -47,9 +47,9 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
 
     if (GetPlayer()->CanBeGameMaster() || sWorld->getIntConfig(CONFIG_TALENTS_INSPECTING) + (GetPlayer()->GetEffectiveTeam() == player->GetEffectiveTeam()) > 1)
     {
-        PlayerTalentMap const* talents = player->GetTalentMap(player->GetActiveTalentGroup());
-        for (PlayerTalentMap::value_type const& v : *talents)
-            if (v.second.state != PLAYERSPELL_REMOVED)
+        PlayerTalentMap talents = player->GetPlayerTalentMap(player->GetActiveTalentGroup());
+        for (PlayerTalentMap::value_type const& v : talents)
+            if (v.second.State != PLAYERSPELL_REMOVED)
                 inspectResult.Talents.push_back(v.first);
     }
 

@@ -5268,8 +5268,7 @@ void Spell::EffectRemoveTalent()
     if (!player)
         return;
 
-    for (uint32 spellId : talent->SpellRank)
-        player->RemoveTalent(spellId);
+    player->RemoveTalent(talent);
     player->SendTalentsInfoData(false);
 }
 

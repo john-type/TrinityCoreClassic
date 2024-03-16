@@ -192,8 +192,8 @@ struct PlayerSpell
 
 struct PlayerTalent
 {
-    PlayerSpellState state : 8;
-    uint8 spec : 8;
+    PlayerSpellState State : 8 {PLAYERSPELL_CHANGED};
+    uint8 Rank : 8 {0};
 };
 
 struct StoredAuraTeleportLocation
@@ -1854,6 +1854,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetQuestRewardTalentCount(uint32 count) { _specializationInfo.QuestRewardTalentCount = count; }
         uint8 GetTalentGroupCount() const { return _specializationInfo.TalentGroupCount; }
         void SetTalentGroupCount(uint8 count) { _specializationInfo.TalentGroupCount = count; }
+        uint32 GetSpentTalentPointsCount() const;
         uint32 GetDefaultSpecId() const;
 
         uint32 GetFreeTalentPoints() const { return m_activePlayerData->CharacterPoints; }
@@ -1862,10 +1863,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetNextResetTalentsCost() const;
         void InitTalentForLevel();
         void SendTalentsInfoData(bool pet);
-        void LearnTalent(uint32 talentId, uint32 talentRank);
-        bool AddTalent(uint32 spellId, uint8 spec, bool learning);
-        bool HasTalent(uint32 spell_id, uint8 spec) const;
-        void RemoveTalent(uint32 spellId);
+        uint32 CalculateTalentsPoints() const;
+        bool LearnTalent(uint32 talentId, uint8 requestedRank);
+        bool AddTalent(TalentEntry const* talent, uint8 rank, uint8 talentGroupId, bool learning);
+        void RemoveTalent(TalentEntry const* talent);
         uint32 GetNumTalentsAtLevel(uint32 level) const;
         void ResetTalentSpecialization();
 
@@ -1885,8 +1886,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetGlyphSlot(uint8 slotIndex) const { return 0; } // return m_activePlayerData->GlyphInfos[slotIndex].GlyphSlot; }
         void SetGlyph(uint8 slotIndex, uint32 glyph);
         uint32 GetGlyph(uint8 slotIndex) { return _specializationInfo.Glyphs[GetActiveTalentGroup()][slotIndex]; }
-        PlayerTalentMap const* GetTalentMap(uint8 spec) const { return &_specializationInfo.Talents[spec]; }
-        PlayerTalentMap* GetTalentMap(uint8 spec) { return &_specializationInfo.Talents[spec]; }
+        PlayerTalentMap const& GetPlayerTalentMap(uint8 talentGroupId) const { return _specializationInfo.Talents[talentGroupId]; }
+        PlayerTalentMap& GetPlayerTalentMap(uint8 talentGroupId) { return _specializationInfo.Talents[talentGroupId]; }
         PlayerGlyphs const& GetGlyphs(uint8 spec) const { return _specializationInfo.Glyphs[spec]; }
         PlayerGlyphs& GetGlyphs(uint8 spec) { return _specializationInfo.Glyphs[spec]; }
         ActionButtonList const& GetActionButtons() const { return m_actionButtons; }
