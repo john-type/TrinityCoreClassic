@@ -175,7 +175,6 @@ struct GtShieldBlockRegularEntry
     float Epic = 0.0f;
     float Legendary = 0.0f;
     float Artifact = 0.0f;
-    float ScalingStat = 0.0f;
 };
 
 struct GtSpellScalingEntry
@@ -358,8 +357,6 @@ inline float GetShieldBlockRegularColumnForQuality(GtShieldBlockRegularEntry con
         return row->Legendary;
     case ITEM_QUALITY_ARTIFACT:
         return row->Artifact;
-    case ITEM_QUALITY_HEIRLOOM:
-        return row->ScalingStat;
     default:
         break;
     }
