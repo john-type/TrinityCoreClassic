@@ -424,7 +424,6 @@ bool PlayerAI::IsPlayerHealer(Player const* who)
         case CLASS_DEATH_KNIGHT:
         case CLASS_MAGE:
         case CLASS_WARLOCK:
-        case CLASS_DEMON_HUNTER:
         default:
             return false;
         case CLASS_PALADIN:
@@ -433,8 +432,6 @@ bool PlayerAI::IsPlayerHealer(Player const* who)
             return who->GetPrimarySpecialization() == TALENT_SPEC_PRIEST_DISCIPLINE || who->GetPrimarySpecialization() == TALENT_SPEC_PRIEST_HOLY;
         case CLASS_SHAMAN:
             return who->GetPrimarySpecialization() == TALENT_SPEC_SHAMAN_RESTORATION;
-        case CLASS_MONK:
-            return who->GetPrimarySpecialization() == TALENT_SPEC_MONK_MISTWEAVER;
         case CLASS_DRUID:
             return who->GetPrimarySpecialization() == TALENT_SPEC_DRUID_RESTORATION;
     }

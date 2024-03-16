@@ -738,11 +738,8 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
         std::function<void(PreparedQueryResult)> finalizeCharacterCreation = [this, createInfo](PreparedQueryResult result)
         {
             bool haveSameRace = false;
-            uint32 demonHunterReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER);
-            bool hasDemonHunterReqLevel = (demonHunterReqLevel == 0);
             bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || HasPermission(rbac::RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
             uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
-            bool checkDemonHunterReqs = createInfo->Class == CLASS_DEMON_HUNTER && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEMON_HUNTER);
 
             if (result)
             {
@@ -751,15 +748,6 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
                 Field* field = result->Fetch();
                 uint8 accRace = field[1].GetUInt8();
 
-                if (checkDemonHunterReqs)
-                {
-                    if (!hasDemonHunterReqLevel)
-                    {
-                        uint8 accLevel = field[0].GetUInt8();
-                        if (accLevel >= demonHunterReqLevel)
-                            hasDemonHunterReqLevel = true;
-                    }
-                }
 
                 // need to check team only for first character
                 /// @todo what to if account already has characters of both races?
@@ -778,7 +766,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
                 // search same race for cinematic or same class if need
                 /// @todo check if cinematic already shown? (already logged in?; cinematic field)
-                while ((skipCinematics == 1 && !haveSameRace) || createInfo->Class == CLASS_DEMON_HUNTER)
+                while ((skipCinematics == 1 && !haveSameRace))
                 {
                     if (!result->NextRow())
                         break;
@@ -788,23 +776,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
                     if (!haveSameRace)
                         haveSameRace = createInfo->Race == accRace;
-
-                    if (checkDemonHunterReqs)
-                    {
-                        if (!hasDemonHunterReqLevel)
-                        {
-                            uint8 accLevel = field[0].GetUInt8();
-                            if (accLevel >= demonHunterReqLevel)
-                                hasDemonHunterReqLevel = true;
-                        }
-                    }
                 }
-            }
-
-            if (checkDemonHunterReqs && !hasDemonHunterReqLevel)
-            {
-                SendCharCreate(CHAR_CREATE_NEW_PLAYER);
-                return;
             }
 
             // Check name uniqueness in the same step as saving to database
@@ -862,7 +834,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
             });
         };
 
-        if (allowTwoSideAccounts && !skipCinematics && createInfo->Class != CLASS_DEMON_HUNTER)
+        if (allowTwoSideAccounts && !skipCinematics)
         {
             finalizeCharacterCreation(PreparedQueryResult(nullptr));
             return;
@@ -870,7 +842,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CREATE_INFO);
         stmt->setUInt32(0, GetAccountId());
-        stmt->setUInt32(1, (skipCinematics == 1 || createInfo->Class == CLASS_DEMON_HUNTER) ? 1200 : 1); // 200 (max chars per realm) + 1000 (max deleted chars per realm)
+        stmt->setUInt32(1, (skipCinematics == 1) ? 1200 : 1); // 200 (max chars per realm) + 1000 (max deleted chars per realm)
         queryCallback.WithPreparedCallback(std::move(finalizeCharacterCreation)).SetNextQuery(CharacterDatabase.AsyncQuery(stmt));
     }));
 }

@@ -3890,8 +3890,6 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
 
         if (characterInfo->Class == CLASS_DEATH_KNIGHT)
             charDeleteMinLvl = sWorld->getIntConfig(CONFIG_CHARDELETE_DEATH_KNIGHT_MIN_LEVEL);
-        else if (characterInfo->Class == CLASS_DEMON_HUNTER)
-            charDeleteMinLvl = sWorld->getIntConfig(CONFIG_CHARDELETE_DEMON_HUNTER_MIN_LEVEL);
         else
             charDeleteMinLvl = sWorld->getIntConfig(CONFIG_CHARDELETE_MIN_LEVEL);
 
@@ -23649,8 +23647,6 @@ uint8 Player::GetStartLevel(uint8 race, uint8 playerClass, Optional<int32> chara
         else
             startLevel = std::max<uint8>(sWorld->getIntConfig(CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL), startLevel);
     }
-    else if (playerClass == CLASS_DEMON_HUNTER)
-        startLevel = std::max<uint8>(sWorld->getIntConfig(CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL), startLevel);
 
     if (characterTemplateId)
     {

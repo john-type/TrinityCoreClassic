@@ -4329,7 +4329,7 @@ void ObjectMgr::LoadPlayerInfo()
                 if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_MISTS_OF_PANDARIA && (race == RACE_PANDAREN_NEUTRAL || race == RACE_PANDAREN_HORDE || race == RACE_PANDAREN_ALLIANCE))
                     continue;
 
-                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_LEGION && class_ == CLASS_DEMON_HUNTER)
+                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_LEGION)
                     continue;
 
                 // fatal error if no level 1 data
