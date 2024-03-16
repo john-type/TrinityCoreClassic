@@ -51,21 +51,10 @@ enum Races
     RACE_PANDAREN_NEUTRAL       = 24, // TITLE Pandaren DESCRIPTION Pandaren (Neutral)
     RACE_PANDAREN_ALLIANCE      = 25, // TITLE Pandaren DESCRIPTION Pandaren (Alliance)
     RACE_PANDAREN_HORDE         = 26, // TITLE Pandaren DESCRIPTION Pandaren (Horde)
-    RACE_NIGHTBORNE             = 27, // TITLE Nightborne
-    RACE_HIGHMOUNTAIN_TAUREN    = 28, // TITLE Highmountain Tauren
-    RACE_VOID_ELF               = 29, // TITLE Void Elf
-    RACE_LIGHTFORGED_DRAENEI    = 30, // TITLE Lightforged Draenei
-    RACE_ZANDALARI_TROLL        = 31, // TITLE Zandalari Troll
-    RACE_KUL_TIRAN              = 32, // TITLE Kul Tiran
-    //RACE_THIN_HUMAN           = 33,
-    RACE_DARK_IRON_DWARF        = 34, // TITLE Dark Iron Dwarf DESCRIPTION Dark Iron Dwarf (RaceMask bit 11)
-    RACE_VULPERA                = 35, // TITLE Vulpera DESCRIPTION Vulpera (RaceMask bit 12)
-    RACE_MAGHAR_ORC             = 36, // TITLE Mag'har Orc DESCRIPTION Mag'har Orc (RaceMask bit 13)
-    RACE_MECHAGNOME             = 37  // TITLE Mechagnome DESCRIPTION Mechagnome (RaceMask bit 14)
 };
 
 // max+1 for player race
-#define MAX_RACES         38
+#define MAX_RACES         27
 
 namespace Trinity
 {
@@ -87,8 +76,7 @@ struct RaceMask
         {
             0, 0, 1, 2, 3, 4, 5, 6, 7, 8,
             9, 10, -1, -1, -1, -1, -1, -1, -1, -1,
-            -1, -1, 21, -1, 23, 24, 25, 26, 27, 28,
-            29, 30, 31, -1, 11, 12, 13, 14
+            -1, -1, 21, -1, 23, 24, 25
         };
         return raceId < MAX_RACES && raceBits[raceId] >= 0 && raceBits[raceId] < 64 ? (T(1) << raceBits[raceId]) : T(0);
     }
@@ -117,17 +105,7 @@ constexpr Trinity::RaceMask<uint64> RACEMASK_ALL_PLAYABLE = { std::integral_cons
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_WORGEN)              |
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_PANDAREN_NEUTRAL)    |
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_PANDAREN_ALLIANCE)   |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_PANDAREN_HORDE)      |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_NIGHTBORNE)          |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_HIGHMOUNTAIN_TAUREN) |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_VOID_ELF)            |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_LIGHTFORGED_DRAENEI) |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_ZANDALARI_TROLL)     |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_KUL_TIRAN)           |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_DARK_IRON_DWARF)     |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_VULPERA)             |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_MAGHAR_ORC)          |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_MECHAGNOME)>::value };
+     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_PANDAREN_HORDE)>::value };
 
 constexpr Trinity::RaceMask<uint64> RACEMASK_NEUTRAL = { std::integral_constant<uint64, Trinity::RaceMask<uint64>::GetMaskForRace(RACE_PANDAREN_NEUTRAL)>::value };
 
@@ -138,12 +116,7 @@ constexpr Trinity::RaceMask<uint64> RACEMASK_ALLIANCE = { std::integral_constant
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_GNOME)               |
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_DRAENEI)             |
      Trinity::RaceMask<uint64>::GetMaskForRace(RACE_WORGEN)              |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_PANDAREN_ALLIANCE)   |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_VOID_ELF)            |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_LIGHTFORGED_DRAENEI) |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_KUL_TIRAN)           |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_DARK_IRON_DWARF)     |
-     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_MECHAGNOME)>::value };
+     Trinity::RaceMask<uint64>::GetMaskForRace(RACE_PANDAREN_ALLIANCE)>::value };
 
 constexpr Trinity::RaceMask<uint64> RACEMASK_HORDE = { std::integral_constant<uint64, (RACEMASK_ALL_PLAYABLE & ~(RACEMASK_NEUTRAL | RACEMASK_ALLIANCE)).RawValue>::value };
 

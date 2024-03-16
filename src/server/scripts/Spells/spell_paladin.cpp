@@ -584,20 +584,13 @@ class spell_pal_divine_steed : public SpellScript
                 spellId = SPELL_PALADIN_DIVINE_STEED_DWARF;
                 break;
             case RACE_DRAENEI:
-            case RACE_LIGHTFORGED_DRAENEI:
                 spellId = SPELL_PALADIN_DIVINE_STEED_DRAENEI;
-                break;
-            case RACE_DARK_IRON_DWARF:
-                spellId = SPELL_PALADIN_DIVINE_STEED_DARK_IRON_DWARF;
                 break;
             case RACE_BLOODELF:
                 spellId = SPELL_PALADIN_DIVINE_STEED_BLOODELF;
                 break;
             case RACE_TAUREN:
                 spellId = SPELL_PALADIN_DIVINE_STEED_TAUREN;
-                break;
-            case RACE_ZANDALARI_TROLL:
-                spellId = SPELL_PALADIN_DIVINE_STEED_ZANDALARI_TROLL;
                 break;
             default:
                 break;

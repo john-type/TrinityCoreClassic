@@ -446,16 +446,6 @@ class spell_gen_battleground_mercenary_shapeshift : public AuraScript
         { RACE_PANDAREN_NEUTRAL, { RACE_PANDAREN_NEUTRAL } },
         { RACE_PANDAREN_ALLIANCE, { RACE_PANDAREN_HORDE, RACE_PANDAREN_NEUTRAL } },
         { RACE_PANDAREN_HORDE, { RACE_PANDAREN_ALLIANCE, RACE_PANDAREN_NEUTRAL } },
-        { RACE_NIGHTBORNE, { RACE_NIGHTELF, RACE_HUMAN } },
-        { RACE_HIGHMOUNTAIN_TAUREN, { RACE_DRAENEI, RACE_NIGHTELF } },
-        { RACE_VOID_ELF, { RACE_TROLL, RACE_BLOODELF } },
-        { RACE_LIGHTFORGED_DRAENEI, { RACE_TAUREN, RACE_ORC } },
-        { RACE_ZANDALARI_TROLL, { RACE_KUL_TIRAN, RACE_HUMAN } },
-        { RACE_KUL_TIRAN, { RACE_ZANDALARI_TROLL } },
-        { RACE_DARK_IRON_DWARF, { RACE_MAGHAR_ORC, RACE_ORC } },
-        { RACE_VULPERA, { RACE_MECHAGNOME, RACE_DARK_IRON_DWARF /*guessed, for shamans*/ } },
-        { RACE_MAGHAR_ORC, { RACE_DARK_IRON_DWARF } },
-        { RACE_MECHAGNOME, { RACE_VULPERA } },
     };
 
     inline static std::unordered_map<Races, std::array<uint32, 2>> const RaceDisplayIds =
@@ -475,16 +465,6 @@ class spell_gen_battleground_mercenary_shapeshift : public AuraScript
         { RACE_PANDAREN_NEUTRAL, { 55253, 55252 } }, // not verified, might be swapped with RACE_PANDAREN_HORDE
         { RACE_PANDAREN_ALLIANCE, { 55249, 55248 } },
         { RACE_PANDAREN_HORDE, { 55251, 55250 } },
-        { RACE_NIGHTBORNE, { 82375, 82376 } },
-        { RACE_HIGHMOUNTAIN_TAUREN, { 82377, 82378 } },
-        { RACE_VOID_ELF, { 82371, 82372 } },
-        { RACE_LIGHTFORGED_DRAENEI, { 82373, 82374 } },
-        { RACE_ZANDALARI_TROLL, { 88417, 88416 } },
-        { RACE_KUL_TIRAN, { 88414, 88413 } },
-        { RACE_DARK_IRON_DWARF, { 88409, 88408 } },
-        { RACE_VULPERA, { 94999, 95001 } },
-        { RACE_MAGHAR_ORC, { 88420, 88410 } },
-        { RACE_MECHAGNOME, { 94998, 95000 } },
     };
 
     inline static std::vector<uint32> RacialSkills;
