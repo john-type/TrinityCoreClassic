@@ -21,7 +21,6 @@
 #include "DB2Stores.h"
 #include "FlightPathMovementGenerator.h"
 #include "GameTime.h"
-#include "Garrison.h"
 #include "InstancePackets.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
@@ -155,8 +154,6 @@ void WorldSession::HandleMoveWorldportAck()
     else
     {
         player->UpdateVisibilityForPlayer();
-        if (Garrison* garrison = player->GetGarrison())
-            garrison->SendRemoteInfo();
     }
 
     // flight fast teleport case

@@ -20,7 +20,6 @@
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
-#include "GarrisonMap.h"
 #include "Group.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
@@ -124,13 +123,6 @@ BattlegroundMap* MapManager::CreateBattleground(uint32 mapId, uint32 instanceId,
     return map;
 }
 
-GarrisonMap* MapManager::CreateGarrison(uint32 mapId, uint32 instanceId, Player* owner)
-{
-    GarrisonMap* map = new GarrisonMap(mapId, i_gridCleanUpDelay, instanceId, owner->GetGUID());
-    ASSERT(map->IsGarrison());
-    return map;
-}
-
 /*
 - return the right instance for the object, based on its InstanceId
 - create the instance if it's not created already
@@ -230,13 +222,6 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player, uint32 loginInstanceId 
             if (!map)
                 map = CreateInstance(mapId, newInstanceId, nullptr, diff, player->GetTeamId());
         }
-    }
-    else if (entry->IsGarrison())
-    {
-        newInstanceId = player->GetGUID().GetCounter();
-        map = FindMap_i(mapId, newInstanceId);
-        if (!map)
-            map = CreateGarrison(mapId, newInstanceId, player);
     }
     else
     {

@@ -3239,11 +3239,6 @@ bool Map::IsScenario() const
     return i_mapEntry && i_mapEntry->IsScenario();
 }
 
-bool Map::IsGarrison() const
-{
-    return i_mapEntry && i_mapEntry->IsGarrison();
-}
-
 bool Map::GetEntrancePos(int32 &mapid, float &x, float &y)
 {
     if (!i_mapEntry)

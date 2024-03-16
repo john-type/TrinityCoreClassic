@@ -91,23 +91,6 @@ namespace Trinity::Hyperlinks
         CurrencyContainerEntry const* Container = nullptr;
     };
 
-    struct GarrisonFollowerLinkData
-    {
-        GarrFollowerEntry const* Follower = nullptr;
-        uint32 Quality = 0;
-        uint32 Level = 0;
-        uint32 ItemLevel = 0;
-        std::array<uint32, 4> Abilities = { };
-        uint32 Traits[4] = { };
-        uint32 Specialization = 0;
-    };
-
-    struct GarrisonMissionLinkData
-    {
-        GarrMissionEntry const* Mission = nullptr;
-        uint64 DbID = 0;
-    };
-
     struct InstanceLockLinkData
     {
         ObjectGuid Owner;
@@ -297,27 +280,6 @@ namespace Trinity::Hyperlinks
             using value_type = SpellInfo const*;
             static constexpr std::string_view tag() { return "enchant"; }
             static bool StoreTo(SpellInfo const*& val, std::string_view text);
-        };
-
-        struct TC_GAME_API garrfollower
-        {
-            using value_type = GarrisonFollowerLinkData const&;
-            static constexpr std::string_view tag() { return "garrfollower"; }
-            static bool StoreTo(GarrisonFollowerLinkData& val, std::string_view text);
-        };
-
-        struct TC_GAME_API garrfollowerability
-        {
-            using value_type = GarrAbilityEntry const*;
-            static constexpr std::string_view tag() { return "garrfollowerability"; }
-            static bool StoreTo(GarrAbilityEntry const*& val, std::string_view text);
-        };
-
-        struct TC_GAME_API garrmission
-        {
-            using value_type = GarrisonMissionLinkData const&;
-            static constexpr std::string_view tag() { return "garrmission"; }
-            static bool StoreTo(GarrisonMissionLinkData& val, std::string_view text);
         };
 
         struct TC_GAME_API instancelock
