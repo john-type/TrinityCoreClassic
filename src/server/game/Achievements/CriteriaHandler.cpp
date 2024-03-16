@@ -3136,9 +3136,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::PlayerIsInAnyChromieTime: // 301
             return false;
         case ModifierTreeType::ItemIsAzeriteArmor: // 302
-            if (!sDB2Manager.GetAzeriteEmpoweredItem(miscValue1))
-                return false;
-            break;
+            return false;
         case ModifierTreeType::PlayerHasRuneforgePower: // 303
             return false;
         case ModifierTreeType::PlayerInChromieTimeForScaling: // 304

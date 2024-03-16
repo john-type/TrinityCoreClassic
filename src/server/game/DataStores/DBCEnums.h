@@ -174,23 +174,6 @@ enum ArtifactPowerFlag : uint8
 
 #define MAX_ARTIFACT_TIER 1
 
-#define MAX_AZERITE_EMPOWERED_TIER 5
-
-#define MAX_AZERITE_ESSENCE_SLOT 4
-#define MAX_AZERITE_ESSENCE_RANK 4
-
-enum class AzeriteItemMilestoneType : int32
-{
-    MajorEssence    = 0,
-    MinorEssence    = 1,
-    BonusStamina    = 2
-};
-
-enum AzeriteTierUnlockSetFlags
-{
-    AZERITE_TIER_UNLOCK_SET_FLAG_DEFAULT = 0x1
-};
-
 enum class BattlePetSpeciesFlags : uint16
 {
     NoRename                 = 0x0001,

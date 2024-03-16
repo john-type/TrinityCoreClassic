@@ -162,61 +162,6 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_AUCTION_HOUSE, "SELECT MAX(ID) + 1 FROM auction_house", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_AUCTION_HOUSE, "SELECT ID, Name_lang FROM auction_house_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
-    // AzeriteEmpoweredItem.db2
-    PrepareStatement(HOTFIX_SEL_AZERITE_EMPOWERED_ITEM, "SELECT ID, ItemID, AzeriteTierUnlockSetID, AzeritePowerSetID FROM azerite_empowered_item"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_AZERITE_EMPOWERED_ITEM, "SELECT MAX(ID) + 1 FROM azerite_empowered_item", CONNECTION_SYNCH);
-
-    // AzeriteEssence.db2
-    PrepareStatement(HOTFIX_SEL_AZERITE_ESSENCE, "SELECT ID, Name, Description, SpecSetID FROM azerite_essence WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_AZERITE_ESSENCE, "SELECT MAX(ID) + 1 FROM azerite_essence", CONNECTION_SYNCH);
-    PREPARE_LOCALE_STMT(HOTFIX_SEL_AZERITE_ESSENCE, "SELECT ID, Name_lang, Description_lang FROM azerite_essence_locale"
-        " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
-
-    // AzeriteEssencePower.db2
-    PrepareStatement(HOTFIX_SEL_AZERITE_ESSENCE_POWER, "SELECT ID, SourceAlliance, SourceHorde, AzeriteEssenceID, Tier, MajorPowerDescription, "
-        "MinorPowerDescription, MajorPowerActual, MinorPowerActual FROM azerite_essence_power WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_AZERITE_ESSENCE_POWER, "SELECT MAX(ID) + 1 FROM azerite_essence_power", CONNECTION_SYNCH);
-    PREPARE_LOCALE_STMT(HOTFIX_SEL_AZERITE_ESSENCE_POWER, "SELECT ID, SourceAlliance_lang, SourceHorde_lang FROM azerite_essence_power_locale"
-        " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
-
-    // AzeriteItem.db2
-    PrepareStatement(HOTFIX_SEL_AZERITE_ITEM, "SELECT ID, ItemID FROM azerite_item WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_AZERITE_ITEM, "SELECT MAX(ID) + 1 FROM azerite_item", CONNECTION_SYNCH);
-
-    // AzeriteItemMilestonePower.db2
-    PrepareStatement(HOTFIX_SEL_AZERITE_ITEM_MILESTONE_POWER, "SELECT ID, RequiredLevel, AzeritePowerID, Type, AutoUnlock"
-        " FROM azerite_item_milestone_power WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_AZERITE_ITEM_MILESTONE_POWER, "SELECT MAX(ID) + 1 FROM azerite_item_milestone_power", CONNECTION_SYNCH);
-
-    // AzeriteKnowledgeMultiplier.db2
-    PrepareStatement(HOTFIX_SEL_AZERITE_KNOWLEDGE_MULTIPLIER, "SELECT ID, Multiplier FROM azerite_knowledge_multiplier WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_AZERITE_KNOWLEDGE_MULTIPLIER, "SELECT MAX(ID) + 1 FROM azerite_knowledge_multiplier", CONNECTION_SYNCH);
-
-    // AzeriteLevelInfo.db2
-    PrepareStatement(HOTFIX_SEL_AZERITE_LEVEL_INFO, "SELECT ID, BaseExperienceToNextLevel, MinimumExperienceToNextLevel, ItemLevel"
-        " FROM azerite_level_info WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_AZERITE_LEVEL_INFO, "SELECT MAX(ID) + 1 FROM azerite_level_info", CONNECTION_SYNCH);
-
-    // AzeritePower.db2
-    PrepareStatement(HOTFIX_SEL_AZERITE_POWER, "SELECT ID, SpellID, ItemBonusListID, SpecSetID, Flags FROM azerite_power"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_AZERITE_POWER, "SELECT MAX(ID) + 1 FROM azerite_power", CONNECTION_SYNCH);
-
-    // AzeritePowerSetMember.db2
-    PrepareStatement(HOTFIX_SEL_AZERITE_POWER_SET_MEMBER, "SELECT ID, AzeritePowerSetID, AzeritePowerID, Class, Tier, OrderIndex"
-        " FROM azerite_power_set_member WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_AZERITE_POWER_SET_MEMBER, "SELECT MAX(ID) + 1 FROM azerite_power_set_member", CONNECTION_SYNCH);
-
-    // AzeriteTierUnlock.db2
-    PrepareStatement(HOTFIX_SEL_AZERITE_TIER_UNLOCK, "SELECT ID, ItemCreationContext, Tier, AzeriteLevel, AzeriteTierUnlockSetID"
-        " FROM azerite_tier_unlock WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_AZERITE_TIER_UNLOCK, "SELECT MAX(ID) + 1 FROM azerite_tier_unlock", CONNECTION_SYNCH);
-
-    // AzeriteTierUnlockSet.db2
-    PrepareStatement(HOTFIX_SEL_AZERITE_TIER_UNLOCK_SET, "SELECT ID, Flags FROM azerite_tier_unlock_set WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_AZERITE_TIER_UNLOCK_SET, "SELECT MAX(ID) + 1 FROM azerite_tier_unlock_set", CONNECTION_SYNCH);
-
     // BankBagSlotPrices.db2
     PrepareStatement(HOTFIX_SEL_BANK_BAG_SLOT_PRICES, "SELECT ID, Cost FROM bank_bag_slot_prices WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_BANK_BAG_SLOT_PRICES, "SELECT MAX(ID) + 1 FROM bank_bag_slot_prices", CONNECTION_SYNCH);

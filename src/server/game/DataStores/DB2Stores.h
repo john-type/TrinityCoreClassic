@@ -53,11 +53,6 @@ TC_GAME_API extern DB2Storage<ArtifactPowerPickerEntry>             sArtifactPow
 TC_GAME_API extern DB2Storage<ArtifactTierEntry>                    sArtifactTierStore;
 TC_GAME_API extern DB2Storage<ArtifactUnlockEntry>                  sArtifactUnlockStore;
 TC_GAME_API extern DB2Storage<AuctionHouseEntry>                    sAuctionHouseStore;
-TC_GAME_API extern DB2Storage<AzeriteEssenceEntry>                  sAzeriteEssenceStore;
-TC_GAME_API extern DB2Storage<AzeriteKnowledgeMultiplierEntry>      sAzeriteKnowledgeMultiplierStore;
-TC_GAME_API extern DB2Storage<AzeriteItemMilestonePowerEntry>       sAzeriteItemMilestonePowerStore;
-TC_GAME_API extern DB2Storage<AzeriteLevelInfoEntry>                sAzeriteLevelInfoStore;
-TC_GAME_API extern DB2Storage<AzeritePowerEntry>                    sAzeritePowerStore;
 TC_GAME_API extern DB2Storage<BankBagSlotPricesEntry>               sBankBagSlotPricesStore;
 TC_GAME_API extern DB2Storage<BannedAddonsEntry>                    sBannedAddonsStore;
 TC_GAME_API extern DB2Storage<BarberShopStyleEntry>                 sBarberShopStyleStore;
@@ -375,13 +370,6 @@ public:
     std::vector<ArtifactPowerEntry const*> GetArtifactPowers(uint8 artifactId) const;
     std::unordered_set<uint32> const* GetArtifactPowerLinks(uint32 artifactPowerId) const;
     ArtifactPowerRankEntry const* GetArtifactPowerRank(uint32 artifactPowerId, uint8 rank) const;
-    AzeriteEmpoweredItemEntry const* GetAzeriteEmpoweredItem(uint32 itemId) const;
-    bool IsAzeriteItem(uint32 itemId) const;
-    AzeriteEssencePowerEntry const* GetAzeriteEssencePower(uint32 azeriteEssenceId, uint32 rank) const;
-    std::vector<AzeriteItemMilestonePowerEntry const*> const& GetAzeriteItemMilestonePowers() const;
-    AzeriteItemMilestonePowerEntry const* GetAzeriteItemMilestonePower(uint8 slot) const;
-    std::vector<AzeritePowerSetMemberEntry const*> const* GetAzeritePowers(uint32 itemId) const;
-    uint32 GetRequiredAzeriteLevelForAzeritePowerTier(uint32 azeriteUnlockSetId, ItemContext context, uint32 tier) const;
     static char const* GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE, bool forceGender = false);
     ChrClassUIDisplayEntry const* GetUiDisplayForClass(Classes unitClass) const;
     static char const* GetClassName(uint8 class_, LocaleConstant locale = DEFAULT_LOCALE);
