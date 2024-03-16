@@ -44,14 +44,6 @@ TC_GAME_API extern DB2Storage<AnimKitEntry>                         sAnimKitStor
 TC_GAME_API extern DB2Storage<AreaTableEntry>                       sAreaTableStore;
 TC_GAME_API extern DB2Storage<AreaTriggerEntry>                     sAreaTriggerStore;
 TC_GAME_API extern DB2Storage<ArmorLocationEntry>                   sArmorLocationStore;
-TC_GAME_API extern DB2Storage<ArtifactEntry>                        sArtifactStore;
-TC_GAME_API extern DB2Storage<ArtifactCategoryEntry>                sArtifactCategoryStore;
-TC_GAME_API extern DB2Storage<ArtifactAppearanceEntry>              sArtifactAppearanceStore;
-TC_GAME_API extern DB2Storage<ArtifactAppearanceSetEntry>           sArtifactAppearanceSetStore;
-TC_GAME_API extern DB2Storage<ArtifactPowerEntry>                   sArtifactPowerStore;
-TC_GAME_API extern DB2Storage<ArtifactPowerPickerEntry>             sArtifactPowerPickerStore;
-TC_GAME_API extern DB2Storage<ArtifactTierEntry>                    sArtifactTierStore;
-TC_GAME_API extern DB2Storage<ArtifactUnlockEntry>                  sArtifactUnlockStore;
 TC_GAME_API extern DB2Storage<AuctionHouseEntry>                    sAuctionHouseStore;
 TC_GAME_API extern DB2Storage<BankBagSlotPricesEntry>               sBankBagSlotPricesStore;
 TC_GAME_API extern DB2Storage<BannedAddonsEntry>                    sBannedAddonsStore;
@@ -367,9 +359,6 @@ public:
     uint32 GetEmptyAnimStateID() const;
     std::vector<uint32> GetAreasForGroup(uint32 areaGroupId) const;
     static bool IsInArea(uint32 objectAreaId, uint32 areaId);
-    std::vector<ArtifactPowerEntry const*> GetArtifactPowers(uint8 artifactId) const;
-    std::unordered_set<uint32> const* GetArtifactPowerLinks(uint32 artifactPowerId) const;
-    ArtifactPowerRankEntry const* GetArtifactPowerRank(uint32 artifactPowerId, uint8 rank) const;
     static char const* GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE, bool forceGender = false);
     ChrClassUIDisplayEntry const* GetUiDisplayForClass(Classes unitClass) const;
     static char const* GetClassName(uint8 class_, LocaleConstant locale = DEFAULT_LOCALE);

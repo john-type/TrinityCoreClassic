@@ -98,64 +98,6 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ARMOR_LOCATION, "SELECT MAX(ID) + 1 FROM armor_location", CONNECTION_SYNCH);
 
-    // Artifact.db2
-    PrepareStatement(HOTFIX_SEL_ARTIFACT, "SELECT Name, ID, UiTextureKitID, UiNameColor, UiBarOverlayColor, UiBarBackgroundColor, "
-        "ChrSpecializationID, Flags, ArtifactCategoryID, UiModelSceneID, SpellVisualKitID FROM artifact WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_ARTIFACT, "SELECT MAX(ID) + 1 FROM artifact", CONNECTION_SYNCH);
-    PREPARE_LOCALE_STMT(HOTFIX_SEL_ARTIFACT, "SELECT ID, Name_lang FROM artifact_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
-
-    // ArtifactAppearance.db2
-    PrepareStatement(HOTFIX_SEL_ARTIFACT_APPEARANCE, "SELECT Name, ID, ArtifactAppearanceSetID, DisplayIndex, UnlockPlayerConditionID, "
-        "ItemAppearanceModifierID, UiSwatchColor, UiModelSaturation, UiModelOpacity, OverrideShapeshiftFormID, OverrideShapeshiftDisplayID, "
-        "UiItemAppearanceID, UiAltItemAppearanceID, Flags, UiCameraID FROM artifact_appearance WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_ARTIFACT_APPEARANCE, "SELECT MAX(ID) + 1 FROM artifact_appearance", CONNECTION_SYNCH);
-    PREPARE_LOCALE_STMT(HOTFIX_SEL_ARTIFACT_APPEARANCE, "SELECT ID, Name_lang FROM artifact_appearance_locale WHERE (`VerifiedBuild` > 0) = ?"
-        " AND locale = ?", CONNECTION_SYNCH);
-
-    // ArtifactAppearanceSet.db2
-    PrepareStatement(HOTFIX_SEL_ARTIFACT_APPEARANCE_SET, "SELECT Name, Description, ID, DisplayIndex, UiCameraID, AltHandUICameraID, "
-        "ForgeAttachmentOverride, Flags, ArtifactID FROM artifact_appearance_set WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_ARTIFACT_APPEARANCE_SET, "SELECT MAX(ID) + 1 FROM artifact_appearance_set", CONNECTION_SYNCH);
-    PREPARE_LOCALE_STMT(HOTFIX_SEL_ARTIFACT_APPEARANCE_SET, "SELECT ID, Name_lang, Description_lang FROM artifact_appearance_set_locale"
-        " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
-
-    // ArtifactCategory.db2
-    PrepareStatement(HOTFIX_SEL_ARTIFACT_CATEGORY, "SELECT ID, XpMultCurrencyID, XpMultCurveID FROM artifact_category WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_ARTIFACT_CATEGORY, "SELECT MAX(ID) + 1 FROM artifact_category", CONNECTION_SYNCH);
-
-    // ArtifactPower.db2
-    PrepareStatement(HOTFIX_SEL_ARTIFACT_POWER, "SELECT DisplayPosX, DisplayPosY, ID, ArtifactID, MaxPurchasableRank, Label, Flags, Tier"
-        " FROM artifact_power WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_ARTIFACT_POWER, "SELECT MAX(ID) + 1 FROM artifact_power", CONNECTION_SYNCH);
-
-    // ArtifactPowerLink.db2
-    PrepareStatement(HOTFIX_SEL_ARTIFACT_POWER_LINK, "SELECT ID, PowerA, PowerB FROM artifact_power_link WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_ARTIFACT_POWER_LINK, "SELECT MAX(ID) + 1 FROM artifact_power_link", CONNECTION_SYNCH);
-
-    // ArtifactPowerPicker.db2
-    PrepareStatement(HOTFIX_SEL_ARTIFACT_POWER_PICKER, "SELECT ID, PlayerConditionID FROM artifact_power_picker WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_ARTIFACT_POWER_PICKER, "SELECT MAX(ID) + 1 FROM artifact_power_picker", CONNECTION_SYNCH);
-
-    // ArtifactPowerRank.db2
-    PrepareStatement(HOTFIX_SEL_ARTIFACT_POWER_RANK, "SELECT ID, RankIndex, SpellID, ItemBonusListID, AuraPointsOverride, ArtifactPowerID"
-        " FROM artifact_power_rank WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_ARTIFACT_POWER_RANK, "SELECT MAX(ID) + 1 FROM artifact_power_rank", CONNECTION_SYNCH);
-
-    // ArtifactQuestXp.db2
-    PrepareStatement(HOTFIX_SEL_ARTIFACT_QUEST_XP, "SELECT ID, Difficulty1, Difficulty2, Difficulty3, Difficulty4, Difficulty5, Difficulty6, "
-        "Difficulty7, Difficulty8, Difficulty9, Difficulty10 FROM artifact_quest_xp WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_ARTIFACT_QUEST_XP, "SELECT MAX(ID) + 1 FROM artifact_quest_xp", CONNECTION_SYNCH);
-
-    // ArtifactTier.db2
-    PrepareStatement(HOTFIX_SEL_ARTIFACT_TIER, "SELECT ID, ArtifactTier, MaxNumTraits, MaxArtifactKnowledge, KnowledgePlayerCondition, "
-        "MinimumEmpowerKnowledge FROM artifact_tier WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_ARTIFACT_TIER, "SELECT MAX(ID) + 1 FROM artifact_tier", CONNECTION_SYNCH);
-
-    // ArtifactUnlock.db2
-    PrepareStatement(HOTFIX_SEL_ARTIFACT_UNLOCK, "SELECT ID, PowerID, PowerRank, ItemBonusListID, PlayerConditionID, ArtifactID FROM artifact_unlock"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_ARTIFACT_UNLOCK, "SELECT MAX(ID) + 1 FROM artifact_unlock", CONNECTION_SYNCH);
-
     // AuctionHouse.db2
     PrepareStatement(HOTFIX_SEL_AUCTION_HOUSE, "SELECT ID, Name, FactionID, DepositRate, ConsignmentRate FROM auction_house"
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);

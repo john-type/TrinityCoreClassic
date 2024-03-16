@@ -25,7 +25,6 @@
 #include <string_view>
 
 struct AchievementEntry;
-struct ArtifactPowerRankEntry;
 struct BattlePetSpeciesEntry;
 struct CurrencyContainerEntry;
 struct CurrencyTypesEntry;
@@ -59,13 +58,6 @@ namespace Trinity::Hyperlinks
         int32 Month = 0;
         int32 Day = 0;
         std::array<uint32, 4> Criteria = { };
-    };
-
-    struct ArtifactPowerLinkData
-    {
-        ArtifactPowerRankEntry const* ArtifactPower = nullptr;
-        uint8 PurchasedRank = 0;
-        uint8 CurrentRankWithBonus = 0;
     };
 
     struct BattlePetLinkData
@@ -249,13 +241,6 @@ namespace Trinity::Hyperlinks
             using value_type = AchievementLinkData const&;
             static constexpr std::string_view tag() { return "achievement"; }
             static bool StoreTo(AchievementLinkData& val, std::string_view text);
-        };
-
-        struct TC_GAME_API apower
-        {
-            using value_type = ArtifactPowerLinkData const&;
-            static constexpr std::string_view tag() { return "apower"; }
-            static bool StoreTo(ArtifactPowerLinkData& val, std::string_view text);
         };
 
         struct TC_GAME_API battlepet

@@ -24,8 +24,6 @@
 #include <fstream>
 #include <sstream>
 
-GameTable<GtArtifactKnowledgeMultiplierEntry>   sArtifactKnowledgeMultiplierGameTable;
-GameTable<GtArtifactLevelXPEntry>               sArtifactLevelXPGameTable;
 GameTable<GtBarberShopCostBaseEntry>            sBarberShopCostBaseGameTable;
 GameTable<GtBaseMPEntry>                        sBaseMPGameTable;
 GameTable<GtBattlePetXPEntry>                   sBattlePetXPGameTable;
@@ -112,8 +110,6 @@ void LoadGameTables(std::string const& dataPath)
 
 #define LOAD_GT(store, file) gameTableCount += LoadGameTable(bad_gt_files, store, gtPath / file); ++expectedGameTableCount;
 
-    LOAD_GT(sArtifactKnowledgeMultiplierGameTable, "ArtifactKnowledgeMultiplier.txt");
-    LOAD_GT(sArtifactLevelXPGameTable, "ArtifactLevelXP.txt");
     LOAD_GT(sBarberShopCostBaseGameTable, "BarberShopCostBase.txt");
     LOAD_GT(sBaseMPGameTable, "BaseMp.txt");
     LOAD_GT(sBattlePetXPGameTable, "BattlePetXP.txt");

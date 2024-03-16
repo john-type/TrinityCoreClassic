@@ -97,20 +97,6 @@ bool Trinity::Hyperlinks::LinkTags::achievement::StoreTo(AchievementLinkData& va
     return (t.TryConsumeTo(val.Criteria[0]) && t.TryConsumeTo(val.Criteria[1]) && t.TryConsumeTo(val.Criteria[2]) && t.TryConsumeTo(val.Criteria[3]) && t.IsEmpty());
 }
 
-bool Trinity::Hyperlinks::LinkTags::apower::StoreTo(ArtifactPowerLinkData& val, std::string_view text)
-{
-    HyperlinkDataTokenizer t(text);
-    uint32 artifactPowerId;
-    if (!(t.TryConsumeTo(artifactPowerId) && t.TryConsumeTo(val.PurchasedRank) && t.TryConsumeTo(val.CurrentRankWithBonus) && t.IsEmpty()))
-        return false;
-    if (!sArtifactPowerStore.LookupEntry(artifactPowerId))
-        return false;
-    val.ArtifactPower = sDB2Manager.GetArtifactPowerRank(artifactPowerId, std::max<uint8>(val.CurrentRankWithBonus, 1));
-    if (val.ArtifactPower)
-        return false;
-    return true;
-}
-
 bool Trinity::Hyperlinks::LinkTags::battlepet::StoreTo(BattlePetLinkData& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);

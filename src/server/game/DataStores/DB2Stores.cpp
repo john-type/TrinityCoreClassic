@@ -50,17 +50,6 @@ DB2Storage<AreaGroupMemberEntry>                sAreaGroupMemberStore("AreaGroup
 DB2Storage<AreaTableEntry>                      sAreaTableStore("AreaTable.db2", AreaTableLoadInfo::Instance());
 DB2Storage<AreaTriggerEntry>                    sAreaTriggerStore("AreaTrigger.db2", AreaTriggerLoadInfo::Instance());
 DB2Storage<ArmorLocationEntry>                  sArmorLocationStore("ArmorLocation.db2", ArmorLocationLoadInfo::Instance());
-DB2Storage<ArtifactEntry>                       sArtifactStore("Artifact.db2", ArtifactLoadInfo::Instance());
-DB2Storage<ArtifactAppearanceEntry>             sArtifactAppearanceStore("ArtifactAppearance.db2", ArtifactAppearanceLoadInfo::Instance());
-DB2Storage<ArtifactAppearanceSetEntry>          sArtifactAppearanceSetStore("ArtifactAppearanceSet.db2", ArtifactAppearanceSetLoadInfo::Instance());
-DB2Storage<ArtifactCategoryEntry>               sArtifactCategoryStore("ArtifactCategory.db2", ArtifactCategoryLoadInfo::Instance());
-DB2Storage<ArtifactPowerEntry>                  sArtifactPowerStore("ArtifactPower.db2", ArtifactPowerLoadInfo::Instance());
-DB2Storage<ArtifactPowerLinkEntry>              sArtifactPowerLinkStore("ArtifactPowerLink.db2", ArtifactPowerLinkLoadInfo::Instance());
-DB2Storage<ArtifactPowerPickerEntry>            sArtifactPowerPickerStore("ArtifactPowerPicker.db2", ArtifactPowerPickerLoadInfo::Instance());
-DB2Storage<ArtifactPowerRankEntry>              sArtifactPowerRankStore("ArtifactPowerRank.db2", ArtifactPowerRankLoadInfo::Instance());
-DB2Storage<ArtifactQuestXPEntry>                sArtifactQuestXPStore("ArtifactQuestXP.db2", ArtifactQuestXpLoadInfo::Instance());
-DB2Storage<ArtifactTierEntry>                   sArtifactTierStore("ArtifactTier.db2", ArtifactTierLoadInfo::Instance());
-DB2Storage<ArtifactUnlockEntry>                 sArtifactUnlockStore("ArtifactUnlock.db2", ArtifactUnlockLoadInfo::Instance());
 DB2Storage<AuctionHouseEntry>                   sAuctionHouseStore("AuctionHouse.db2", AuctionHouseLoadInfo::Instance());
 DB2Storage<BankBagSlotPricesEntry>              sBankBagSlotPricesStore("BankBagSlotPrices.db2", BankBagSlotPricesLoadInfo::Instance());
 DB2Storage<BannedAddonsEntry>                   sBannedAddonsStore("BannedAddons.db2", BannedAddonsLoadInfo::Instance());
@@ -322,9 +311,6 @@ struct ItemLevelSelectorQualityEntryComparator
 
 typedef std::map<uint32 /*hash*/, DB2StorageBase*> StorageMap;
 typedef std::unordered_map<uint32 /*areaGroupId*/, std::vector<uint32/*areaId*/>> AreaGroupMemberContainer;
-typedef std::unordered_map<uint32, std::vector<ArtifactPowerEntry const*>> ArtifactPowersContainer;
-typedef std::unordered_map<uint32, std::unordered_set<uint32>> ArtifactPowerLinksContainer;
-typedef std::unordered_map<std::pair<uint32, uint8>, ArtifactPowerRankEntry const*> ArtifactPowerRanksContainer;
 typedef ChrSpecializationEntry const* ChrSpecializationByIndexContainer[MAX_CLASSES + 1][MAX_SPECIALIZATIONS];
 typedef std::unordered_map<uint32 /*curveID*/, std::vector<CurvePointEntry const*>> CurvePointsContainer;
 typedef std::map<std::tuple<uint32, uint8, uint8, uint8>, EmotesTextSoundEntry const*> EmotesTextSoundContainer;
@@ -380,9 +366,6 @@ namespace
     std::array<std::map<HotfixBlobKey, std::vector<DB2Manager::HotfixOptionalData>>, TOTAL_LOCALES> _hotfixOptionalData;
 
     AreaGroupMemberContainer _areaGroupMembers;
-    ArtifactPowersContainer _artifactPowers;
-    ArtifactPowerLinksContainer _artifactPowerLinks;
-    ArtifactPowerRanksContainer _artifactPowerRanks;
     std::array<ChrClassUIDisplayEntry const*, MAX_CLASSES> _uiDisplayByClass;
     std::array<std::array<uint32, MAX_POWERS>, MAX_CLASSES> _powersByClass;
     std::unordered_map<uint32 /*chrCustomizationOptionId*/, std::vector<ChrCustomizationChoiceEntry const*>> _chrCustomizationChoicesByOption;
@@ -583,16 +566,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sAreaTableStore);
     LOAD_DB2(sAreaTriggerStore);
     //LOAD_DB2(sArmorLocationStore);
-    //LOAD_DB2(sArtifactStore);
-    //LOAD_DB2(sArtifactAppearanceStore);
-    //LOAD_DB2(sArtifactAppearanceSetStore);
-    //LOAD_DB2(sArtifactCategoryStore);
-    //LOAD_DB2(sArtifactPowerStore);
-    //LOAD_DB2(sArtifactPowerLinkStore);
-    //LOAD_DB2(sArtifactPowerPickerStore);
-    //LOAD_DB2(sArtifactPowerRankStore);
-    //LOAD_DB2(sArtifactTierStore);
-    //LOAD_DB2(sArtifactUnlockStore);
     LOAD_DB2(sAuctionHouseStore);
     LOAD_DB2(sBankBagSlotPricesStore);
     LOAD_DB2(sBannedAddonsStore);
@@ -863,19 +836,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
 
     for (AreaGroupMemberEntry const* areaGroupMember : sAreaGroupMemberStore)
         _areaGroupMembers[areaGroupMember->AreaGroupID].push_back(areaGroupMember->AreaID);
-
-    for (ArtifactPowerEntry const* artifactPower : sArtifactPowerStore)
-        _artifactPowers[artifactPower->ArtifactID].push_back(artifactPower);
-
-    for (ArtifactPowerLinkEntry const* artifactPowerLink : sArtifactPowerLinkStore)
-    {
-        _artifactPowerLinks[artifactPowerLink->PowerA].insert(artifactPowerLink->PowerB);
-        _artifactPowerLinks[artifactPowerLink->PowerB].insert(artifactPowerLink->PowerA);
-    }
-
-    for (ArtifactPowerRankEntry const* artifactPowerRank : sArtifactPowerRankStore)
-        _artifactPowerRanks[std::pair<uint32, uint8>{ artifactPowerRank->ArtifactPowerID, artifactPowerRank->RankIndex }] = artifactPowerRank;
-
 
     for (BattlemasterListEntry const* battlemaster : sBattlemasterListStore)
     {
@@ -1709,25 +1669,6 @@ bool DB2Manager::IsInArea(uint32 objectAreaId, uint32 areaId)
     } while (objectAreaId);
 
     return false;
-}
-
-std::vector<ArtifactPowerEntry const*> DB2Manager::GetArtifactPowers(uint8 artifactId) const
-{
-    auto itr = _artifactPowers.find(artifactId);
-    if (itr != _artifactPowers.end())
-        return itr->second;
-
-    return std::vector<ArtifactPowerEntry const*>{};
-}
-
-std::unordered_set<uint32> const* DB2Manager::GetArtifactPowerLinks(uint32 artifactPowerId) const
-{
-    return Trinity::Containers::MapGetValuePtr(_artifactPowerLinks, artifactPowerId);
-}
-
-ArtifactPowerRankEntry const* DB2Manager::GetArtifactPowerRank(uint32 artifactPowerId, uint8 rank) const
-{
-    return Trinity::Containers::MapGetValuePtr(_artifactPowerRanks, { artifactPowerId, rank });
 }
 
 char const* DB2Manager::GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale /*= DEFAULT_LOCALE*/, uint8 gender /*= GENDER_MALE*/, bool forceGender /*= false*/)

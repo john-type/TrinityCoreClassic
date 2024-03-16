@@ -151,8 +151,8 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_AREA_SPIRIT_HEALER_QUERY,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAreaSpiritHealerQueryOpcode);
     DEFINE_HANDLER(CMSG_AREA_SPIRIT_HEALER_QUEUE,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAreaSpiritHealerQueueOpcode);
     DEFINE_HANDLER(CMSG_AREA_TRIGGER,                                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleAreaTriggerOpcode);
-    DEFINE_HANDLER(CMSG_ARTIFACT_ADD_POWER,                                 STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleArtifactAddPower);
-    DEFINE_HANDLER(CMSG_ARTIFACT_SET_APPEARANCE,                            STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleArtifactSetAppearance);
+    DEFINE_HANDLER(CMSG_ARTIFACT_ADD_POWER,                                 STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_ARTIFACT_SET_APPEARANCE,                            STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_ASSIGN_EQUIPMENT_SET_SPEC,                          STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_ATTACK_STOP,                                        STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleAttackStopOpcode);
     DEFINE_HANDLER(CMSG_ATTACK_SWING,                                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleAttackSwingOpcode);
@@ -352,7 +352,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_COMPLAINT,                                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleComplaint);
     DEFINE_HANDLER(CMSG_COMPLETE_CINEMATIC,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCompleteCinematic);
     DEFINE_HANDLER(CMSG_COMPLETE_MOVIE,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCompleteMovie);
-    DEFINE_HANDLER(CMSG_CONFIRM_ARTIFACT_RESPEC,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleConfirmArtifactRespec);
+    DEFINE_HANDLER(CMSG_CONFIRM_ARTIFACT_RESPEC,                            STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_CONFIRM_RESPEC_WIPE,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleConfirmRespecWipeOpcode);
     DEFINE_HANDLER(CMSG_CONNECT_TO_FAILED,                                  STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess);
     DEFINE_HANDLER(CMSG_CONSUMABLE_TOKEN_BUY,                               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::Handle_NULL);

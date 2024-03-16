@@ -5536,29 +5536,12 @@ void Spell::EffectUpdateZoneAurasAndPhases()
 
 void Spell::EffectGiveArtifactPower()
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
-        return;
 
-    Player* playerCaster = m_caster->ToPlayer();
-    if (!playerCaster)
-        return;
-
-    if (Aura* artifactAura = playerCaster->GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE))
-        if (Item* artifact = playerCaster->GetItemByGuid(artifactAura->GetCastItemGUID()))
-            artifact->GiveArtifactXp(damage, m_CastItem, uint32(effectInfo->MiscValue));
 }
 
 void Spell::EffectGiveArtifactPowerNoBonus()
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
-        return;
 
-    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    if (Aura* artifactAura = unitTarget->GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE))
-        if (Item* artifact = unitTarget->ToPlayer()->GetItemByGuid(artifactAura->GetCastItemGUID()))
-            artifact->GiveArtifactXp(damage, m_CastItem, 0);
 }
 
 void Spell::EffectPlaySceneScriptPackage()

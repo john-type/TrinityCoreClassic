@@ -154,26 +154,6 @@ enum AreaMountFlags
     AREA_MOUNT_FLAG_UNDERWATER_ALLOWED  = 0x8
 };
 
-enum ArtifactCategory : uint32
-{
-    ARTIFACT_CATEGORY_PRIMARY = 1,
-    ARTIFACT_CATEGORY_FISHING = 2
-};
-
-enum ArtifactPowerFlag : uint8
-{
-    ARTIFACT_POWER_FLAG_GOLD                        = 0x01,
-    ARTIFACT_POWER_FLAG_NO_LINK_REQUIRED            = 0x02,
-    ARTIFACT_POWER_FLAG_FINAL                       = 0x04,
-    ARTIFACT_POWER_FLAG_SCALES_WITH_NUM_POWERS      = 0x08,
-    ARTIFACT_POWER_FLAG_DONT_COUNT_FIRST_BONUS_RANK = 0x10,
-    ARTIFACT_POWER_FLAG_MAX_RANK_WITH_TIER          = 0x20,
-
-    ARTIFACT_POWER_FLAG_FIRST                       = ARTIFACT_POWER_FLAG_NO_LINK_REQUIRED | ARTIFACT_POWER_FLAG_DONT_COUNT_FIRST_BONUS_RANK,
-};
-
-#define MAX_ARTIFACT_TIER 1
-
 enum class BattlePetSpeciesFlags : uint16
 {
     NoRename                 = 0x0001,
@@ -1557,7 +1537,7 @@ enum class SpellVisualEffectNameType : uint32
     UnitItemRangedIgnoreDisarmed    = 10
 };
 
-#define MAX_TALENT_RANK 5
+#define MAX_TALENT_RANK 9
 #define MAX_PET_TALENT_RANK 3                               // use in calculations, expected <= MAX_TALENT_RANK
 #define MAX_TALENT_TABS 3
 
@@ -1662,7 +1642,6 @@ DEFINE_ENUM_FLAG(SummonPropertiesFlags);
 
 #define MAX_TALENT_TIERS 11
 #define MAX_TALENT_COLUMNS 4
-#define MAX_TALENT_RANK 9
 
 enum TaxiNodeFlags
 {

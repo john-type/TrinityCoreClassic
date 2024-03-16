@@ -788,7 +788,6 @@ struct TC_GAME_API ItemTemplate
     uint32 GetItemLimitCategory() const { return ExtendedData->LimitCategory; }
     HolidayIds GetHolidayID() const { return HolidayIds(ExtendedData->RequiredHoliday); }
     float  GetDmgVariance() const { return ExtendedData->DmgVariance; }
-    uint8 GetArtifactID() const { return ExtendedData->ArtifactID; }
     uint8 GetRequiredExpansion() const { return ExtendedData->ExpansionID; }
     int16 GetShieldBlockValue(uint32 itemLevel) const;
 

@@ -24,17 +24,6 @@
 
 enum InventoryType : uint8;
 
-struct GtArtifactKnowledgeMultiplierEntry
-{
-    float Multiplier = 0.0f;
-};
-
-struct GtArtifactLevelXPEntry
-{
-    float XP = 0.0f;
-    float XP2 = 0.0f;
-};
-
 struct GtBarberShopCostBaseEntry
 {
     float Cost = 0.0f;
@@ -228,8 +217,6 @@ private:
     std::vector<T> _data;
 };
 
-TC_GAME_API extern GameTable<GtArtifactKnowledgeMultiplierEntry>    sArtifactKnowledgeMultiplierGameTable;
-TC_GAME_API extern GameTable<GtArtifactLevelXPEntry>                sArtifactLevelXPGameTable;
 TC_GAME_API extern GameTable<GtBarberShopCostBaseEntry>             sBarberShopCostBaseGameTable;
 TC_GAME_API extern GameTable<GtBaseMPEntry>                         sBaseMPGameTable;
 TC_GAME_API extern GameTable<GtBattlePetXPEntry>                    sBattlePetXPGameTable;

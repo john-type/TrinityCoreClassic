@@ -109,28 +109,6 @@ private:
     } _state;
 };
 
-struct ArtifactPowerData
-{
-    uint32 ArtifactPowerId = 0;
-    uint8 PurchasedRank = 0;
-    uint8 CurrentRankWithBonus = 0;
-};
-
-struct ArtifactData
-{
-    uint64 Xp = 0;
-    uint32 ArtifactAppearanceId = 0;
-    uint32 ArtifactTierId = 0;
-    std::vector<ArtifactPowerData> ArtifactPowers;
-};
-
-struct ItemAdditionalLoadInfo
-{
-    static void Init(std::unordered_map<ObjectGuid::LowType, ItemAdditionalLoadInfo>* loadInfo, PreparedQueryResult artifactResult);
-
-    Optional<ArtifactData> Artifact;
-};
-
 struct ItemDynamicFieldGems
 {
     uint32 ItemId;
@@ -234,8 +212,6 @@ class TC_GAME_API Item : public Object
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(CharacterDatabaseTransaction trans);
         virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry);
-        void LoadArtifactData(Player const* owner, uint64 xp, uint32 artifactAppearanceId, uint32 artifactTier, std::vector<ArtifactPowerData>& powers);  // must be called after LoadFromDB to have gems (relics) initialized
-        void CheckArtifactRelicSlotUnlock(Player const* owner);
 
         void AddBonuses(uint32 bonusListID);
         void SetBonuses(std::vector<int32> bonusListIDs);
@@ -446,21 +422,6 @@ class TC_GAME_API Item : public Object
 
         ObjectGuid GetChildItem() const { return m_childItem; }
         void SetChildItem(ObjectGuid childItem) { m_childItem = childItem; }
-
-        bool IsArtifactDisabled() const;
-
-        UF::ArtifactPower const* GetArtifactPower(uint32 artifactPowerId) const;
-        void AddArtifactPower(ArtifactPowerData const* artifactPower);
-        void SetArtifactPower(uint16 artifactPowerId, uint8 purchasedRank, uint8 currentRankWithBonus);
-
-        void InitArtifactPowers(uint8 artifactId, uint8 artifactTier);
-        uint32 GetTotalUnlockedArtifactPowers() const;
-        uint32 GetTotalPurchasedArtifactPowers() const;
-        void ApplyArtifactPowerEnchantmentBonuses(EnchantmentSlot slot, uint32 enchantId, bool apply, Player* owner);
-        void CopyArtifactDataFromParent(Item* parent);
-
-        void SetArtifactXP(uint64 xp) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ArtifactXP), xp); }
-        void GiveArtifactXp(uint64 amount, Item* sourceItem, uint32 artifactCategoryId);
 
         ItemContext GetContext() const { return ItemContext(*m_itemData->Context); }
         void SetContext(ItemContext context) {

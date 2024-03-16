@@ -170,22 +170,6 @@ struct LinkValidator<LinkTags::achievement>
 };
 
 template <>
-struct LinkValidator<LinkTags::apower>
-{
-    static bool IsTextValid(ArtifactPowerLinkData const& data, std::string_view text)
-    {
-        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.ArtifactPower->SpellID, DIFFICULTY_NONE))
-            return LinkValidator<LinkTags::spell>::IsTextValid(info, text);
-        return false;
-    }
-
-    static bool IsColorValid(ArtifactPowerLinkData const&, HyperlinkColor c)
-    {
-        return c == CHAT_LINK_COLOR_ARTIFACT_POWER;
-    }
-};
-
-template <>
 struct LinkValidator<LinkTags::battlepet>
 {
     static bool IsTextValid(BattlePetLinkData const& data, std::string_view text)
@@ -540,7 +524,6 @@ static bool ValidateLinkInfo(HyperlinkInfo const& info)
 {
     using namespace LinkTags;
     TryValidateAs(achievement);
-    TryValidateAs(apower);
     TryValidateAs(area);
     TryValidateAs(areatrigger);
     TryValidateAs(battlepet);

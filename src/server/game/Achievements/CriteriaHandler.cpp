@@ -2576,11 +2576,6 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             return false;
         case ModifierTreeType::PlayerEquippedArtifactAppearanceSet: // 208
         {
-            if (Aura const* artifactAura = referencePlayer->GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE))
-                if (Item* artifact = referencePlayer->GetItemByGuid(artifactAura->GetCastItemGUID()))
-                    if (ArtifactAppearanceEntry const* artifactAppearance = sArtifactAppearanceStore.LookupEntry(artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID)))
-                        if (artifactAppearance->ArtifactAppearanceSetID == reqValue)
-                            break;
             return false;
         }
         case ModifierTreeType::PlayerHasCurrencyEqual: // 209
@@ -2619,12 +2614,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::ArtifactTraitUnlockedCountEqualOrGreaterThan: // 217
         {
-            Item const* artifact = referencePlayer->GetItemByEntry(secondaryAsset, ItemSearchLocation::Everywhere);
-            if (!artifact)
-                return false;
-            if (artifact->GetTotalUnlockedArtifactPowers() < reqValue)
-                return false;
-            break;
+            return false;
         }
         case ModifierTreeType::ParagonReputationLevelEqualOrGreaterThan: // 218
             if (referencePlayer->GetReputationMgr().GetParagonLevel(miscValue1) < int32(reqValue))
@@ -2674,18 +2664,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             return false;
         case ModifierTreeType::PlayerHasArtifactPowerRankCountPurchasedEqualOrGreaterThan: // 225
         {
-            Aura const* artifactAura = referencePlayer->GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE);
-            if (!artifactAura)
-                return false;
-            Item const* artifact = referencePlayer->GetItemByGuid(artifactAura->GetCastItemGUID());
-            if (!artifact)
-                return false;
-            UF::ArtifactPower const* artifactPower = artifact->GetArtifactPower(secondaryAsset);
-            if (!artifactPower)
-                return false;
-            if (artifactPower->PurchasedRank < reqValue)
-                return false;
-            break;
+            return false;
         }
         case ModifierTreeType::PlayerHasBoosted: // 226
             if (referencePlayer->HasLevelBoosted())
