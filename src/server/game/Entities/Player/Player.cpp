@@ -26256,40 +26256,8 @@ void Player::StoreLootItem(ObjectGuid lootWorldObjectGuid, uint8 lootSlot, Loot*
 
 uint32 Player::GetNumTalentsAtLevel(uint32 level) const
 {
-    //TODOFROST - real value;
-    if (level >= 10) {
-        return level - 9;
-    }
-
-    return 0;
-
-
-    //NumTalentsAtLevelEntry const* numTalentsAtLevel = sNumTalentsAtLevelStore.LookupEntry(level);
-    //if (!numTalentsAtLevel)
-    //    numTalentsAtLevel = sNumTalentsAtLevelStore.LookupEntry(sNumTalentsAtLevelStore.GetNumRows() - 1);
-
-    //if (numTalentsAtLevel)
-    //{
-    //    switch (GetClass())
-    //    {
-    //    case CLASS_DEATH_KNIGHT:
-    //    {
-    //        int32 talentPointsForLevel = numTalentsAtLevel->NumTalentsDeathKnight;
-    //        talentPointsForLevel += GetQuestRewardTalentCount();
-
-    //        if (talentPointsForLevel > numTalentsAtLevel->NumTalents)
-    //            talentPointsForLevel = numTalentsAtLevel->NumTalents;
-
-    //        return talentPointsForLevel * sWorld->getRate(RATE_TALENT);
-    //    }
-    //    case CLASS_DEMON_HUNTER:
-    //        return numTalentsAtLevel->NumTalentsDemonHunter;
-    //    default:
-    //        return numTalentsAtLevel->NumTalents * sWorld->getRate(RATE_TALENT);
-    //    }
-    //}
-
-    //return 0;
+    uint32 talentPointsForLevel = level < 10 ? 0 : level - 9;
+    return uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));
 }
 
 void Player::_LoadSkills(PreparedQueryResult result)
