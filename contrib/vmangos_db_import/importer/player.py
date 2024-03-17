@@ -3,7 +3,9 @@
 import constants
 import database as db
 
-#TODO
+#TODO 
+
+#TODO import player race stats
 
 classes_str = ','.join(map(str, constants.ClassIds))
 races_str = ','.join(map(str, constants.RaceIds))

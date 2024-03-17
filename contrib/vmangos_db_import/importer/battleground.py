@@ -5,6 +5,7 @@ import database as db
 
 def Import():
     remove_battle_fields()
+    remove_battlegrounds()
 
 def remove_battle_fields():
     query = 'DELETE FROM battlefield_template'
