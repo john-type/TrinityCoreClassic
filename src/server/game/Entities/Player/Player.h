@@ -2069,7 +2069,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetBaseSpellPowerBonus() const { return m_baseSpellPower; }
         int32 GetSpellPenetrationItemMod() const { return m_spellPenetrationItemMod; }
 
-        bool CanApplyResilience() const override { return true; }
+        bool CanApplyResilience() const override { return CURRENT_EXPANSION > Expansions::EXPANSION_CLASSIC; }
 
         float GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const;
         void UpdateBlockPercentage();

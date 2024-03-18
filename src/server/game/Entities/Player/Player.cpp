@@ -2406,7 +2406,7 @@ void Player::InitTalentForLevel()
 {
     uint8 level = GetLevel();
     // talents base at level diff (talents = level - 9 but some can be used already)
-    if (level < 10)
+    if (level < MIN_SPECIALIZATION_LEVEL)
     {
         // Remove all talent points
         if (GetUsedTalentCount() > 0)                           // Free any used talents
@@ -26256,7 +26256,7 @@ void Player::StoreLootItem(ObjectGuid lootWorldObjectGuid, uint8 lootSlot, Loot*
 
 uint32 Player::GetNumTalentsAtLevel(uint32 level) const
 {
-    uint32 talentPointsForLevel = level < 10 ? 0 : level - 9;
+    uint32 talentPointsForLevel = level < MIN_SPECIALIZATION_LEVEL ? 0 : level - (MIN_SPECIALIZATION_LEVEL - 1);
     return uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));
 }
 
@@ -28112,9 +28112,6 @@ Pet* Player::SummonPet(uint32 entry, Optional<PetSaveMode> slot, float x, float 
 
 bool Player::CanUseMastery() const
 {
-    if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(GetPrimarySpecialization()))
-        return HasSpell(chrSpec->MasterySpellID[0]) || HasSpell(chrSpec->MasterySpellID[1]);
-
     return false;
 }
 

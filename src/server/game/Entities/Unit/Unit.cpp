@@ -11746,11 +11746,19 @@ void Unit::CancelSpellMissiles(uint32 spellId, bool reverseMissile /*= false*/)
 
 bool Unit::CanApplyResilience() const
 {
-    return !IsVehicle() && GetOwnerGUID().IsPlayer();
+    if (CURRENT_EXPANSION > Expansions::EXPANSION_CLASSIC) {
+        return !IsVehicle() && GetOwnerGUID().IsPlayer();
+    }
+
+    return false;
 }
 
 /*static*/ void Unit::ApplyResilience(Unit const* victim, int32* damage)
 {
+    if(CURRENT_EXPANSION <= Expansions::EXPANSION_CLASSIC) {
+        return;
+    }
+    
     // player mounted on multi-passenger mount is also classified as vehicle
     if (victim->IsVehicle() && victim->GetTypeId() != TYPEID_PLAYER)
         return;
