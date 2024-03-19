@@ -7,6 +7,7 @@ import importer.area
 import importer.battleground
 import importer.creature
 import importer.gameobject
+import importer.graveyard
 import importer.gossip
 import importer.item
 import importer.npc
@@ -31,11 +32,14 @@ db.OpenAll()
 # print("Creatures...")
 # importer.creature.Import()
 
-print("GameObjects...")
-importer.gameobject.Import()
+# print("GameObjects...")
+# importer.gameobject.Import()
 
 # print("gossips...")
 # importer.gossip.Import()
+
+print("graveyards...")
+importer.graveyard.Import()
 
 # print("Items...")
 # importer.item.Import()
