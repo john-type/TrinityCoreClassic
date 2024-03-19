@@ -1437,7 +1437,11 @@ void Object::BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer* data, Player
 
     uint32* flags = nullptr;
     uint32 visibleFlag = GetDynamicUpdateFieldData(target, flags);
-    ASSERT(flags);
+
+    if (m_dynamicValuesCount > 0) {
+        ASSERT(flags);
+    }
+
 
     *data << uint8(blockCount);
     std::size_t maskPos = data->wpos();
