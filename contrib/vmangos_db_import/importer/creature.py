@@ -4,20 +4,25 @@ import constants
 import database as db
 
 def Import():
-    clean_templates_check_vmangos()
-    clean_entries_check_vmangos()
+    # clean_templates_check_vmangos()
+    # clean_entries_check_vmangos()
     import_templates_vmangos()
-    import_entries_vmangos()
-    update_instance_info()
+    # import_entries_vmangos()
+    # update_instance_info()
 
 def clean_templates_check_vmangos():
-    has_more = True
-    src_creature_query = ("SELECT entry, name FROM creature_template LIMIT 500 OFFSET %s") 
+    db.tri_world.chunk(
+        "SELECT entry, name FROM creature_template LIMIT %s OFFSET %s",
+        500,
+        _handle_clean_template_row
+    )
+
+
+def _handle_clean_template_row(row):
+    
     dest_creature_query = ("SELECT entry, name FROM creature_template "
                     "WHERE entry = %s "
                     "ORDER BY patch DESC LIMIT 1")
-    
-    src_find_creature_query = ("SELECT guid FROM creature WHERE id = %s")
     
     delete_src_creature_entity_queries = [
         ("DELETE FROM creature_addon WHERE guid = %s"),
@@ -45,32 +50,29 @@ def clean_templates_check_vmangos():
         ("DELETE FROM creature_template WHERE entry = %s"),
     ]
     
-    offset = 0
+    match = db.vm_world.get_rows(dest_creature_query, (row[0],))
     
-    while has_more:
-        results = db.GetRows(src_creature_query, 'tri_world', (offset,))
+    if len(match) == 0:
+        entities = db.tri_world.get_rows("SELECT guid FROM creature WHERE id = %s", (row[0],))
         
-        for result in results:
-            match = db.GetRows(dest_creature_query, 'vm_world',(result[0],))
+        for entity in entities:
+            db.tri_world.execute_many(delete_src_creature_entity_queries, (entity[0],))      
+                
+        db.tri_world.execute_many(delete_src_queries, (entity[0],))
             
-            if len(match) == 0:
-                entities = db.GetRows(src_find_creature_query, 'tri_world', (result[0],))
-                
-                for entity in entities:
-                    for del_q in delete_src_creature_entity_queries:
-                        db.Execute(del_q, 'tri_world', (entity[0],))
-                        
-                for del_q in delete_src_queries:
-                    db.Execute(del_q, 'tri_world', (entity[0],))
-                    
-                offset -= 1
-                
-        offset = offset + 500  
-        has_more = len(results) > 0
+        return -1
+    
+    return 0
 
-def clean_entries_check_vmangos():
-    has_more = True
-    src_creature_query = ("SELECT guid, id, map, position_x, position_y, position_z FROM creature LIMIT 500 OFFSET %s") 
+def clean_entries_check_vmangos(): 
+    db.tri_world.chunk(
+        "SELECT guid, id, map, position_x, position_y, position_z FROM creature LIMIT %s OFFSET %s",
+        500,
+        _handle_clean_entry_row
+    )
+    
+   
+def _handle_clean_entry_row(row):
     dest_creature_query = ("SELECT guid, id, map, position_x, position_y, position_z FROM creature "
                     "WHERE id = %s AND map = %s AND patch_max = 10")
     
@@ -81,102 +83,112 @@ def clean_entries_check_vmangos():
         ("DELETE FROM creature WHERE guid = %s"),
     ]
     
-    offset = 0
-    while has_more:
-        results = db.GetRows(src_creature_query, 'tri_world',  (offset,))
-            
-        for result in results:
-            matches = db.GetRows(dest_creature_query, 'vm_world', (result[1],result[2]))
-            matches_len = len(matches)
-            
-            if(matches_len == 0):
-                for del_q in delete_src_obj_creature_queries:
-                    db.Execute(del_q, 'tri_world', (result[0],))
-                        
-                offset -= 1
-        
-        offset += 500
-        has_more = len(results) > 0
-        
+    matches = db.vm_world.get_rows(dest_creature_query, (row[1], row[2]))
+    matches_len = len(matches)
+    
+    if(matches_len == 0):
+        db.tri_world.execute_many(delete_src_obj_creature_queries, (row[0],))                
+        return -1
+    
+    return 0
+     
 def import_templates_vmangos():
-    has_more = True
-    src_ct_query = ("SELECT entry, name FROM creature_template LIMIT 1000 OFFSET %s") 
-    dest_ct_query = ("SELECT entry, name FROM creature_template "
-                    "WHERE entry = %s ")
-    offset = 0
-    while has_more:
-        results = db.GetRows(src_ct_query, 'vm_world', (offset,))
-            
-        for result in results:
-            matches = db.GetRows(dest_ct_query, 'tri_world', (result[0],)) 
-            
-            matches_len = len(matches)
-            if(matches_len == 0):
-                _upsert_creature_template(result[0])
-            elif(matches_len == 1):
-                _upsert_creature_template(result[0], matches[0][0])
+    db.vm_world.chunk(
+        "SELECT entry, name FROM creature_template LIMIT %s OFFSET %s",
+        500,
+        _handle_import_template_row
+    )
+    
         
-        offset += 1000
-        has_more = len(results) > 0
+def _handle_import_template_row(row):
+    matches = db.tri_world.get_rows(
+        "SELECT entry, name FROM creature_template WHERE entry = %s ", 
+        (row[0],)
+    ) 
+            
+    matches_len = len(matches)
+    if(matches_len == 0):
+        _upsert_creature_template(row[0])
+    elif(matches_len == 1):
+        if(row[1] == matches[0][1]): #basic name check, TODO handle name not matching.
+            _upsert_creature_template(row[0], matches[0][0])
+            
+    return 0
+                    
 
 def import_entries_vmangos():
-    has_more = True
-    src_ct_query = ("SELECT guid, id, map, position_x, position_y, position_z FROM creature WHERE id = 15892 LIMIT 1000 OFFSET %s") 
+    db.vm_world.chunk(
+        "SELECT guid, id, map, position_x, position_y, position_z FROM creature WHERE id = 15892 LIMIT %s OFFSET %s",
+        500,
+        _handle_import_entry_row
+    )
+
+
+def _handle_import_entry_row(row):
     dest_ct_query = ("SELECT guid, id, map, position_x, position_y, position_z FROM creature "
                     "WHERE id = %s "
                     "AND position_x BETWEEN %s AND %s "
                     "AND position_y BETWEEN %s AND %s "
                     "AND map = %s")
-    offset = 0
-    while has_more:
-        results = db.GetRows(src_ct_query, 'vm_world', (offset,))
-        
-        for result in results:
-            diff = 5
-            matches = db.GetRows(dest_ct_query, 'tri_world', (
-                                    result[1],
-                                    result[3] - diff,
-                                    result[3] + diff,
-                                    result[4] - diff,
-                                    result[4] + diff,
-                                    result[2],
-                                   )) 
-            
-            matches_len = len(matches)
-            if(matches_len == 0):
-                _upsert_creature_entry(result[0])
-            elif(matches_len == 1):
-                _upsert_creature_entry(result[0], matches[0][0])
-            elif(matches_len > 1):
-                nearest_match = matches[0]
-                nearest_abs = abs(matches[0][3] - result[3]) + abs(matches[0][4] - result[4])
+    
+    diff = 5
+    matches = db.tri_world.get_rows(dest_ct_query, (
+                            row[1],
+                            row[3] - diff,
+                            row[3] + diff,
+                            row[4] - diff,
+                            row[4] + diff,
+                            row[2],
+                            )) 
+    
+    matches_len = len(matches)
+    if(matches_len == 0):
+        _upsert_creature_entry(row[0])
+    elif(matches_len == 1):
+        _upsert_creature_entry(row[0], matches[0][0])
+    elif(matches_len > 1):
+        nearest_match = matches[0]
+        nearest_abs = abs(matches[0][3] - row[3]) + abs(matches[0][4] - row[4])
 
-                for near_match in matches:
-                    next_abs = abs(near_match[3] - result[3]) + abs(near_match[4] - result[4])
-                    if(next_abs < nearest_abs):
-                        nearest_match = near_match
-                        nearest_abs = next_abs
-                
-                _upsert_creature_entry(result[0], nearest_match[0])                        
+        for near_match in matches:
+            next_abs = abs(near_match[3] - row[3]) + abs(near_match[4] - row[4])
+            if(next_abs < nearest_abs):
+                nearest_match = near_match
+                nearest_abs = next_abs
         
-        offset += 1000
-        has_more = len(results) > 0
+        _upsert_creature_entry(row[0], nearest_match[0])  
 
 def update_instance_info():
     dest_update = 'UPDATE creature SET spawnDifficulties = "1,2", VerifiedBuild = 40618 WHERE map = %s'
     for instance_id in constants.DungeonMaps:
-        db.Execute(dest_update, 'tri_world', (instance_id,))
+        db.tri_world.execute(dest_update, (instance_id,))
     
     dest_update = 'UPDATE creature SET spawnDifficulties = "3,4,5,6,9,148", VerifiedBuild = 40618 WHERE map = %s'
     for instance_id in constants.RaidMaps:
-        db.Execute(dest_update, 'tri_world', (instance_id,))
+        db.tri_world.execute(dest_update, (instance_id,))
 
 def _upsert_creature_template(vm_ct_id, tri_ct_id = None) :
+    vm_ct_row = db.vm_world.get_row("SELECT entry, level_min, level_max, faction, gold_min, gold_max FROM creature_template WHERE entry = %s", (vm_ct_id,))
+    if vm_ct_row == None:
+        return
+    
     if tri_ct_id == None:
         #TODO handle inserts.
         return
     
-    #TODO
+    update_template_query = ("UPDATE creature_template SET "
+                             "minLevel = %s, maxLevel = %s, faction = %s, minGold = %s, maxGold = %s, VerifiedBuild = 40618 "
+                             "WHERE entry = %s"
+                             )
+    
+    db.tri_world.execute(update_template_query, (
+        vm_ct_row[1],
+        vm_ct_row[2],
+        vm_ct_row[3],
+        vm_ct_row[4],
+        vm_ct_row[5],
+        vm_ct_id,
+    ))
     
     
 def _upsert_creature_entry(vm_ce_guid, tri_ce_guid = None):
@@ -187,18 +199,18 @@ def _upsert_creature_entry(vm_ce_guid, tri_ce_guid = None):
     #TODO
 
     # check if is an event creature.
-    vm_event_check = "SELECT guid, event FROM game_event_creature WHERE guid = %s"
-    event_rows = db.GetRows(vm_event_check, 'vm_world', (vm_ce_guid,))
+    event_rows = db.vm_world.get_rows("SELECT guid, event FROM game_event_creature WHERE guid = %s", (vm_ce_guid,))
     matches_len = len(event_rows)
     
     if(matches_len > 0):
         match_row = event_rows[0]
-    
-        tri_event_check = "SELECT guid, eventEntry FROM game_event_creature WHERE guid = %s AND eventEntry = %s"
-        tri_event_rows = db.GetRows(tri_event_check, 'tri_world', (tri_ce_guid, match_row[1],))
+        
+        tri_event_rows = db.tri_world.get_rows(
+            "SELECT guid, eventEntry FROM game_event_creature WHERE guid = %s AND eventEntry = %s", 
+            (tri_ce_guid, match_row[1],)
+        )
         
         if(len(tri_event_rows) == 0):
             #TODO ensure event id's match between tri and vm.
-            tri_event_insert = "INSERT INTO game_event_creature (guid, eventEntry) VALUES (%s, %s)"
-            db.Execute(tri_event_insert, 'tri_world', (tri_ce_guid, match_row[1],))
+            db.tri_world.execute("INSERT INTO game_event_creature (guid, eventEntry) VALUES (%s, %s)", (tri_ce_guid, match_row[1],))
         

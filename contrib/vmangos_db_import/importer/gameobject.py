@@ -11,13 +11,16 @@ def Import():
     
     
 def clean_templates_check_vmangos():
-    has_more = True
-    src_obj_query = ("SELECT entry, type, displayId, name FROM gameobject_template LIMIT 500 OFFSET %s") 
+    db.tri_world.chunk(
+        "SELECT entry, type, displayId, name FROM gameobject_template LIMIT %s OFFSET %s",
+        500,
+        _handle_clean_template_row
+    )
+
+def _handle_clean_template_row(row):
     dest_obj_query = ("SELECT entry, type, displayId, name FROM gameobject_template "
                     "WHERE entry = %s "
                     "ORDER BY patch DESC LIMIT 1")
-    
-    src_find_obj_query = ("SELECT guid FROM gameobject WHERE id = %s")
     
     delete_src_obj_entity_queries = [
         ("DELETE FROM gameobject_addon WHERE guid = %s"),
@@ -36,32 +39,26 @@ def clean_templates_check_vmangos():
         ("DELETE FROM gameobject_template WHERE entry = %s")
     ]
     
-    offset = 0
-    
-    while has_more:
-        results = db.GetRows(src_obj_query, 'tri_world', (offset,))
-        
-        for result in results:
-            match = db.GetRows(dest_obj_query, 'vm_world', (result[0],))
+    match = db.vm_world.get_rows(dest_obj_query, (row[0],))
             
-            if len(match) == 0:
-                entities = db.GetRows(src_find_obj_query, 'tri_world', (result[0],))
-                
-                for entity in entities:
-                    for del_q in delete_src_obj_entity_queries:
-                        db.Execute(del_q, 'tri_world', (entity[0],))
-                        
-                for del_q in delete_src_queries:
-                    db.Execute(del_q, 'tri_world', (result[0],))
-                    
-                offset -= 1
+    if len(match) == 0:
+        entities = db.tri_world.get_rows("SELECT guid FROM gameobject WHERE id = %s", (row[0],))
+        for entity in entities:
+            db.tri_world.execute_many(delete_src_obj_entity_queries, (entity[0],))
+            
+        db.tri_world.execute_many(delete_src_queries, (row[0],))
+        return -1
 
-        offset = offset + 500  
-        has_more = len(results) > 0
+    return 0
 
 def clean_entries_check_vmangos():
-    has_more = True
-    src_obj_query = ("SELECT guid, id, map, position_x, position_y, position_z FROM gameobject LIMIT 500 OFFSET %s") 
+    db.tri_world.chunk(
+        "SELECT guid, id, map, position_x, position_y, position_z FROM gameobject LIMIT %s OFFSET %s",
+        500,
+        _handle_clean_entry_row
+    )
+    
+def _handle_clean_entry_row(row):
     dest_obj_query = ("SELECT guid, id, map, position_x, position_y, position_z FROM gameobject "
                     "WHERE id = %s AND map = %s AND patch_max = 10")
     
@@ -72,72 +69,64 @@ def clean_entries_check_vmangos():
         ("DELETE FROM gameobject WHERE guid = %s"),
     ]
     
-    #TODO gameobject_loot_template
+    matches = db.wm_world.get_rows(dest_obj_query, (row[1],row[2],))
+    matches_len = len(matches)
+
+    if(matches_len == 0):
+        db.tri_world.execute_many(delete_src_obj_entity_queries, (row[0],))
+        return -1
     
-    offset = 0
-    while has_more:
-        results = db.GetRows(src_obj_query, 'tri_world', (offset,))
-            
-        for result in results:
-            matches = db.GetRows(dest_obj_query, 'vm_world', (result[1],result[2],))
-            matches_len = len(matches)
-            
-            if(matches_len == 0):
-                for del_q in delete_src_obj_entity_queries:
-                    db.Execute(del_q, 'tri_world', (result[0],))
-                        
-                offset -= 1
-        
-        offset += 500
-        has_more = len(results) > 0
-        
+    return 0
         
 def import_templates_vmangos():
     pass #TODO
 
+def _handle_import_template_row(row):
+    pass #TODO
+
 def import_entries_vmangos():
-    has_more = True
-    src_obj_query = ("SELECT guid, id, map, position_x, position_y, position_z FROM gameobject WHERE patch_max = 10 LIMIT 1000 OFFSET %s") 
+    db.vm_world.chunk(
+        "SELECT guid, id, map, position_x, position_y, position_z FROM gameobject WHERE patch_max = 10 LIMIT %s OFFSET %s",
+        500,
+        _handle_import_entry_row
+    )
+
+def _handle_import_entry_row(row):
     dest_obj_query = ("SELECT guid, id, map, position_x, position_y, position_z FROM gameobject "
                     "WHERE id = %s "
                     "AND position_x BETWEEN %s AND %s "
                     "AND position_y BETWEEN %s AND %s "
                     "AND map = %s")
     
-    offset = 0
-    while has_more:
-        results = db.GetRows(src_obj_query, 'vm_world', (offset,))
-            
-        for result in results:
-            diff = 5
-            matches = db.GetRows(dest_obj_query, 'tri_world',(
-                                    result[1],
-                                    result[3] - diff,
-                                    result[3] + diff,
-                                    result[4] - diff,
-                                    result[4] + diff,
-                                    result[2],
-                                   )) 
-            
-            matches_len = len(matches)
-            if(matches_len == 0):
-                _upsert_gameobject_entry(result[0])
-            elif(matches_len == 1):
-                _upsert_gameobject_entry(result[0], matches[0][0])
-            else:
-                nearest_match = matches[0]
-                nearest_abs = abs(matches[0][3] - result[3]) + abs(matches[0][4] - result[4])
+    diff = 5
+    matches = db.tri_world.get_rows(dest_obj_query, (
+                            row[1],
+                            row[3] - diff,
+                            row[3] + diff,
+                            row[4] - diff,
+                            row[4] + diff,
+                            row[2],
+                            )) 
+    
+    matches_len = len(matches)
+    if(matches_len == 0):
+        _upsert_gameobject_entry(row[0])
+    elif(matches_len == 1):
+        _upsert_gameobject_entry(row[0], matches[0][0])
+    else:
+        nearest_match = matches[0]
+        nearest_abs = abs(matches[0][3] - row[3]) + abs(matches[0][4] - row[4])
 
-                for near_match in matches:
-                    next_abs = abs(near_match[3] - result[3]) + abs(near_match[4] - result[4])
-                    if(next_abs < nearest_abs):
-                        nearest_match = near_match
-                        nearest_abs = next_abs
-                
-                _upsert_gameobject_entry(result[0], nearest_match[0])    
+        for near_match in matches:
+            next_abs = abs(near_match[3] - row[3]) + abs(near_match[4] - row[4])
+            if(next_abs < nearest_abs):
+                nearest_match = near_match
+                nearest_abs = next_abs
+        
+        _upsert_gameobject_entry(row[0], nearest_match[0])    
+    
+    return 0
          
-        offset += 1000
-        has_more = len(results) > 0
 
 def _upsert_gameobject_template(vm_got_id, tri_got_id = None) :
     pass #TODO
@@ -150,20 +139,26 @@ def _upsert_gameobject_entry(vm_go_guid, tri_go_guid = None):
     #TODO
 
     # check if is an event creature.
-    vm_event_check = "SELECT guid, event FROM game_event_gameobject WHERE guid = %s"
-    event_rows = db.GetRows(vm_event_check, 'vm_world', (vm_go_guid,))
+    event_rows = db.vm_world.get_rows(
+        "SELECT guid, event FROM game_event_gameobject WHERE guid = %s", 
+        (vm_go_guid,)
+    )
     matches_len = len(event_rows)
     
     if(matches_len > 0):
         match_row = event_rows[0]
-        
-        tri_event_check = "SELECT guid, eventEntry FROM game_event_gameobject WHERE guid = %s AND eventEntry = %s"
-        tri_event_rows = db.GetRows(tri_event_check, 'tri_world', (tri_go_guid, match_row[1],))
+         
+        tri_event_rows = db.tri_world.get_rows(
+            "SELECT guid, eventEntry FROM game_event_gameobject WHERE guid = %s AND eventEntry = %s"
+            (tri_go_guid, match_row[1],)
+        )
         
         if(len(tri_event_rows) == 0):
             #TODO ensure event id's match between tri and vm.
-            tri_event_insert = "INSERT INTO game_event_gameobject (guid, eventEntry) VALUES (%s, %s)"
-            db.Execute(tri_event_insert, 'tri_world', (tri_go_guid, match_row[1],))
+            db.tri_world.execute(
+                "INSERT INTO game_event_gameobject (guid, eventEntry) VALUES (%s, %s)", 
+                (tri_go_guid, match_row[1],)
+            )
         
         
 # def create_gameobject(vm_go_guid, tri_go_guid = None):

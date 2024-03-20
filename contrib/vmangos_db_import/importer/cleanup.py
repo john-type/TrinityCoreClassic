@@ -16,9 +16,8 @@ def cleanBattlePets():
         "DELETE FROM battle_pet_quality"
     ]
     
-    for query in queries:
-        db.Execute(query, 'tri_world')
-        
+    db.tri_world.execute_many(queries)
+
     print("Cleaned battle pets")
     
 def cleanGarrison():
@@ -27,17 +26,13 @@ def cleanGarrison():
         "DELETE FROM garrison_plot_finalize_info"
     ]
     
-    for query in queries:
-        db.Execute(query, 'tri_world')
+    db.tri_world.execute_many(queries)
         
     print("Cleaned Garrisons")
     
     
 def cleanWorldStates():
-    select_query = "SELECT * FROM world_state"
-    delete_query = "DELETE FROM world_state WHERE ID = %s"
-    
-    rows = db.GetRows(select_query, 'tri_world')
+    rows = db.tri_world.get_rows("SELECT * FROM world_state")
     for row in rows:
         map_ids = [0]
         if row[2] != None:
@@ -50,6 +45,6 @@ def cleanWorldStates():
                 break
         
         if contains_valid_map == False:
-            db.Execute(delete_query, 'tri_world', (row[0], ))
+            db.tri_world.execute("DELETE FROM world_state WHERE ID = %s", (row[0], ))
         
     print("Cleaned world states")

@@ -2,54 +2,73 @@
 
 import mysql.connector
 
-Connection = {
-    "tri_world": None,
-    "vm_world": None
-}
+class DbInstance:
+    _connection = None
+    _cursor = None
+    
+    def open(self, db_name):
+        self._connection = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='root',
+            database=db_name
+        )
+        self._cursor = self._connection.cursor()
+    
+    def close(self):
+        self._cursor.close()
+        
+    
+    def get_rows(self, query, args = None):
+        self._cursor.execute(query, args)
+        return self._cursor.fetchall()
+    
+    def get_row(self, query, args = None):
+        self._cursor.execute(query, args)
+        return self._cursor.fetchone()
+    
+    def execute(self, query, args = None):
+        self._cursor.execute(query, args)
+        self._connection.commit()
+        
+    def execute_many(self, queries, args = None):
+        for query in queries:
+            self.execute(query, args)
+        
+    def insert(self, query, args = None):
+        self._cursor.execute(query, args)
+        self._connection.commit()
+        return self._cursor.lastrowid
+    
+    def chunk(self, query, size, callback):
+        has_more = True
+        offset = 0
+        
+        while has_more:
+            results = self.get_rows(query, (size, offset,))
+            delta = 0
 
-Cursor = {
-    "tri_world": None,
-    "vm_world": None
-}
-
+            for result in results:
+                delta += callback(result)
+                
+            offset += delta
+            offset += size
+            has_more = len(results) > 0
+            
+            
+            
+    
+    
+tri_world = DbInstance()
+vm_world = DbInstance()
 
 def OpenAll():
-    Connection["tri_world"] = mysql.connector.connect(
-        host='localhost',
-        user='root',
-        password='root',
-        database='trinity_world'
-    )
-        
-    Connection["vm_world"] = mysql.connector.connect(
-        host='localhost',
-        user='root',
-        password='root',
-        database='vmangos_mangos'
-    )
-    
-    Cursor["tri_world"] = Connection["tri_world"].cursor()
-    Cursor["vm_world"] = Connection["vm_world"].cursor()
-
+    tri_world.open('trinity_world')
+    vm_world.open('vmangos_mangos')
 
     
 def CloseAll():
-    for cur in Cursor:
-        Cursor[cur].close()
-
-    for con in Connection:
-        Connection[con].close()
+    tri_world.close()
+    vm_world.close()
         
 
-def GetRows(query, name, args = None):
-    Cursor[name].execute(query, args)
-    return Cursor[name].fetchall()
-
-def Execute(query, name, args = None):
-    Cursor[name].execute(query, args)
-    Connection[name].commit()
-    
-def Insert(query, name, args = None):
-    Cursor[name].execute(query, args)
-    Connection[name].commit()
-    return Cursor[name].lastrowid

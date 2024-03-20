@@ -14,36 +14,19 @@ def Import():
 
 def handle_taverns():
     # remove taverns that dont exist in VMangos
-    query_tri_taverns = "SELECT * FROM areatrigger_tavern"
-    query_vm_taverns = "SELECT * FROM areatrigger_tavern WHERE id = %s"
-    query_tri_taverns_delete = "DELETE FROM areatrigger_tavern WHERE id = %s"
-     
     taverns_deleted = 0
-     
-    rows = db.GetRows(query_tri_taverns, 'tri_world') 
+    rows = db.tri_world.get_rows("SELECT * FROM areatrigger_tavern") 
     for row in rows:
-        vm_rows = db.GetRows(query_vm_taverns, 'vm_world', (row[0], ))
+        vm_rows = db.vm_world.get_rows("SELECT * FROM areatrigger_tavern WHERE id = %s", (row[0], ))
         if len(vm_rows) == 0:
-            db.Execute(query_tri_taverns_delete, 'tri_world', (row[0],))
+            db.tri_world.execute("DELETE FROM areatrigger_tavern WHERE id = %s", (row[0],))
             taverns_deleted += 1
             
     print("Deleted {} areatrigger_tavern's".format(taverns_deleted))
         
 
-def handle_teleports(): 
-    query_tri_teleports = (
-        "SELECT * FROM areatrigger_teleport AS at "
-        "LEFT JOIN world_safe_locs AS wsl ON at.PortLocID = wsl.ID"
-    )
-    query_vm_teleports = "SELECT * FROM areatrigger_teleport WHERE ID = %s ORDER BY patch DESC LIMIT 1"
-    query_tri_teleports_delete = "DELETE FROM areatrigger_teleport WHERE ID = %s"
-    
-    query_tri_update_safe_loc = (
-        "UPDATE world_safe_locs "
-        "SET MapID = %s, LocX = %s, LocY = %s, LocZ = %s, Facing = %s "
-        "WHERE ID = %s"
-    )
-    
+def handle_teleports():    
+   
     teleports = {
         "deleted": 0,
         "updated": 0,
@@ -53,18 +36,23 @@ def handle_teleports():
     #TODO update labels/names/comments
     
     #remove or update teleports from vmangos
-    rows = db.GetRows(query_tri_teleports, 'tri_world')
+    rows = db.tri_world.get_rows((
+        "SELECT * FROM areatrigger_teleport AS at "
+        "LEFT JOIN world_safe_locs AS wsl ON at.PortLocID = wsl.ID"
+    ))
     for row in rows:
-        vm_rows = db.GetRows(query_vm_teleports, 'vm_world', (row[0],))
-        if len(vm_rows) == 0:
-            db.Execute(query_tri_teleports_delete, 'tri_world', (row[0],))
+        vm_row = db.vm_world.get_row(
+            "SELECT * FROM areatrigger_teleport WHERE ID = %s ORDER BY patch DESC LIMIT 1", 
+            (row[0],)
+        )
+        if vm_row != None:
+            db.tri_world.execute("DELETE FROM areatrigger_teleport WHERE ID = %s", (row[0],))
             teleports['deleted'] += 1
-            #TODO - should world_safe_locs be deleted too?
         else:
-            vm_row = vm_rows[0]
-            db.Execute(
-                query_tri_update_safe_loc, 
-                'tri_world',
+            db.tri_world.execute(
+                ("UPDATE world_safe_locs "
+                "SET MapID = %s, LocX = %s, LocY = %s, LocZ = %s, Facing = %s "
+                "WHERE ID = %s"),
                 (
                     vm_row[6], # map
                     vm_row[7], # x
@@ -77,7 +65,6 @@ def handle_teleports():
             teleports['updated'] += 1
      
             
-    query_vm_teleports = "SELECT * FROM areatrigger_teleport"
     query_tri_teleports = (
         "SELECT * FROM areatrigger_teleport AS at "
         "LEFT JOIN world_safe_locs AS wsl ON at.PortLocID = wsl.ID "
@@ -99,14 +86,13 @@ def handle_teleports():
     )
     
     #add teleports that exist in vmangos
-    rows = db.GetRows(query_vm_teleports, 'vm_world')
+    rows = db.vm_world.get_rows("SELECT * FROM areatrigger_teleport")
     for row in rows:
-        tri_rows = db.GetRows(query_tri_teleports, 'tri_world', (row[0],))
+        tri_rows = db.tri_world.get_rows(query_tri_teleports, (row[0],))
         if len(tri_rows) == 0:
             # teleport is missing in trinity, add it.
-            world_safe_loc_id = db.Insert(
+            world_safe_loc_id = db.tri_world.insert(
                 insert_tri_safe_loc, 
-                'tri_world', 
                 (
                     row[6],
                     row[7],
@@ -117,9 +103,8 @@ def handle_teleports():
                 )
                 )
             
-            db.Insert(
+            db.tri_world.insert(
                 insert_tri_teleport,
-                'tri_world',
                 (
                     row[0],
                     world_safe_loc_id,
@@ -141,16 +126,12 @@ def handle_access_requirements():
     
 def handle_areatriggers():
     # these tables are quite small, hard coding for now.
-    query = 'DELETE FROM areatrigger WHERE SpawnId >= 4'
-    query2 = 'DELETE FROM areatrigger_template_actions WHERE AreaTriggerId >= 4'
-
-    db.Execute(query, 'tri_world')
-    db.Execute(query2, 'tri_world')
+    db.tri_world.execute('DELETE FROM areatrigger WHERE SpawnId >= 4')
+    db.tri_world.execute('DELETE FROM areatrigger_template_actions WHERE AreaTriggerId >= 4')
     
 def handle_areatrigger_templates():
     pass
     #TODO
     
 def remove_instances():
-    query = "DELETE FROM instance_template WHERE map > %s"
-    db.Execute(query, 'tri_world', (constants.MaxMapId,))
+    db.tri_world.execute("DELETE FROM instance_template WHERE map > %s", (constants.MaxMapId,))
