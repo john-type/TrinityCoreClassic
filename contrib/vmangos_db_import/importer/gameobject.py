@@ -4,10 +4,10 @@ import constants
 import database as db
 
 def Import():
-    clean_templates_check_vmangos()
-    clean_entries_check_vmangos()
+    # clean_templates_check_vmangos()
+    # clean_entries_check_vmangos()
     import_templates_vmangos()
-    import_entries_vmangos()
+    # import_entries_vmangos()
     
     
 def clean_templates_check_vmangos():
@@ -79,10 +79,27 @@ def _handle_clean_entry_row(row):
     return 0
         
 def import_templates_vmangos():
-    pass #TODO
+    db.vm_world.chunk(
+        ("SELECT entry, type, displayId, name, size, "
+         "data0, data1, data2, data3, data4, data5, data6, data7, data8, data9, "
+         "data10, data11, data12, data13, data14, data15, data16, data17, data18, data19, "
+         "data20, data21, data22, data23 "
+         "FROM gameobject_template GROUP BY entry LIMIT %s OFFSET %s"),
+        500,
+        _handle_import_template_row
+    )
 
 def _handle_import_template_row(row):
-    pass #TODO
+    dest_template_query = "SELECT entry, type, displayid, name FROM gameobject_template WHERE entry = %s"
+    
+    match_row = db.tri_world.get_row(dest_template_query, (row[0],))
+    
+    if(match_row == None):
+        _upsert_gameobject_template(row)
+    else: 
+        _upsert_gameobject_template(row, match_row)
+    
+    return 0
 
 def import_entries_vmangos():
     db.vm_world.chunk(
@@ -128,8 +145,45 @@ def _handle_import_entry_row(row):
     return 0
          
 
-def _upsert_gameobject_template(vm_got_id, tri_got_id = None) :
-    pass #TODO
+def _upsert_gameobject_template(vm_got, tri_got = None) :
+    if tri_got == None:
+        #TODO handle inserts
+        return
+    
+    #confirm safe type conversions
+    safe = vm_got[1] == tri_got[1] or \
+        (vm_got[1] == 3 and tri_got[1] == 50)   # gather_node -> chest
+    
+    if safe == False:
+        return 
+    
+    update_query = ("UPDATE gameobject_template SET "
+    "type = %s, "
+    "displayId = %s, "
+    "name = %s, "
+    "size = %s, "
+    "Data0 = %s, Data1 = %s, Data2 = %s, Data3 = %s, Data4 = %s, Data5 = %s, "
+    "Data6 = %s, Data7 = %s, Data8 = %s, Data9 = %s, Data10 = %s, "
+    "Data11 = %s, Data12 = %s, Data13 = %s, Data14 = %s, Data15 = %s, "
+    "Data16 = %s, Data17 = %s, Data18 = %s, Data19 = %s, Data20 = %s, "
+    "Data21 = %s, Data22 = %s, Data23 = %s, VerifiedBuild = 40618, ContentTuningId = 0 "
+    "WHERE entry = %s"
+    )
+    
+    db.tri_world.execute(update_query, (
+        vm_got[1],
+        vm_got[2],
+        vm_got[3],
+        vm_got[4], #size
+        vm_got[5], vm_got[6], vm_got[7], vm_got[8], vm_got[9],
+        vm_got[10], vm_got[11], vm_got[12], vm_got[13], vm_got[14],
+        vm_got[15], vm_got[16], vm_got[17], vm_got[18], vm_got[19],
+        vm_got[20], vm_got[21], vm_got[22], vm_got[23], vm_got[24],
+        vm_got[25], vm_got[26], vm_got[27], vm_got[28],
+        vm_got[0] #entry
+    ,))
+
+    
     
 def _upsert_gameobject_entry(vm_go_guid, tri_go_guid = None):
     if tri_go_guid == None:
