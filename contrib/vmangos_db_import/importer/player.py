@@ -11,11 +11,12 @@ classes_str = ','.join(map(str, constants.ClassIds))
 races_str = ','.join(map(str, constants.RaceIds))
 
 def Import():
-    cleanClassExpansionRequirements()
-    cleanRaceUnlockRequirements()
-    cleanPlayerCreateInfo()
-    handleXpForLevel()
-    handleExplorationXP()
+    # cleanClassExpansionRequirements()
+    # cleanRaceUnlockRequirements()
+    # cleanPlayerCreateInfo()
+    # handleXpForLevel()
+    # handleExplorationXP()
+    update_player_create_info()
 
 
 def cleanClassExpansionRequirements():
@@ -52,3 +53,11 @@ def handleExplorationXP():
             (row[0], row[1],)
         )
     
+def update_player_create_info():
+    vm_rows = db.vm_world.get_rows("SELECT map, position_x, position_y, position_z, orientation, race, class FROM playercreateinfo")
+    
+    for vm_row in vm_rows:
+        update_query = ("UPDATE playercreateinfo SET "
+                        "map = %s, position_x = %s, position_y = %s, position_z = %s, orientation = %s "
+                        "WHERE race = %s AND class = %s")
+        db.tri_world.execute(update_query, vm_row)
