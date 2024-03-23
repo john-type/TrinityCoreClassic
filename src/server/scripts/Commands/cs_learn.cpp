@@ -314,6 +314,8 @@ public:
         {
             if (languageDesc.SpellId)
                 handler->GetSession()->GetPlayer()->LearnSpell(languageDesc.SpellId, false);
+            if (languageDesc.SkillId)
+                handler->GetSession()->GetPlayer()->SetSkill(languageDesc.SkillId, 0, 300, 300);
 
             return true;
         });
