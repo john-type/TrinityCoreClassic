@@ -13,7 +13,7 @@ class DbInstance:
             password='root',
             database=db_name
         )
-        self._cursor = self._connection.cursor()
+        self._cursor = self._connection.cursor(buffered=True)
     
     def close(self):
         self._cursor.close()
@@ -60,15 +60,18 @@ class DbInstance:
     
     
 tri_world = DbInstance()
+tri_hotfix = DbInstance()
 vm_world = DbInstance()
 
 def OpenAll():
     tri_world.open('trinity_world')
+    tri_hotfix.open('trinity_hotfixes')
     vm_world.open('vmangos_mangos')
 
     
 def CloseAll():
     tri_world.close()
+    tri_hotfix.close()
     vm_world.close()
         
 

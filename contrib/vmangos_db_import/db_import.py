@@ -5,6 +5,7 @@ import database as db
 import mysql.connector
 import importer.area
 import importer.battleground
+import importer.broadcast;
 import importer.creature
 import importer.gameobject
 import importer.graveyard
@@ -15,6 +16,7 @@ import importer.player
 import importer.quest
 import importer.skill
 import importer.spell
+import importer.trainer
 import importer.transport
 import importer.cleanup
 
@@ -29,6 +31,9 @@ db.OpenAll()
 # print("Battlegrounds...")
 # importer.battleground.Import()
 
+# print("Broadcast Text...")
+# importer.broadcast.Import()
+
 # print("Creatures...")
 # importer.creature.Import()
 
@@ -38,8 +43,8 @@ db.OpenAll()
 # print("gossips...")
 # importer.gossip.Import()
 
-print("graveyards...")
-importer.graveyard.Import()
+# print("graveyards...")
+# importer.graveyard.Import()
 
 # print("Items...")
 # importer.item.Import()
@@ -58,6 +63,9 @@ importer.graveyard.Import()
 
 # print("Spells...")
 # importer.spell.Import()
+
+print("Trainers")
+importer.trainer.Import()
 
 # print("Transports...")
 # importer.transport.Import()
