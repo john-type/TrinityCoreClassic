@@ -556,7 +556,7 @@ WorldPacket const* WorldPackets::Spells::PetCastFailed::Write()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellModifierData const& spellModifierData)
 {
-    data << float(spellModifierData.ModifierValue);
+    data << int32(spellModifierData.ModifierValue + 0.5f);    //TODOFROST CHECK
     data << uint8(spellModifierData.ClassIndex);
 
     return data;

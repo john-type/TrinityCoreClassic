@@ -322,16 +322,15 @@ public:
         if (handler->needReportToTarget(target))
             ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_SPELLFLATID_CHANGED, handler->GetNameLink().c_str(), spellflatid, val, mark);
 
-        //TODOFROST
-        //WorldPackets::Spells::SetSpellModifier packet(SMSG_SET_FLAT_SPELL_MODIFIER);
-        //WorldPackets::Spells::SpellModifier spellMod;
-        //spellMod.ModIndex = op;
-        //WorldPackets::Spells::SpellModifierData modData;
-        //modData.ClassIndex = spellflatid;
-        //modData.ModifierValue = float(val);
-        //spellMod.ModifierData.push_back(modData);
-        //packet.Modifiers.push_back(spellMod);
-        //target->SendDirectMessage(packet.Write());
+        WorldPackets::Spells::SetSpellModifier packet(SMSG_SET_FLAT_SPELL_MODIFIER);
+        WorldPackets::Spells::SpellModifier spellMod;
+        spellMod.ModIndex = op;
+        WorldPackets::Spells::SpellModifierData modData;
+        modData.ClassIndex = spellflatid;
+        modData.ModifierValue = float(val);
+        spellMod.ModifierData.push_back(modData);
+        packet.Modifiers.push_back(spellMod);
+        target->SendDirectMessage(packet.Write());
 
         return true;
     }
