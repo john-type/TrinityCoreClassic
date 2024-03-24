@@ -160,7 +160,7 @@ class TC_GAME_API Item : public Object
         Player* GetOwner() const;
 
         void SetExpiration(uint32 expiration) {
-            //TODOFROST
+            SetUInt32Value(UF::ITEM_FIELD_DURATION, expiration);
             SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Expiration), expiration);
         }
 
