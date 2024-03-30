@@ -6010,6 +6010,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 break;
             }
             case SPELL_EFFECT_OPEN_LOCK:
+            case SPELL_EFFECT_OPEN_LOCK_ITEM:
             {
                 if (spellEffectInfo.TargetA.GetTarget() != TARGET_GAMEOBJECT_TARGET &&
                     spellEffectInfo.TargetA.GetTarget() != TARGET_GAMEOBJECT_ITEM_TARGET)
