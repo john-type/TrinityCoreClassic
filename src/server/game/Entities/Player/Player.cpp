@@ -9488,7 +9488,9 @@ Item* Player::GetItemByPos(uint16 pos) const
 
 Item* Player::GetItemByPos(uint8 bag, uint8 slot) const
 {
-    if (bag == INVENTORY_SLOT_BAG_0 && slot < PLAYER_SLOT_END && (slot < KEYRING_SLOT_START || slot >= KEYRING_SLOT_END))
+    //TODOFROST CHECK - new changes from vmangos.
+    //if (bag == INVENTORY_SLOT_BAG_0 && slot < PLAYER_SLOT_END && (slot < KEYRING_SLOT_START || slot >= KEYRING_SLOT_END))
+    if (bag == INVENTORY_SLOT_BAG_0 && (slot < BANK_SLOT_BAG_END || (slot >= KEYRING_SLOT_START && slot < KEYRING_SLOT_END)))
         return m_items[slot];
     if (Bag* pBag = GetBagByPos(bag))
         return pBag->GetItemByPos(slot);

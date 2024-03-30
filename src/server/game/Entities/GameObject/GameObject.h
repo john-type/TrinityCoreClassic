@@ -236,15 +236,18 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetFlag(GameObjectFlags flags) {
             Object::SetFlag(UF::GAMEOBJECT_FLAGS, flags);
             SetUpdateFieldFlagValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags);
+            assert(m_gameObjectData->Flags == Object::GetUInt32Value(UF::GAMEOBJECT_FLAGS));
         }
         void RemoveFlag(GameObjectFlags flags) {
             Object::RemoveFlag(UF::GAMEOBJECT_FLAGS, flags);
             RemoveUpdateFieldFlagValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags);
+            assert(m_gameObjectData->Flags == Object::GetUInt32Value(UF::GAMEOBJECT_FLAGS));
         }
         void ReplaceAllFlags(GameObjectFlags flags) {
             //TODOFROST - check!
             Object::SetUInt32Value(UF::GAMEOBJECT_FLAGS, flags);
             SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags);
+            assert(m_gameObjectData->Flags == Object::GetUInt32Value(UF::GAMEOBJECT_FLAGS));
         }
 
         void SetLevel(uint32 level) {

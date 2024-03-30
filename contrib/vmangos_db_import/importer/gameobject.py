@@ -6,8 +6,10 @@ import database as db
 def Import():
     # clean_templates_check_vmangos()
     # clean_entries_check_vmangos()
-    import_templates_vmangos()
-    # import_entries_vmangos()
+    # import_templates_vmangos()
+    import_entries_vmangos()
+    
+    #TODO need to be able to check and remove duplicates.
     
     
 def clean_templates_check_vmangos():
@@ -83,7 +85,7 @@ def import_templates_vmangos():
         ("SELECT entry, type, displayId, name, size, "
          "data0, data1, data2, data3, data4, data5, data6, data7, data8, data9, "
          "data10, data11, data12, data13, data14, data15, data16, data17, data18, data19, "
-         "data20, data21, data22, data23 "
+         "data20, data21, data22, data23, faction, flags, mingold, maxgold "
          "FROM gameobject_template GROUP BY entry LIMIT %s OFFSET %s"),
         500,
         _handle_import_template_row
@@ -182,74 +184,105 @@ def _upsert_gameobject_template(vm_got, tri_got = None) :
         vm_got[25], vm_got[26], vm_got[27], vm_got[28],
         vm_got[0] #entry
     ,))
+    
+    existing_addon = db.tri_world.get_row("SELECT entry, flags FROM gameobject_template_addon WHERE entry = %s", (vm_got[0],))
+    # faction = vm_got[29]
+        
+    if existing_addon == None:
+        db.tri_world.execute((
+            "INSERT INTO gameobject_template_addon ("
+            "entry, faction, flags, mingold, maxgold, "
+            "artkit0, artkit1, artkit2, artkit3, artkit4, WorldEffectID, AIAnimKitID"
+            ") VALUES ("
+            "%s, %s, %s, %s, %s, "
+            "0, 0, 0, 0, 0, 0, 0"
+            ")"
+            ),(
+                vm_got[0],
+                vm_got[29],
+                vm_got[30],
+                vm_got[31],
+                vm_got[32]
+            ,))
+    else:
+        db.tri_world.execute((
+            "UPDATE gameobject_template_addon SET "
+            "faction = %s, flags = %s, mingold = %s, maxgold = %s "
+            "WHERE entry = %s"
+            ),(
+                vm_got[29],
+                vm_got[30],
+                vm_got[31],
+                vm_got[32],
+                vm_got[0]
+            ,))
+
 
     
     
 def _upsert_gameobject_entry(vm_go_guid, tri_go_guid = None):
-    if tri_go_guid == None:
-        #TODO handle inserts.
+
+    
+    src_obj = db.vm_world.get_row((
+        "SELECT id, map, position_x, position_y, position_z, orientation,"
+        "rotation0, rotation1, rotation2, rotation3, spawntimesecsmin, animprogress, state "
+        "FROM gameobject WHERE guid = %s"
+        ), (vm_go_guid,))
+    
+    if src_obj == None:
         return
     
-    #TODO
+    dest_insert = (
+        "INSERT INTO gameobject ("
+        "id, map, zoneId, areaId, spawnDifficulties, phaseUseFlags, PhaseId, PhaseGroup, terrainSwapMap, "
+        "position_x, position_y, position_z, orientation, rotation0, rotation1, rotation2, rotation3, "
+        "spawntimesecs, animprogress, state, ScriptName, VerifiedBuild"
+        ") VALUES ("
+        "%s, %s, 0, 0, 0, 0, 0, 0, -1, "
+        "%s, %s, %s, %s, %s, %s, %s, %s,"
+        "%s, %s, %s, \"\", 40618"
+        ")"
+        )
+    
+    dest_update = (
+        "UPDATE gameobject SET "
+        "position_x = %s, position_y = %s, position_z=%s, orientation=%s, rotation0=%s, rotation1=%s, rotation2=%s, rotation3=%s, "
+        "spawntimesecs = %s, animprogress=%s, state = %s, VerifiedBuild = 40618 "
+        "WHERE guid = %s"
+    )
+    
+    if tri_go_guid == None:
+        pass #TODO handle insert
+    else:
+        db.tri_world.execute(dest_update, (
+            src_obj[2], src_obj[3], src_obj[4], src_obj[5], src_obj[6],  src_obj[7],  src_obj[8],  src_obj[9],  
+            src_obj[10], src_obj[11], src_obj[12], tri_go_guid
+        ,))
+    
+    if tri_go_guid == None:
+        return
+
 
     # check if is an event creature.
-    event_rows = db.vm_world.get_rows(
-        "SELECT guid, event FROM game_event_gameobject WHERE guid = %s", 
-        (vm_go_guid,)
-    )
-    matches_len = len(event_rows)
+    # event_rows = db.vm_world.get_rows(
+    #     "SELECT guid, event FROM game_event_gameobject WHERE guid = %s", 
+    #     (vm_go_guid,)
+    # )
+    # matches_len = len(event_rows)
     
-    if(matches_len > 0):
-        match_row = event_rows[0]
+    # if(matches_len > 0):
+    #     match_row = event_rows[0]
          
-        tri_event_rows = db.tri_world.get_rows(
-            "SELECT guid, eventEntry FROM game_event_gameobject WHERE guid = %s AND eventEntry = %s"
-            (tri_go_guid, match_row[1],)
-        )
+    #     tri_event_rows = db.tri_world.get_rows(
+    #         "SELECT guid, eventEntry FROM game_event_gameobject WHERE guid = %s AND eventEntry = %s"
+    #         (tri_go_guid, match_row[1],)
+    #     )
         
-        if(len(tri_event_rows) == 0):
-            #TODO ensure event id's match between tri and vm.
-            db.tri_world.execute(
-                "INSERT INTO game_event_gameobject (guid, eventEntry) VALUES (%s, %s)", 
-                (tri_go_guid, match_row[1],)
-            )
+    #     if(len(tri_event_rows) == 0):
+    #         #TODO ensure event id's match between tri and vm.
+    #         db.tri_world.execute(
+    #             "INSERT INTO game_event_gameobject (guid, eventEntry) VALUES (%s, %s)", 
+    #             (tri_go_guid, match_row[1],)
+    #         )
         
-        
-# def create_gameobject(vm_go_guid, tri_go_guid = None):
-#     src_query = "SELECT * FROM gameobject WHERE guid = %s"
-#     vm_world_cur.execute(src_query, (vm_go_guid,))
-#     result = vm_world_cur.fetchone()
     
-#     dest_insert = (
-#         "INSERT INTO gameobject ("
-#         "id, map, zoneId, areaId, spawnDifficulties, phaseUseFlags, PhaseId, PhaseGroup, terrainSwapMap, "
-#         "position_x, position_y, position_z, orientation, rotation0, rotation1, rotation2, rotation3, "
-#         "spawntimesecs, animprogress, state, ScriptName, VerifiedBuild"
-#         ") VALUES ("
-#         "%s, %s, 0, 0, 0, 0, 0, 0, -1, "
-#         "%s, %s, %s, %s, %s, %s, %s, %s,"
-#         "%s, %s, %s, \"\", 40618"
-#         ")"
-#         )
-    
-#     dest_update = (
-#         "UPDATE gameobject SET "
-#         "position_x = %s, position_y = %s, position_z=%s, orientation=%s, rotation0=%s, rotation1=%s, rotation2=%s, rotation3=%s, "
-#         "spawntimesecs = %s, animprogress=%s, state = %s, VerifiedBuild = 40618 "
-#         "WHERE guid = %s"
-#     )
-    
-#     if(tri_go_guid == None):
-#         tri_world_cur.execute(dest_insert, (
-#             result[1], result[2], 
-#             result[3], result[4], result[5], result[6], result[7], result[8], result[9], result[10],
-#             result[11], result[13], result[14],
-#         ))
-#     else:
-#          tri_world_cur.execute(dest_update, (
-#             result[3], result[4], result[5], result[6], result[7], result[8], result[9], result[10],
-#             result[11], result[13], result[14],
-#            result[0] 
-#         ))
-    
-#     trinity_world_con.commit()
