@@ -16,7 +16,8 @@ def Import():
     # cleanPlayerCreateInfo()
     # handleXpForLevel()
     # handleExplorationXP()
-    update_player_create_info()
+    # update_player_create_info()
+    update_class_level_stats()
 
 
 def cleanClassExpansionRequirements():
@@ -61,3 +62,14 @@ def update_player_create_info():
                         "map = %s, position_x = %s, position_y = %s, position_z = %s, orientation = %s "
                         "WHERE race = %s AND class = %s")
         db.tri_world.execute(update_query, vm_row)
+        
+def update_class_level_stats():
+    vm_rows = db.vm_world.get_rows("SELECT basehp, basemana, class, level FROM player_classlevelstats")
+    
+    for vm_row in vm_rows:
+        update_query = ("UPDATE player_classlevelstats SET "
+                        "basehp = %s, basemana = %s "
+                        "WHERE class = %s AND level = %s")
+        
+        db.tri_world.execute(update_query, vm_row)
+        

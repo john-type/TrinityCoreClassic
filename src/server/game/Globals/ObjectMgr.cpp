@@ -4247,8 +4247,8 @@ void ObjectMgr::LoadPlayerInfo()
 
         } while (raceStatsResult->NextRow());
 
-        //                                                  0      1     2    3    4    5     6
-        QueryResult result  = WorldDatabase.Query("SELECT class, level, str, agi, sta, inte, spi FROM player_classlevelstats");
+        //                                                  0      1     2    3    4    5     6    7        8
+        QueryResult result  = WorldDatabase.Query("SELECT class, level, str, agi, sta, inte, spi, basehp, basemana FROM player_classlevelstats");
 
         if (!result)
         {
@@ -4288,6 +4288,9 @@ void ObjectMgr::LoadPlayerInfo()
                         info->levelInfo = std::make_unique<PlayerLevelInfo[]>(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
 
                     PlayerLevelInfo& levelInfo = info->levelInfo[current_level - 1];
+                    levelInfo.basehealth = fields[7].GetUInt16();
+                    levelInfo.basemana = fields[8].GetUInt16();
+
                     for (uint8 i = 0; i < MAX_STATS; ++i)
                         levelInfo.stats[i] = fields[i + 2].GetUInt16() + raceStatModifiers[race].StatModifier[i];
                 }
