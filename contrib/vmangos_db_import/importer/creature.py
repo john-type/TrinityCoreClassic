@@ -168,7 +168,7 @@ def update_instance_info():
         db.tri_world.execute(dest_update, (instance_id,))
 
 def _upsert_creature_template(vm_ct_id, tri_ct_id = None) :
-    vm_ct_row = db.vm_world.get_row("SELECT entry, level_min, level_max, faction, gold_min, gold_max FROM creature_template WHERE entry = %s", (vm_ct_id,))
+    vm_ct_row = db.vm_world.get_row("SELECT entry, level_min, level_max, faction, gold_min, gold_max, rank FROM creature_template WHERE entry = %s", (vm_ct_id,))
     if vm_ct_row == None:
         return
     
@@ -177,7 +177,7 @@ def _upsert_creature_template(vm_ct_id, tri_ct_id = None) :
         return
     
     update_template_query = ("UPDATE creature_template SET "
-                             "minLevel = %s, maxLevel = %s, faction = %s, minGold = %s, maxGold = %s, VerifiedBuild = 40618 "
+                             "minLevel = %s, maxLevel = %s, faction = %s, minGold = %s, maxGold = %s, rank = %s, VerifiedBuild = 40618 "
                              "WHERE entry = %s"
                              )
     
@@ -187,6 +187,7 @@ def _upsert_creature_template(vm_ct_id, tri_ct_id = None) :
         vm_ct_row[3],
         vm_ct_row[4],
         vm_ct_row[5],
+        vm_ct_row[6],
         vm_ct_id,
     ))
     
