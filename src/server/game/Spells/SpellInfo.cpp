@@ -708,6 +708,10 @@ SpellTargetObjectTypes SpellEffectInfo::GetUsedTargetObjectType() const
 
 ExpectedStatType SpellEffectInfo::GetScalingExpectedStat() const
 {
+    if constexpr (CURRENT_EXPANSION < EXPANSION_CATACLYSM) {
+        return ExpectedStatType::None;
+    }
+
     switch (Effect)
     {
         case SPELL_EFFECT_SCHOOL_DAMAGE:
