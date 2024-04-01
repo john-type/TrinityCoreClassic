@@ -6,8 +6,8 @@ import database as db
 def Import():
     # clean_templates_check_vmangos()
     # clean_entries_check_vmangos()
-    import_templates_vmangos()
-    # import_entries_vmangos()
+    # import_templates_vmangos()
+    import_entries_vmangos()
     # update_instance_info()
 
 def clean_templates_check_vmangos():
@@ -118,13 +118,20 @@ def _handle_import_template_row(row):
 
 def import_entries_vmangos():
     db.vm_world.chunk(
-        "SELECT guid, id, map, position_x, position_y, position_z FROM creature WHERE id = 15892 LIMIT %s OFFSET %s",
+        "SELECT guid, id, map, position_x, position_y, position_z FROM creature LIMIT %s OFFSET %s",
         500,
         _handle_import_entry_row
     )
 
 
 def _handle_import_entry_row(row):
+    
+    exact_match = db.tri_world.get_row("SELECT guid, id FROM creature WHERE guid = %s AND id = %s", (row[0], row[1],))
+
+    if exact_match != None:
+        _upsert_creature_entry(row[0], exact_match[0])
+        return 0
+    
     dest_ct_query = ("SELECT guid, id, map, position_x, position_y, position_z FROM creature "
                     "WHERE id = %s "
                     "AND position_x BETWEEN %s AND %s "
@@ -157,6 +164,8 @@ def _handle_import_entry_row(row):
                 nearest_abs = next_abs
         
         _upsert_creature_entry(row[0], nearest_match[0])  
+        
+    return 0
 
 def update_instance_info():
     dest_update = 'UPDATE creature SET spawnDifficulties = "1,2", VerifiedBuild = 40618 WHERE map = %s'
@@ -193,11 +202,30 @@ def _upsert_creature_template(vm_ct_id, tri_ct_id = None) :
     
     
 def _upsert_creature_entry(vm_ce_guid, tri_ce_guid = None):
-    if tri_ce_guid == None:
-        #TODO handle inserts.
+    vm_row = db.vm_world.get_row("SELECT guid, id, position_x, position_y, position_z, orientation FROM creature WHERE guid = %s", (vm_ce_guid,))
+    
+    if vm_row == None:
         return
     
-    #TODO
+    #TODO handle insert
+            
+    if tri_ce_guid == None:
+        return
+    
+
+    #TODO update all fields.
+    db.tri_world.execute((
+        "UPDATE creature SET "
+        "position_x = %s, position_y = %s, position_z = %s, orientation = %s"
+        "WHERE guid = %s"
+    ), (
+        vm_row[2],
+        vm_row[3],
+        vm_row[4],
+        vm_row[5],
+        tri_ce_guid,
+    )
+    )
 
     # check if is an event creature.
     event_rows = db.vm_world.get_rows("SELECT guid, event FROM game_event_creature WHERE guid = %s", (vm_ce_guid,))
