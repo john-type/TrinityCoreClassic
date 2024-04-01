@@ -1973,7 +1973,7 @@ struct ItemSparseEntry
     uint16 RandomSelect;
     std::array<uint16, 5> MinDamage;
     std::array<uint16, 5> MaxDamage;
-    std::array<int16, 7> Resistances;
+    std::array<int16, MAX_ITEM_PROTO_RESISTANCES> Resistances;
     uint16 ScalingStatDistributionID;
     uint8 ExpansionID;
     uint8 ArtifactID;

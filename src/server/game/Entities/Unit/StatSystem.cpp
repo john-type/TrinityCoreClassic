@@ -125,6 +125,7 @@ bool Player::UpdateStats(Stats stat)
             UpdateMaxHealth();
             break;
         case STAT_INTELLECT:
+            UpdateMaxPower(POWER_MANA);
             UpdateSpellCritChance();
             break;
         case STAT_SPIRIT:

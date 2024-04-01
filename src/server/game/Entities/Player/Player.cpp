@@ -2510,16 +2510,22 @@ void Player::InitStatsForLevel(bool reapplyMods)
     for (uint16 index = 0; index < MAX_COMBAT_RATING; ++index)
         SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::CombatRatings, index), 0);
 
+    //TODOFROST
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModHealingDonePos), 0);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModHealingPercent), 1.0f);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModPeriodicHealingDonePercent), 1.0f);
+
     for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
     {
+        SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i, 0);
+        SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, 0);
+        SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i, 1.0f);
         SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModDamageDoneNeg, i), 0);
         SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModDamageDonePos, i), 0);
         SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModDamageDonePercent, i), 1.0f);
     }
 
+    //TODOFROST
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModHealingDonePercent), 1);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModSpellPowerPercent), 1.0f);
 
@@ -2583,7 +2589,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
         SetMaxPower(Powers(i), uint32(GetCreatePowerValue(Powers(i))));
 
-    SetMaxHealth(0);                          // stamina bonus will applied later
+    SetMaxHealth(info.basehealth);                          // stamina bonus will applied later
 
     // cleanup mounted state (it will set correctly at aura loading if player saved at mount.
     SetMountDisplayId(0);
@@ -8018,6 +8024,39 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
                 UpdateStatBuffMod(STAT_STRENGTH);
                 UpdateStatBuffMod(STAT_INTELLECT);
                 break;
+        }
+    }
+
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_RESISTANCES; ++i)
+    {
+        float val = float(proto->BasicData->Resistances[i]);
+        if(val == 0) 
+            continue;
+
+        switch (i)
+        {
+            case SpellSchools::SPELL_SCHOOL_NORMAL:
+                //TODOFROST CHECK
+            break;
+            case SpellSchools::SPELL_SCHOOL_HOLY:
+                HandleStatFlatModifier(UNIT_MOD_RESISTANCE_HOLY, BASE_VALUE, val, apply);
+                break;
+            case SpellSchools::SPELL_SCHOOL_FIRE:
+                HandleStatFlatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, val, apply);
+                break;
+            case SpellSchools::SPELL_SCHOOL_NATURE:
+                HandleStatFlatModifier(UNIT_MOD_RESISTANCE_NATURE, BASE_VALUE, val, apply);
+                break;
+            case SpellSchools::SPELL_SCHOOL_FROST:
+                HandleStatFlatModifier(UNIT_MOD_RESISTANCE_FROST, BASE_VALUE, val, apply);
+                break;
+            case SpellSchools::SPELL_SCHOOL_SHADOW:
+                HandleStatFlatModifier(UNIT_MOD_RESISTANCE_SHADOW, BASE_VALUE, val, apply);
+                break;
+            case SpellSchools::SPELL_SCHOOL_ARCANE:
+                HandleStatFlatModifier(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, val, apply);
+                break;
+
         }
     }
 

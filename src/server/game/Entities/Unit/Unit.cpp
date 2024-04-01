@@ -5049,6 +5049,8 @@ void Unit::UpdateStatBuffMod(Stats stat)
 
 void Unit::UpdateStatBuffModForClient(Stats stat)
 {
+    SetUInt32Value(UF::UNIT_FIELD_POSSTAT + stat, int32(m_floatStatPosBuff[stat]));
+    SetUInt32Value(UF::UNIT_FIELD_NEGSTAT + stat, int32(m_floatStatPosBuff[stat]));
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StatPosBuff, stat), int32(m_floatStatPosBuff[stat]));
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StatNegBuff, stat), int32(m_floatStatNegBuff[stat]));
 }

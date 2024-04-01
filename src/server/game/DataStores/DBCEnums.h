@@ -736,6 +736,7 @@ DEFINE_ENUM_FLAG(FriendshipReputationFlags);
 #define MAX_ITEM_PROTO_ZONES 2
 #define MAX_ITEM_PROTO_SOCKETS 3
 #define MAX_ITEM_PROTO_STATS  10
+#define MAX_ITEM_PROTO_RESISTANCES 7
 
 enum MapTypes                                               // Lua_IsInInstance
 {

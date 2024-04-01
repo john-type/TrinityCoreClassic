@@ -2168,7 +2168,7 @@ float Item::GetItemStatValue(uint32 index, Player const* owner) const
         return statValue;
     }
 
-    return 0.0f;
+    return _bonusData.ItemStatValue[index];
 }
 
 ItemDisenchantLootEntry const* Item::GetDisenchantLoot(Player const* owner) const
@@ -2408,6 +2408,9 @@ void BonusData::Initialize(ItemTemplate const* proto)
     RequiredLevel = proto->GetBaseRequiredLevel();
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
         ItemStatType[i] = proto->GetStatModifierBonusStat(i);
+
+    for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+        ItemStatValue[i] = proto->GetStatModifierBonusValue(i);
 
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
         StatPercentEditor[i] = proto->GetStatPercentEditor(i);
