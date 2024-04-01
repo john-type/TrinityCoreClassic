@@ -1632,6 +1632,11 @@ std::vector<DB2Manager::HotfixOptionalData> const* DB2Manager::GetHotfixOptional
 
 uint32 DB2Manager::GetEmptyAnimStateID() const
 {
+    //TODOFROST - confirm safe.
+    if constexpr (CURRENT_EXPANSION == EXPANSION_CLASSIC) {
+        return 1556;    // taken from hermes (40618)
+    }
+
     return sAnimationDataStore.GetNumRows();
 }
 

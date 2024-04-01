@@ -5524,6 +5524,7 @@ void Unit::UpdateDisplayPower()
 
 void Unit::SetSheath(SheathState sheathed)
 {
+    SetByteValue(UF::UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_SHEATH_STATE, sheathed);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::SheatheState), sheathed);
     if (sheathed == SHEATH_STATE_UNARMED)
         RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Sheathing);
@@ -5875,6 +5876,7 @@ void Unit::SetOwnerGUID(ObjectGuid owner)
     if (GetOwnerGUID() == owner)
         return;
 
+    SetGuidValue(UF::UNIT_FIELD_SUMMONEDBY, owner);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::SummonedBy), owner);
     if (!owner)
         return;
@@ -8659,6 +8661,7 @@ uint32 Unit::GetCreatureTypeMask() const
 
 void Unit::SetShapeshiftForm(ShapeshiftForm form)
 {
+    SetByteValue(UF::UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_SHAPESHIFT_FORM, form);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ShapeshiftForm), form);
 }
 

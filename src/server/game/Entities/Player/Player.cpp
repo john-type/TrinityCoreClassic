@@ -7338,11 +7338,13 @@ void Player::SetInGuild(ObjectGuid::LowType guildId)
 {
     if (guildId)
     {
+        SetGuidValue(UF::UNIT_FIELD_GUILD_GUID, ObjectGuid::Create<HighGuid::Guild>(guildId));
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::GuildGUID), ObjectGuid::Create<HighGuid::Guild>(guildId));
         SetPlayerFlag(PLAYER_FLAGS_GUILD_LEVEL_ENABLED);
     }
     else
     {
+        SetGuidValue(UF::UNIT_FIELD_GUILD_GUID, ObjectGuid::Empty);
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::GuildGUID), ObjectGuid::Empty);
         RemovePlayerFlag(PLAYER_FLAGS_GUILD_LEVEL_ENABLED);
     }
@@ -18081,7 +18083,10 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     }
 
     for (; loadedPowers < MAX_POWERS_PER_CLASS; ++loadedPowers)
+    {
+        SetInt32Value(UF::UNIT_FIELD_POWER + loadedPowers, 0);
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Power, loadedPowers), 0);
+    }
 
     SetPower(POWER_LUNAR_POWER, 0);
     // Init rune recharge
@@ -22599,6 +22604,7 @@ void Player::InitDisplayIds()
 
     SetDisplayId(model->DisplayID);
     SetNativeDisplayId(model->DisplayID);
+    SetUInt32Value(UF::UNIT_FIELD_STATE_ANIM_ID, sDB2Manager.GetEmptyAnimStateID());
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateAnimID), sDB2Manager.GetEmptyAnimStateID());
 }
 

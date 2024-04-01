@@ -740,8 +740,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     SetGoState(goState);
     SetGoArtKit(artKit);
 
-    SetUInt32Value(UF::GAMEOBJECT_STATE_ANIM_ID, 1556); //TODOFROST CHECK
-
+    SetUInt32Value(UF::GAMEOBJECT_STATE_ANIM_ID, sDB2Manager.GetEmptyAnimStateID()); 
     SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::SpawnTrackingStateAnimID), sDB2Manager.GetEmptyAnimStateID());
 
     switch (goInfo->type)

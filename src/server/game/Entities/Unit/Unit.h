@@ -1605,6 +1605,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetChannelSpellId() const { return m_unitData->ChannelData->SpellID; }
         void SetChannelSpellId(uint32 channelSpellId)
         {
+            SetUInt32Value(UF::UNIT_FIELD_CHANNEL_DATA, channelSpellId);
             SetUpdateFieldValue(m_values
                 .ModifyValue(&Unit::m_unitData)
                 .ModifyValue(&UF::UnitData::ChannelData)
@@ -1613,6 +1614,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetChannelSpellXSpellVisualId() const { return m_unitData->ChannelData->SpellXSpellVisualID; }
         void SetChannelSpellXSpellVisual(int32 spellXSpellVisual)
         {
+            SetUInt32Value(UF::UNIT_FIELD_CHANNEL_DATA + 1, spellXSpellVisual);
             SetUpdateFieldValue(m_values
                 .ModifyValue(&Unit::m_unitData)
                 .ModifyValue(&UF::UnitData::ChannelData)
