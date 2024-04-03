@@ -6977,6 +6977,7 @@ void Player::AddHonorXP(uint32 xp)
         nextHonorLevelXP = m_activePlayerData->HonorNextLevel;
     }
 
+    SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_HONOR, IsMaxHonorLevel() ? 0 : newHonorXP);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Honor), IsMaxHonorLevel() ? 0 : newHonorXP);
 }
 
@@ -6986,6 +6987,7 @@ void Player::SetHonorLevel(uint8 level)
     if (level == oldHonorLevel)
         return;
 
+    SetUInt32Value(UF::PLAYER_FIELD_HONOR_LEVEL, level);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::HonorLevel), level);
     UpdateHonorNextLevel();
 
@@ -6997,6 +6999,7 @@ void Player::UpdateHonorNextLevel()
     // 5500 at honor level 1
     // no idea what between here
     // 8800 at honor level ~14 (never goes above 8800)
+    SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_HONOR_NEXT_LEVEL, 8800);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::HonorNextLevel), 8800);
 }
 
@@ -16386,6 +16389,12 @@ int32 Player::GetQuestSlotObjectiveData(uint16 slot, QuestObjective const& objec
 
 void Player::SetQuestSlot(uint16 slot, uint32 quest_id)
 {
+    SetUInt32Value(UF::PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_ID_OFFSET, quest_id);
+    SetUInt32Value(UF::PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET, 0);
+    for (uint32 i = 0; i < MAX_QUEST_COUNTS / 2; ++i)
+        SetUInt32Value(UF::PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET + i, 0);
+    SetUInt32Value(UF::PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_TIME_OFFSET, 0);
+
     auto questLogField = m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::QuestLog, slot);
     SetUpdateFieldValue(questLogField.ModifyValue(&UF::QuestLog::QuestID), quest_id);
     SetUpdateFieldValue(questLogField.ModifyValue(&UF::QuestLog::StateFlags), 0);
@@ -16400,6 +16409,8 @@ void Player::SetQuestSlotCounter(uint16 slot, uint8 counter, uint16 count)
     if (counter >= MAX_QUEST_COUNTS)
         return;
 
+    SetUInt16Value(UF::PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET + counter / 2, counter % 2, count);
+
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData)
         .ModifyValue(&UF::PlayerData::QuestLog, slot)
         .ModifyValue(&UF::QuestLog::ObjectiveProgress, counter), count);
@@ -16407,6 +16418,8 @@ void Player::SetQuestSlotCounter(uint16 slot, uint8 counter, uint16 count)
 
 void Player::SetQuestSlotState(uint16 slot, uint32 state)
 {
+    SetFlag(UF::PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET, state);
+
     SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData)
         .ModifyValue(&UF::PlayerData::QuestLog, slot)
         .ModifyValue(&UF::QuestLog::StateFlags), state);
@@ -16414,6 +16427,8 @@ void Player::SetQuestSlotState(uint16 slot, uint32 state)
 
 void Player::RemoveQuestSlotState(uint16 slot, uint32 state)
 {
+    RemoveFlag(UF::PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET, state);
+
     RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData)
         .ModifyValue(&UF::PlayerData::QuestLog, slot)
         .ModifyValue(&UF::QuestLog::StateFlags), state);
@@ -16421,6 +16436,7 @@ void Player::RemoveQuestSlotState(uint16 slot, uint32 state)
 
 void Player::SetQuestSlotEndTime(uint16 slot, time_t endTime)
 {
+    //TODOFROST
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData)
         .ModifyValue(&UF::PlayerData::QuestLog, slot)
         .ModifyValue(&UF::QuestLog::EndTime), uint32(endTime));
@@ -16428,6 +16444,7 @@ void Player::SetQuestSlotEndTime(uint16 slot, time_t endTime)
 
 void Player::SetQuestSlotAcceptTime(uint16 slot, time_t acceptTime)
 {
+    //TODOFROST
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData)
         .ModifyValue(&UF::PlayerData::QuestLog, slot)
         .ModifyValue(&UF::QuestLog::AcceptTime), uint32(acceptTime));
@@ -16441,6 +16458,8 @@ void Player::SetQuestCompletedBit(uint32 questBit, bool completed)
     uint32 fieldOffset = (questBit - 1) / QUESTS_COMPLETED_BITS_PER_BLOCK;
     if (fieldOffset >= QUESTS_COMPLETED_BITS_SIZE)
         return;
+
+    ApplyModFlag(UF::ACTIVE_PLAYER_FIELD_QUEST_COMPLETED + ((questBit - 1) >> 5), 1 << ((questBit - 1) & 31), completed);
 
     uint64 flag = UI64LIT(1) << ((questBit - 1) % QUESTS_COMPLETED_BITS_PER_BLOCK);
     if (completed)
@@ -25754,6 +25773,7 @@ void Player::SetPartyType(GroupCategory category, uint8 type)
     value &= ~uint8(uint8(0xFF) << (category * 4));
     value |= uint8(uint8(type) << (category * 4));
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PartyType), value);
+    //TODOFROST
 }
 
 void Player::ResetGroupUpdateSequenceIfNeeded(Group const* group)
@@ -26070,6 +26090,7 @@ void Player::SetTitle(CharTitlesEntry const* title, bool lost)
         if (!HasTitle(title))
             return;
 
+        RemoveFlag(UF::ACTIVE_PLAYER_FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
         RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::KnownTitles, fieldIndexOffset), flag);
     }
     else
@@ -26077,6 +26098,7 @@ void Player::SetTitle(CharTitlesEntry const* title, bool lost)
         if (HasTitle(title))
             return;
 
+        SetFlag(UF::ACTIVE_PLAYER_FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
         SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::KnownTitles, fieldIndexOffset), flag);
     }
 

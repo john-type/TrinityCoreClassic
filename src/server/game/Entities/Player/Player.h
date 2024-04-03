@@ -609,8 +609,18 @@ enum PlayerQuestCompletedConstants
 
 enum PlayerQuestLogConstants
 {
-    MAX_QUEST_COUNTS    = UF::size<decltype(UF::QuestLog::ObjectiveProgress)>()
+    MAX_QUEST_COUNTS = UF::size<decltype(UF::QuestLog::ObjectiveProgress)>()
 };
+
+enum QuestSlotOffsets
+{
+    QUEST_ID_OFFSET = 0,
+    QUEST_STATE_OFFSET = 1,
+    QUEST_COUNTS_OFFSET = 2,
+    QUEST_TIME_OFFSET = 14
+};
+
+#define MAX_QUEST_OFFSET 16
 
 enum QuestSlotStateMask
 {

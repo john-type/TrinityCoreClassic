@@ -759,6 +759,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
             QuaternionData reinterpretId;
             memcpy(&reinterpretId.x, &m_goInfo->destructibleBuilding.DestructibleModelRec, sizeof(float));
             SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::ParentRotation), reinterpretId);
+            SetUInt32Value(UF::GAMEOBJECT_PARENTROTATION, m_goInfo->destructibleBuilding.DestructibleModelRec);
             break;
         }
         case GAMEOBJECT_TYPE_TRANSPORT:
@@ -791,10 +792,11 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
             }
             break;
         case GAMEOBJECT_TYPE_PHASEABLE_MO:
-            RemoveFlag(GameObjectFlags(0xF00));
+            SetByteValue(UF::GAMEOBJECT_FLAGS, 1, m_goInfo->phaseableMO.AreaNameSet & 0xF);
             SetFlag(GameObjectFlags((m_goInfo->phaseableMO.AreaNameSet & 0xF) << 8));
             break;
         case GAMEOBJECT_TYPE_CAPTURE_POINT:
+            SetUInt32Value(UF::GAMEOBJECT_SPELL_VISUAL_ID, m_goInfo->capturePoint.SpellVisual1);
             SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::SpellVisualID), m_goInfo->capturePoint.SpellVisual1);
             m_goValue.CapturePoint.AssaultTimer = 0;
             m_goValue.CapturePoint.LastTeamCapture = TEAM_NEUTRAL;
@@ -3530,6 +3532,7 @@ void GameObject::SetAnimKitId(uint16 animKitId, bool oneshot)
 
 void GameObject::SetSpellVisualId(int32 spellVisualId, ObjectGuid activatorGuid)
 {
+    SetUInt32Value(UF::GAMEOBJECT_SPELL_VISUAL_ID, spellVisualId);
     SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::SpellVisualID), spellVisualId);
 
     WorldPackets::GameObject::GameObjectPlaySpellVisual packet;
