@@ -6,10 +6,39 @@ import database as db
 #TODO
 
 def Import():
-    import_templates_vmangos()
+    #import_templates_vmangos()
+    remove_modern()
+    
+def remove_modern():
+    db.tri_world.chunk(
+        "SELECT ID FROM quest_template WHERE Expansion > 2 AND VerifiedBuild <> 40618 LIMIT %s OFFSET %s",
+        500,
+        _handle_obsolete_modern_row
+    )
+    
+def _handle_obsolete_modern_row(row):
+    queries = [
+        "DELETE FROM quest_objectives WHERE QuestID = %s",
+        "DELETE FROM quest_objectives_locale WHERE QuestId = %s",
+        "DELETE FROM quest_offer_reward WHERE ID = %s",
+        "DELETE FROM quest_offer_reward_locale WHERE ID = %s",
+        "DELETE FROM quest_poi WHERE QuestID = %s",
+        "DELETE FROM quest_poi_points WHERE QuestID = %s",
+        "DELETE FROM quest_pool_members WHERE questId = %s",
+        "DELETE FROM quest_request_items WHERE ID = %s",
+        "DELETE FROM quest_request_items_locale WHERE ID = %s",
+        "DELETE FROM quest_reward_display_spell WHERE QuestID = %s",
+        "DELETE FROM quest_template_addon WHERE ID = %s",
+        "DELETE FROM quest_template_locale WHERE ID = %s",
+        "DELETE FROM quest_template WHERE ID = %s"
+    ]
+    
+    db.tri_world.execute_many(queries, (row[0],))
+    
+    return -1
     
 def import_templates_vmangos():
-        db.vm_world.chunk(
+    db.vm_world.chunk(
         ("SELECT entry, Method, QuestLevel, MinLevel, MaxLevel, "
          "Type, SuggestedPlayers, "
          "Title, Details, Objectives, EndText, "
