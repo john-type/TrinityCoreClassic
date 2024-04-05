@@ -406,11 +406,17 @@ uint32 Quest::GetRewMoneyMaxLevel() const
 
 bool Quest::IsAutoAccept() const
 {
+    //TODOFROST - check if AutoAccept / AutoComplete are relevant for classic.
+    return false;
+
     return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT) && HasFlag(QUEST_FLAGS_AUTO_ACCEPT);
 }
 
 bool Quest::IsAutoComplete() const
 {
+    //TODOFROST - check if AutoAccept / AutoComplete are relevant for classic.
+    return false;
+
     return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) && _type == QUEST_TYPE_AUTOCOMPLETE;
 }
 

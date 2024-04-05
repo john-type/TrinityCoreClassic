@@ -16437,6 +16437,8 @@ void Player::RemoveQuestSlotState(uint16 slot, uint32 state)
 void Player::SetQuestSlotEndTime(uint16 slot, time_t endTime)
 {
     //TODOFROST
+    SetUInt32Value(UF::PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_TIME_OFFSET, 0);
+
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData)
         .ModifyValue(&UF::PlayerData::QuestLog, slot)
         .ModifyValue(&UF::QuestLog::EndTime), uint32(endTime));
@@ -16445,6 +16447,8 @@ void Player::SetQuestSlotEndTime(uint16 slot, time_t endTime)
 void Player::SetQuestSlotAcceptTime(uint16 slot, time_t acceptTime)
 {
     //TODOFROST
+    SetUInt32Value(UF::PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_TIME_OFFSET, 0);
+
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData)
         .ModifyValue(&UF::PlayerData::QuestLog, slot)
         .ModifyValue(&UF::QuestLog::AcceptTime), uint32(acceptTime));
