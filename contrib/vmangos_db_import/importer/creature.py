@@ -6,8 +6,8 @@ import database as db
 def Import():
     # clean_templates_check_vmangos()
     # clean_entries_check_vmangos()
-    # import_templates_vmangos()
-    import_entries_vmangos()
+    import_templates_vmangos()
+    # import_entries_vmangos()
     # update_instance_info()
 
 def clean_templates_check_vmangos():
@@ -177,7 +177,16 @@ def update_instance_info():
         db.tri_world.execute(dest_update, (instance_id,))
 
 def _upsert_creature_template(vm_ct_id, tri_ct_id = None) :
-    vm_ct_row = db.vm_world.get_row("SELECT entry, level_min, level_max, faction, gold_min, gold_max, rank FROM creature_template WHERE entry = %s", (vm_ct_id,))
+    vm_ct_row = db.vm_world.get_row((
+        "SELECT entry, level_min, level_max, faction, gold_min, gold_max, rank, "
+        "display_id1, display_id2, display_id3, display_id4, "
+        "display_scale1, display_scale2, display_scale3, display_scale4, "
+        "display_probability1, display_probability2, display_probability3, display_probability4 "
+        "FROM creature_template "
+        "WHERE entry = %s "
+        "ORDER BY patch DESC LIMIT 1"),
+        (vm_ct_id,))
+    
     if vm_ct_row == None:
         return
     
@@ -199,6 +208,33 @@ def _upsert_creature_template(vm_ct_id, tri_ct_id = None) :
         vm_ct_row[6],
         vm_ct_id,
     ))
+    
+    
+    db.tri_world.execute("DELETE FROM creature_template_model WHERE CreatureID = %s", (vm_ct_id,))
+    
+    displays = []
+    
+    if vm_ct_row[7] > 0:
+        displays.append([vm_ct_row[7], vm_ct_row[11], vm_ct_row[15]])
+        
+    if vm_ct_row[8] > 0:
+        displays.append([vm_ct_row[8], vm_ct_row[12], vm_ct_row[16]])
+        
+    if vm_ct_row[9] > 0:
+        displays.append([vm_ct_row[9], vm_ct_row[13], vm_ct_row[17]])
+            
+    if vm_ct_row[10] > 0:
+        displays.append([vm_ct_row[10], vm_ct_row[14], vm_ct_row[18]])
+        
+    display_index = 0
+    for display in displays:
+        db.tri_world.execute("INSERT INTO creature_template_model ("
+                             "CreatureID, Idx, CreatureDisplayID, DisplayScale, Probability, VerifiedBuild"
+                             ") VALUES ("
+                             "%s, %s, %s, %s, %s, 40618"
+                             ")", (vm_ct_id, display_index, display[0], display[1], display[2],))
+        display_index += 1
+    
     
     
 def _upsert_creature_entry(vm_ce_guid, tri_ce_guid = None):
