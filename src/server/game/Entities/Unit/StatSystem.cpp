@@ -482,6 +482,11 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
         weaponMinDamage = BASE_MINDAMAGE;
         weaponMaxDamage = BASE_MAXDAMAGE;
     }
+    else if (attType == RANGED_ATTACK)
+    {
+        weaponMinDamage += GetAmmoDPS() * attackPowerMod;
+        weaponMaxDamage += GetAmmoDPS() * attackPowerMod;
+    }
 
     minDamage = ((weaponMinDamage + baseValue) * basePct + totalValue) * totalPct * versaDmgMod;
     maxDamage = ((weaponMaxDamage + baseValue) * basePct + totalValue) * totalPct * versaDmgMod;

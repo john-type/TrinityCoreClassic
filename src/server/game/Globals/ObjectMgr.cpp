@@ -1600,7 +1600,8 @@ void ObjectMgr::LoadEquipmentTemplates()
                 dbcItem->InventoryType != INVTYPE_WEAPONOFFHAND &&
                 dbcItem->InventoryType != INVTYPE_HOLDABLE &&
                 dbcItem->InventoryType != INVTYPE_THROWN &&
-                dbcItem->InventoryType != INVTYPE_RANGEDRIGHT)
+                dbcItem->InventoryType != INVTYPE_RANGEDRIGHT &&
+                dbcItem->InventoryType != INVTYPE_RELIC)
             {
                 TC_LOG_ERROR("sql.sql", "Item (ID=%u) in creature_equip_template.ItemID%u for CreatureID = %u and ID = %u is not equipable in a hand, forced to 0.",
                     equipmentInfo.Items[i].ItemId, i + 1, entry, id);

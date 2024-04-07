@@ -531,6 +531,16 @@ namespace WorldPackets
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
+
+        class SetAmmo final : public ClientPacket
+        {
+        public:
+            SetAmmo(WorldPacket&& packet) : ClientPacket(CMSG_SET_AMMO, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 ItemID;
+        };
     }
 }
 

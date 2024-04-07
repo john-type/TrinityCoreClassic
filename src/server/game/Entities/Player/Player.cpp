@@ -239,6 +239,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_canBlock = false;
     m_canTitanGrip = false;
     m_titanGripPenaltySpellId = 0;
+    m_ammoDPS = 0.0f;
 
     m_temporaryUnsummonedPetNumber = 0;
     //cache for CreatedBySpell to allow
@@ -7786,6 +7787,9 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemA
     }
     ApplyEnchantment(item, apply);
 
+    if (slot == EQUIPMENT_SLOT_RANGED)
+        _ApplyAmmoBonuses();
+
     TC_LOG_DEBUG("entities.player.items", "Player::_ApplyItemMods: completed");
 }
 
@@ -8631,6 +8635,9 @@ void Player::_RemoveAllItemMods()
 
             ApplyItemDependentAuras(m_items[i], false);
             _ApplyItemBonuses(m_items[i], i, false);
+
+            if (i == EQUIPMENT_SLOT_RANGED)
+                _ApplyAmmoBonuses();
         }
     }
 
@@ -8654,6 +8661,9 @@ void Player::_ApplyAllItemMods()
             WeaponAttackType const attackType = Player::GetAttackBySlot(i, m_items[i]->GetTemplate()->GetInventoryType());
             if (attackType != MAX_ATTACK)
                 UpdateWeaponDependentAuras(attackType);
+
+            if (i == EQUIPMENT_SLOT_RANGED)
+                _ApplyAmmoBonuses();
         }
     }
 
@@ -8701,6 +8711,67 @@ void Player::_ApplyAllLevelScaleItemMods(bool apply)
             }
         }
     }
+}
+
+void Player::_ApplyAmmoBonuses()
+{
+    // check ammo
+    uint32 ammo_id = GetUInt32Value(UF::ACTIVE_PLAYER_FIELD_AMMO_ID);
+    if (!ammo_id)
+        return;
+
+    float currentAmmoDPS;
+
+    ItemTemplate const* ammo_proto = sObjectMgr->GetItemTemplate(ammo_id);
+    if (!ammo_proto || ammo_proto->GetClass() != ITEM_CLASS_PROJECTILE || !CheckAmmoCompatibility(ammo_proto))
+        currentAmmoDPS = 0.0f;
+    else {
+        uint32 itemLevel = 1; //TODOFROST - real item level.
+        float minDamage, maxDamage;
+        ammo_proto->GetDamage(itemLevel, minDamage, maxDamage);
+        currentAmmoDPS = (minDamage + maxDamage) / 2;
+    }
+
+    if (currentAmmoDPS == GetAmmoDPS())
+        return;
+
+    m_ammoDPS = currentAmmoDPS;
+
+    if (CanModifyStats())
+        UpdateDamagePhysical(RANGED_ATTACK);
+}
+
+bool Player::CheckAmmoCompatibility(ItemTemplate const* ammo_proto) const
+{
+    if (!ammo_proto)
+        return false;
+
+    // check ranged weapon
+    Item* weapon = GetWeaponForAttack(RANGED_ATTACK);
+    if (!weapon || weapon->IsBroken())
+        return false;
+
+    ItemTemplate const* weapon_proto = weapon->GetTemplate();
+    if (!weapon_proto || weapon_proto->GetClass() != ITEM_CLASS_WEAPON)
+        return false;
+
+    // check ammo ws. weapon compatibility
+    switch (weapon_proto->GetSubClass())
+    {
+    case ITEM_SUBCLASS_WEAPON_BOW:
+    case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+        if (ammo_proto->GetSubClass() != ITEM_SUBCLASS_ARROW)
+            return false;
+        break;
+    case ITEM_SUBCLASS_WEAPON_GUN:
+        if (ammo_proto->GetSubClass() != ITEM_SUBCLASS_BULLET)
+            return false;
+        break;
+    default:
+        return false;
+    }
+
+    return true;
 }
 
 ObjectGuid Player::GetLootWorldObjectGUID(ObjectGuid const& lootObjectGuid) const
@@ -11474,6 +11545,33 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
 
             return EQUIP_ERR_OK;
         }
+    }
+    return EQUIP_ERR_ITEM_NOT_FOUND;
+}
+
+InventoryResult Player::CanUseAmmo(uint32 item) const
+{
+    //TODOFROST should arg be Item* ?
+    TC_LOG_DEBUG("entities.player.items", "STORAGE: CanUseAmmo item = %u", item);
+    if (!IsAlive())
+        return EQUIP_ERR_PLAYER_DEAD;
+    //if (isStunned())
+    //    return EQUIP_ERR_YOU_ARE_STUNNED;
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item);
+    if (proto)
+    {
+        if (proto->GetInventoryType() != INVTYPE_AMMO)
+            return EQUIP_ERR_AMMO_ONLY;
+
+        InventoryResult msg = CanUseItem(proto);
+        if (msg != EQUIP_ERR_OK)
+            return msg;
+
+        /*if (GetReputationMgr().GetReputation() < pProto->RequiredReputation)
+        return EQUIP_ERR_CANT_EQUIP_REPUTATION;
+        */
+
+        return EQUIP_ERR_OK;
     }
     return EQUIP_ERR_ITEM_NOT_FOUND;
 }
@@ -26374,6 +26472,41 @@ void Player::StoreLootItem(ObjectGuid lootWorldObjectGuid, uint8 lootSlot, Loot*
     }
     else
         SendEquipError(msg, nullptr, nullptr, item->itemid);
+}
+
+void Player::SetAmmo(uint32 item)
+{
+    if (!item)
+        return;
+
+    // already set
+    if (GetUInt32Value(UF::ACTIVE_PLAYER_FIELD_AMMO_ID) == item)
+        return;
+
+    // check ammo
+    if (item)
+    {
+        InventoryResult msg = CanUseAmmo(item);
+        if (msg != EQUIP_ERR_OK)
+        {
+            SendEquipError(msg, nullptr, nullptr, item);
+            return;
+        }
+    }
+
+    SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_AMMO_ID, item);
+
+    _ApplyAmmoBonuses();
+}
+
+void Player::RemoveAmmo()
+{
+    SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_AMMO_ID, 0);
+
+    m_ammoDPS = 0.0f;
+
+    if (CanModifyStats())
+        UpdateDamagePhysical(RANGED_ATTACK);
 }
 
 uint32 Player::GetNumTalentsAtLevel(uint32 level) const

@@ -417,6 +417,7 @@ namespace WorldPackets
         class SortBankBags;
         struct ItemInstance;
         class RemoveNewItem;
+        class SetAmmo;
     }
 
     namespace LFG
@@ -1446,6 +1447,7 @@ class TC_GAME_API WorldSession
         void HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet);
         void HandleWrapItem(WorldPackets::Item::WrapItem& packet);
         void HandleUseCritterItem(WorldPackets::Item::UseCritterItem& packet);
+        void HandleSetAmmoOpcode(WorldPackets::Item::SetAmmo& packet);
 
         void HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet);
         void HandleAttackStopOpcode(WorldPackets::Combat::AttackStop& packet);

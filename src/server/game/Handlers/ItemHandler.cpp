@@ -1214,6 +1214,28 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
     _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
 }
 
+void WorldSession::HandleSetAmmoOpcode(WorldPackets::Item::SetAmmo& setAmmo)
+{
+    if (!GetPlayer()->IsAlive())
+    {
+        GetPlayer()->SendEquipError(EQUIP_ERR_PLAYER_DEAD, nullptr, nullptr);
+        return;
+    }
+
+    if (setAmmo.ItemID)
+    {
+        if (!_player->GetItemCount(setAmmo.ItemID))
+        {
+            _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
+            return;
+        }
+
+        _player->SetAmmo(setAmmo.ItemID);
+    }
+    else
+        GetPlayer()->RemoveAmmo();
+}
+
 void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)
 {
     // TODO: Implement sorting

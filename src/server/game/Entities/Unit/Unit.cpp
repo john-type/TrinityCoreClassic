@@ -10480,6 +10480,8 @@ float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized) const
             return 2.4f;
         case ITEM_SUBCLASS_WEAPON_DAGGER:
             return 1.7f;
+        case ITEM_SUBCLASS_WEAPON_BOW:
+        case ITEM_SUBCLASS_WEAPON_CROSSBOW:
         case ITEM_SUBCLASS_WEAPON_THROWN:
             return 2.0f;
         default:

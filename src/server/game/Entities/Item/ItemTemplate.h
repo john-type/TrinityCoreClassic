@@ -831,7 +831,8 @@ struct TC_GAME_API ItemTemplate
         return IsWeapon() &&
                (GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW ||
                GetSubClass() == ITEM_SUBCLASS_WEAPON_GUN ||
-               GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW);
+               GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW ||
+               GetSubClass() == ITEM_SUBCLASS_THROWN);
     }
 
     inline bool HasFlag(ItemFlags flag) const { return (ExtendedData->Flags[0] & flag) != 0; }

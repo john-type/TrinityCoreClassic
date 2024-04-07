@@ -357,3 +357,8 @@ void WorldPackets::Item::RemoveNewItem::Read()
 {
     _worldPacket >> ItemGuid;
 }
+
+void WorldPackets::Item::SetAmmo::Read()
+{
+    _worldPacket >> ItemID;
+}

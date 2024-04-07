@@ -1413,6 +1413,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         InventoryResult CanUnequipItem(uint16 src, bool swap) const;
         InventoryResult CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap, bool not_loading = true) const;
         InventoryResult CanUseItem(Item* pItem, bool not_loading = true) const;
+        InventoryResult CanUseAmmo(uint32 item) const;
         bool HasItemTotemCategory(uint32 TotemCategory) const;
         InventoryResult CanUseItem(ItemTemplate const* pItem, bool skipRequiredLevelCheck = false) const;
         InventoryResult CanRollForItemInLFG(ItemTemplate const* item, WorldObject const* lootedObject) const;
@@ -1427,7 +1428,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, ItemContext context = ItemContext::NONE, bool broadcast = false, bool createdByPlayer = false);
         void AutoStoreLoot(uint32 loot_id, LootStore const& store, ItemContext context = ItemContext::NONE, bool broadcast = false, bool createdByPlayer = false) { AutoStoreLoot(NULL_BAG, NULL_SLOT, loot_id, store, context, broadcast, createdByPlayer); }
         void StoreLootItem(ObjectGuid lootWorldObjectGuid, uint8 lootSlot, Loot* loot, AELootResult* aeResult = nullptr);
-
+        void SetAmmo(uint32 item);
+        void RemoveAmmo();
+        float GetAmmoDPS() const { return m_ammoDPS; }
+        bool CheckAmmoCompatibility(ItemTemplate const* ammo_proto) const;
         InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = nullptr, uint32* offendingItemId = nullptr) const;
         InventoryResult CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 entry, uint32 count, Item* pItem = nullptr, bool swap = false, uint32* no_space_count = nullptr) const;
 
@@ -2399,6 +2403,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _ApplyAllLevelScaleItemMods(bool apply);
         void _ApplyItemBonuses(Item* item, uint8 slot, bool apply);
         void _ApplyWeaponDamage(uint8 slot, Item* item, bool apply);
+        void _ApplyAmmoBonuses();
         bool EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot) const;
         void ToggleMetaGemsActive(uint8 exceptslot, bool apply);
         void CorrectMetaGemEnchants(uint8 slot, bool apply);
@@ -3176,6 +3181,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool m_canTitanGrip;
         uint32 m_titanGripPenaltySpellId;
         uint8 m_swingErrorMsg;
+        float m_ammoDPS;
 
         // Social
         PlayerSocial* m_social;
