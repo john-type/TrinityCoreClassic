@@ -144,11 +144,13 @@ WorldPacket const* WorldPackets::Battleground::PVPMatchStatisticsMessage::Write(
 
 void WorldPackets::Battleground::BattlemasterJoin::Read()
 {
-    QueueIDs.resize(_worldPacket.read<uint32>());
+    _worldPacket >> QueueID;
     _worldPacket >> Roles;
     _worldPacket >> BlacklistMap[0] >> BlacklistMap[1];
-    for (uint64& queueId : QueueIDs)
-        _worldPacket >> queueId;
+    _worldPacket >> BattlemasterGuid;
+    _worldPacket >> Verification;
+    _worldPacket >> BattlefieldInstanceID;
+    AsGroup = _worldPacket.ReadBit();
 }
 
 void WorldPackets::Battleground::BattlemasterJoinArena::Read()
@@ -206,7 +208,6 @@ WorldPacket const* WorldPackets::Battleground::BattlefieldStatusQueued::Write()
     _worldPacket << Hdr;
     _worldPacket << uint32(AverageWaitTime);
     _worldPacket << uint32(WaitTime);
-    _worldPacket << int32(Unused920);
     _worldPacket.WriteBit(AsGroup);
     _worldPacket.WriteBit(EligibleForMatchmaking);
     _worldPacket.WriteBit(SuspendedQueue);
@@ -236,7 +237,9 @@ void WorldPackets::Battleground::BattlefieldListRequest::Read()
 
 WorldPacket const* WorldPackets::Battleground::BattlefieldList::Write()
 {
+    const int32 verification = 121761856;   //TODOFROST check verification usage.
     _worldPacket << BattlemasterGuid;
+    _worldPacket << verification;
     _worldPacket << int32(BattlemasterListID);
     _worldPacket << uint8(MinLevel);
     _worldPacket << uint8(MaxLevel);

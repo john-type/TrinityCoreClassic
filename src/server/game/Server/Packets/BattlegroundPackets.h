@@ -223,7 +223,6 @@ namespace WorldPackets
             bool SuspendedQueue = false;
             bool EligibleForMatchmaking = false;
             uint32 WaitTime = 0;
-            int32 Unused920 = 0;
         };
 
         class BattlefieldStatusFailed final : public ServerPacket
@@ -246,9 +245,14 @@ namespace WorldPackets
 
             void Read() override;
 
-            Array<uint64, 1> QueueIDs;
+            uint64 QueueID;
             uint8 Roles = 0;
             int32 BlacklistMap[2] = { };
+            ObjectGuid BattlemasterGuid;
+            int32 Verification;
+            int32 BattlefieldInstanceID;
+            bool AsGroup;
+            
         };
 
         class BattlemasterJoinArena final : public ClientPacket
