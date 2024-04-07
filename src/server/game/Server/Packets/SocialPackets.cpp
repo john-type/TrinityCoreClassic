@@ -130,7 +130,6 @@ void WorldPackets::Social::SetContactNotes::Read()
 void WorldPackets::Social::AddIgnore::Read()
 {
     uint32 nameLength = _worldPacket.ReadBits(9);
-    _worldPacket >> AccountGUID;
     Name = _worldPacket.ReadString(nameLength);
 }
 

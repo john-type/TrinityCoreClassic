@@ -134,7 +134,6 @@ namespace WorldPackets
             void Read() override;
 
             std::string Name;
-            ObjectGuid AccountGUID;
         };
 
         class DelIgnore final : public ClientPacket

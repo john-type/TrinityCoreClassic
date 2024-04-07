@@ -38,84 +38,83 @@ void WorldSession::HandleContactListOpcode(WorldPackets::Social::SendContactList
 
 void WorldSession::HandleAddFriendOpcode(WorldPackets::Social::AddFriend& packet)
 {
-    //TODOFROST
-//    if (!normalizePlayerName(packet.Name))
-//        return;
-//
-//    TC_LOG_DEBUG("network", "WorldSession::HandleAddFriendOpcode: %s asked to add friend: %s",
-//        GetPlayerInfo().c_str(), packet.Name.c_str());
-//
-//    CharacterCacheEntry const* friendCharacterInfo = sCharacterCache->GetCharacterCacheByName(packet.Name);
-//    if (!friendCharacterInfo)
-//    {
-//        sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_NOT_FOUND, ObjectGuid::Empty);
-//        return;
-//    }
-//
-//    auto processFriendRequest = [this,
-//        playerGuid = _player->GetGUID(),
-//        friendGuid = friendCharacterInfo->Guid,
-//        friendAccountGuid = ObjectGuid::Create<HighGuid::WowAccount>(friendCharacterInfo->AccountId),
-//        team = Player::TeamForRace(friendCharacterInfo->Race),
-//        friendNote = std::move(packet.Notes)]()
-//    {
-//        if (playerGuid.GetCounter() != m_GUIDLow)
-//            return; // not the player initiating request, do nothing
-//
-//        FriendsResult friendResult = FRIEND_NOT_FOUND;
-//        if (friendGuid == GetPlayer()->GetGUID())
-//            friendResult = FRIEND_SELF;
-//        else if (GetPlayer()->GetTeam() != team && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_ADD_FRIEND))
-//            friendResult = FRIEND_ENEMY;
-//        else if (GetPlayer()->GetSocial()->HasFriend(friendGuid))
-//            friendResult = FRIEND_ALREADY;
-//        else
-//        {
-//            Player* pFriend = ObjectAccessor::FindPlayer(friendGuid);
-//            if (pFriend && pFriend->IsVisibleGloballyFor(GetPlayer()))
-//                friendResult = FRIEND_ADDED_ONLINE;
-//            else
-//                friendResult = FRIEND_ADDED_OFFLINE;
-//            if (GetPlayer()->GetSocial()->AddToSocialList(friendGuid, friendAccountGuid, SOCIAL_FLAG_FRIEND))
-//                GetPlayer()->GetSocial()->SetFriendNote(friendGuid, friendNote);
-//            else
-//                friendResult = FRIEND_LIST_FULL;
-//        }
-//
-//        sSocialMgr->SendFriendStatus(GetPlayer(), friendResult, friendGuid);
-//    };
-//
-//    if (HasPermission(rbac::RBAC_PERM_ALLOW_GM_FRIEND))
-//    {
-//        processFriendRequest();
-//        return;
-//    }
-//
-//    // First try looking up friend candidate security from online object
-//    if (Player* friendPlayer = ObjectAccessor::FindPlayer(friendCharacterInfo->Guid))
-//    {
-//        if (!AccountMgr::IsPlayerAccount(friendPlayer->GetSession()->GetSecurity()))
-//        {
-//            sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_NOT_FOUND, ObjectGuid::Empty);
-//            return;
-//        }
-//
-//        processFriendRequest();
-//        return;
-//    }
-//
-//    // When not found, consult database
-//    GetQueryProcessor().AddCallback(AccountMgr::GetSecurityAsync(friendCharacterInfo->AccountId, realm.Id.Realm,
-//        [this, continuation = std::move(processFriendRequest)](uint32 friendSecurity)
-//    {
-//        if (!AccountMgr::IsPlayerAccount(friendSecurity))
-//        {
-//            sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_NOT_FOUND, ObjectGuid::Empty);
-//            return;
-//        }
-//
-//        continuation();
-//    }));
+    if (!normalizePlayerName(packet.Name))
+        return;
+
+    TC_LOG_DEBUG("network", "WorldSession::HandleAddFriendOpcode: %s asked to add friend: %s",
+        GetPlayerInfo().c_str(), packet.Name.c_str());
+
+    CharacterCacheEntry const* friendCharacterInfo = sCharacterCache->GetCharacterCacheByName(packet.Name);
+    if (!friendCharacterInfo)
+    {
+        sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_NOT_FOUND, ObjectGuid::Empty);
+        return;
+    }
+
+    auto processFriendRequest = [this,
+        playerGuid = _player->GetGUID(),
+        friendGuid = friendCharacterInfo->Guid,
+        friendAccountGuid = ObjectGuid::Create<HighGuid::WowAccount>(friendCharacterInfo->AccountId),
+        team = Player::TeamForRace(friendCharacterInfo->Race),
+        friendNote = std::move(packet.Notes)]()
+    {
+        if (playerGuid.GetCounter() != m_GUIDLow)
+            return; // not the player initiating request, do nothing
+
+        FriendsResult friendResult = FRIEND_NOT_FOUND;
+        if (friendGuid == GetPlayer()->GetGUID())
+            friendResult = FRIEND_SELF;
+        else if (GetPlayer()->GetTeam() != team && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_ADD_FRIEND))
+            friendResult = FRIEND_ENEMY;
+        else if (GetPlayer()->GetSocial()->HasFriend(friendGuid))
+            friendResult = FRIEND_ALREADY;
+        else
+        {
+            Player* pFriend = ObjectAccessor::FindPlayer(friendGuid);
+            if (pFriend && pFriend->IsVisibleGloballyFor(GetPlayer()))
+                friendResult = FRIEND_ADDED_ONLINE;
+            else
+                friendResult = FRIEND_ADDED_OFFLINE;
+            if (GetPlayer()->GetSocial()->AddToSocialList(friendGuid, friendAccountGuid, SOCIAL_FLAG_FRIEND))
+                GetPlayer()->GetSocial()->SetFriendNote(friendGuid, friendNote);
+            else
+                friendResult = FRIEND_LIST_FULL;
+        }
+
+        sSocialMgr->SendFriendStatus(GetPlayer(), friendResult, friendGuid);
+    };
+
+    if (HasPermission(rbac::RBAC_PERM_ALLOW_GM_FRIEND))
+    {
+        processFriendRequest();
+        return;
+    }
+
+    // First try looking up friend candidate security from online object
+    if (Player* friendPlayer = ObjectAccessor::FindPlayer(friendCharacterInfo->Guid))
+    {
+        if (!AccountMgr::IsPlayerAccount(friendPlayer->GetSession()->GetSecurity()))
+        {
+            sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_NOT_FOUND, ObjectGuid::Empty);
+            return;
+        }
+
+        processFriendRequest();
+        return;
+    }
+
+    // When not found, consult database
+    GetQueryProcessor().AddCallback(AccountMgr::GetSecurityAsync(friendCharacterInfo->AccountId, realm.Id.Realm,
+        [this, continuation = std::move(processFriendRequest)](uint32 friendSecurity)
+    {
+        if (!AccountMgr::IsPlayerAccount(friendSecurity))
+        {
+            sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_NOT_FOUND, ObjectGuid::Empty);
+            return;
+        }
+
+        continuation();
+    }));
 }
 
 void WorldSession::HandleDelFriendOpcode(WorldPackets::Social::DelFriend& packet)

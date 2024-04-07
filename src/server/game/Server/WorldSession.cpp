@@ -1409,7 +1409,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_QUEST_GIVER_ACCEPT_QUEST:             //   0               4
         case CMSG_QUEST_LOG_REMOVE_QUEST:               //   0               4
         case CMSG_QUEST_GIVER_CHOOSE_REWARD:            //   0               4
-        //TODOFROST case CMSG_SEND_CONTACT_LIST:                    //   0               5
+        case CMSG_SEND_CONTACT_LIST:                         //   0               5
         case CMSG_AUTOBANK_ITEM:                        //   0               6
         case CMSG_AUTOSTORE_BANK_ITEM:                  //   0               6
         case CMSG_WHO:                                  //   0               7
