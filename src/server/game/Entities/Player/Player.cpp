@@ -8371,7 +8371,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo)
                             continue;
                         // Check if item is useable (forms or disarm)
                         if (damageInfo.GetAttackType() == BASE_ATTACK)
-                            if (!IsUseEquipedWeapon(true) && !IsInFeralForm())
+                            if (!CanUseEquippedWeapon(BASE_ATTACK) && !IsInFeralForm())
                                 continue;
                     }
 
@@ -9238,7 +9238,10 @@ uint8 Player::FindEquipSlot(Item const* item, uint32 slot, bool swap) const
     slots[1] = NULL_SLOT;
     slots[2] = NULL_SLOT;
     slots[3] = NULL_SLOT;
-    switch (item->GetTemplate()->GetInventoryType())
+
+    const ItemTemplate* proto = item->GetTemplate();
+
+    switch (proto->GetInventoryType())
     {
         case INVTYPE_HEAD:
             slots[0] = EQUIPMENT_SLOT_HEAD;
@@ -9298,7 +9301,7 @@ uint8 Player::FindEquipSlot(Item const* item, uint32 slot, bool swap) const
             slots[0] = EQUIPMENT_SLOT_OFFHAND;
             break;
         case INVTYPE_RANGED:
-            slots[0] = EQUIPMENT_SLOT_MAINHAND;
+            slots[0] = EQUIPMENT_SLOT_RANGED;
             break;
         case INVTYPE_2HWEAPON:
             slots[0] = EQUIPMENT_SLOT_MAINHAND;
@@ -9317,14 +9320,40 @@ uint8 Player::FindEquipSlot(Item const* item, uint32 slot, bool swap) const
         case INVTYPE_HOLDABLE:
             slots[0] = EQUIPMENT_SLOT_OFFHAND;
             break;
+        case INVTYPE_THROWN:
+            slots[0] = EQUIPMENT_SLOT_RANGED;
+            break;
         case INVTYPE_RANGEDRIGHT:
-            slots[0] = EQUIPMENT_SLOT_MAINHAND;
+            slots[0] = EQUIPMENT_SLOT_RANGED;
             break;
         case INVTYPE_BAG:
             slots[0] = INVENTORY_SLOT_BAG_START + 0;
             slots[1] = INVENTORY_SLOT_BAG_START + 1;
             slots[2] = INVENTORY_SLOT_BAG_START + 2;
             slots[3] = INVENTORY_SLOT_BAG_START + 3;
+            break;
+        case INVTYPE_RELIC:
+            {
+                const auto classId = GetClass();
+                switch (proto->GetSubClass()) {
+                case ITEM_SUBCLASS_ARMOR_LIBRAM:
+                    if (classId == CLASS_PALADIN)
+                        slots[0] = EQUIPMENT_SLOT_RANGED;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_IDOL:
+                    if (classId == CLASS_DRUID)
+                        slots[0] = EQUIPMENT_SLOT_RANGED;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_TOTEM:
+                    if (classId == CLASS_SHAMAN)
+                        slots[0] = EQUIPMENT_SLOT_RANGED;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_MISCELLANEOUS:
+                    if (classId == CLASS_WARLOCK)
+                        slots[0] = EQUIPMENT_SLOT_RANGED;
+                    break;
+                }
+            }
             break;
         default:
             return NULL_SLOT;
@@ -9584,10 +9613,17 @@ Item* Player::GetWeaponForAttack(WeaponAttackType attackType, bool useable /*= f
     uint8 slot;
     switch (attackType)
     {
-        case BASE_ATTACK:   slot = EQUIPMENT_SLOT_MAINHAND; break;
-        case OFF_ATTACK:    slot = EQUIPMENT_SLOT_OFFHAND;  break;
-        case RANGED_ATTACK: slot = EQUIPMENT_SLOT_MAINHAND;   break;
-        default: return nullptr;
+        case BASE_ATTACK:
+            slot = EQUIPMENT_SLOT_MAINHAND;
+            break;
+        case OFF_ATTACK:
+            slot = EQUIPMENT_SLOT_OFFHAND;
+            break;
+        case RANGED_ATTACK:
+            slot = EQUIPMENT_SLOT_RANGED;
+            break;
+        default:
+            return nullptr;
     }
 
     Item* item;
@@ -9599,11 +9635,12 @@ Item* Player::GetWeaponForAttack(WeaponAttackType attackType, bool useable /*= f
     if (!item || item->GetTemplate()->GetClass() != ITEM_CLASS_WEAPON)
         return nullptr;
 
-    if ((attackType == RANGED_ATTACK) != item->GetTemplate()->IsRangedWeapon())
-        return nullptr;
+    //TODOFROST - check, trinity had this, vmangos doesnt.
+    //if ((attackType == RANGED_ATTACK) != item->GetTemplate()->IsRangedWeapon())
+    //    return nullptr;
 
-    if (!useable)
-        return item;
+    if (useable && !CanUseEquippedWeapon(attackType))
+        return nullptr;
 
     if (item->IsBroken())
         return nullptr;
@@ -9650,9 +9687,14 @@ WeaponAttackType Player::GetAttackBySlot(uint8 slot, InventoryType inventoryType
 {
     switch (slot)
     {
-        case EQUIPMENT_SLOT_MAINHAND: return inventoryType != INVTYPE_RANGED && inventoryType != INVTYPE_RANGEDRIGHT ? BASE_ATTACK : RANGED_ATTACK;
-        case EQUIPMENT_SLOT_OFFHAND:  return OFF_ATTACK;
-        default:                      return MAX_ATTACK;
+        case EQUIPMENT_SLOT_MAINHAND:
+            return inventoryType != INVTYPE_RANGED && inventoryType != INVTYPE_RANGEDRIGHT ? BASE_ATTACK : RANGED_ATTACK;
+        case EQUIPMENT_SLOT_OFFHAND:
+            return OFF_ATTACK;
+        case EQUIPMENT_SLOT_RANGED:
+            return RANGED_ATTACK;
+        default:
+            return MAX_ATTACK;
     }
 }
 
@@ -13328,10 +13370,20 @@ void Player::SendSellError(SellResult msg, Creature* creature, ObjectGuid guid) 
     SendDirectMessage(sellResponse.Write());
 }
 
-bool Player::IsUseEquipedWeapon(bool mainhand) const
+bool Player::CanUseEquippedWeapon(WeaponAttackType attackType) const
 {
-    // disarm applied only to mainhand weapon
-    return !IsInFeralForm() && (!mainhand || !HasUnitFlag(UNIT_FLAG_DISARMED));
+    if (IsInFeralForm())
+        return false;
+
+    switch (attackType)
+    {
+    case OFF_ATTACK:
+    case RANGED_ATTACK:
+        return true;
+    case BASE_ATTACK:
+    default:
+        return !HasUnitFlag(UNIT_FLAG_DISARMED);
+    }
 }
 
 void Player::SetCanTitanGrip(bool value, uint32 penaltySpellId /*= 0*/)
@@ -13365,9 +13417,7 @@ bool Player::IsTwoHandUsed() const
         return false;
 
     ItemTemplate const* itemTemplate = mainItem->GetTemplate();
-    return (itemTemplate->GetInventoryType() == INVTYPE_2HWEAPON && !CanTitanGrip()) ||
-        itemTemplate->GetInventoryType() == INVTYPE_RANGED ||
-        (itemTemplate->GetInventoryType() == INVTYPE_RANGEDRIGHT && itemTemplate->GetClass() == ITEM_CLASS_WEAPON && itemTemplate->GetSubClass() != ITEM_SUBCLASS_WEAPON_WAND);
+    return (itemTemplate->GetInventoryType() == INVTYPE_2HWEAPON && !CanTitanGrip());
 }
 
 bool Player::IsUsingTwoHandedWeaponInOneHand() const
@@ -25186,12 +25236,12 @@ bool Player::HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item cons
     {
         case ITEM_CLASS_WEAPON:
         {
-            if (Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-                if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
-                    return true;
-            if (Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
-                    return true;
+            for (int i = EQUIPMENT_SLOT_MAINHAND; i <= EQUIPMENT_SLOT_RANGED; ++i) {
+                if (Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i))
+                    if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
+                        return true;
+            }
+
             break;
         }
         case ITEM_CLASS_ARMOR:

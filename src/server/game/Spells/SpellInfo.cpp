@@ -2142,7 +2142,7 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
                     if (unitTarget->GetTypeId() == TYPEID_PLAYER)
                     {
                         Player const* player = unitTarget->ToPlayer();
-                        if (!player->GetWeaponForAttack(BASE_ATTACK) || !player->IsUseEquipedWeapon(true))
+                        if (!player->GetWeaponForAttack(BASE_ATTACK) || !player->CanUseEquippedWeapon(BASE_ATTACK))
                             return SPELL_FAILED_TARGET_NO_WEAPONS;
                     }
                     else if (!unitTarget->GetVirtualItemId(0))
