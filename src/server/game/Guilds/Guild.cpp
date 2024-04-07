@@ -48,7 +48,7 @@ uint32 const EMBLEM_PRICE = 10 * GOLD;
 inline uint64 GetGuildBankTabPrice(uint8 tabId)
 {
     // these prices are in gold units, not copper
-    static uint64 const tabPrices[GUILD_BANK_MAX_TABS] = { 100, 250, 500, 1000, 2500, 5000, 0, 0 };
+    static uint64 const tabPrices[GUILD_BANK_MAX_TABS] = { 100, 250, 500, 1000, 2500, 5000 };
     ASSERT(tabId < GUILD_BANK_MAX_TABS);
 
     return tabPrices[tabId];
@@ -1354,6 +1354,7 @@ void Guild::SendQueryResponse(WorldSession* session)
 {
     WorldPackets::Guild::QueryGuildInfoResponse response;
     response.GuildGuid = GetGUID();
+    response.PlayerGuid = session->GetPlayer()->GetGUID();
     response.Info.emplace();
 
     response.Info->GuildGUID = GetGUID();
