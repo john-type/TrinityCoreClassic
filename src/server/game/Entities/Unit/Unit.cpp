@@ -7865,16 +7865,44 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
 
 void Unit::UpdateMountCapability()
 {
-    AuraEffectList mounts = GetAuraEffectsByType(SPELL_AURA_MOUNTED);
-    for (AuraEffect* aurEff : mounts)
+    //TODOFROST - check copied from vmangos.
+    if (IsMounted())
     {
-        aurEff->RecalculateAmount();
-        if (!aurEff->GetAmount())
-            aurEff->GetBase()->Remove();
-        else if (MountCapabilityEntry const* capability = sMountCapabilityStore.LookupEntry(aurEff->GetAmount())) // aura may get removed by interrupt flag, reapply
-            if (!HasAura(capability->ModSpellAuraID))
-                CastSpell(this, capability->ModSpellAuraID, aurEff);
+        AuraEffectList auras = GetAuraEffectsByType(SPELL_AURA_MOUNTED);
+        bool needsDismount = false;
+
+        for (auto& aura : auras)
+        {
+            Spell mountSpell(this, aura->GetSpellInfo(), TRIGGERED_FULL_MASK);
+            SpellCastResult pCheck = mountSpell.CheckCast(true);
+
+            if (pCheck == SPELL_FAILED_NO_MOUNTS_ALLOWED || pCheck == SPELL_FAILED_NOT_HERE)
+            {
+                needsDismount = true;
+                break;
+            }
+        }
+
+        if (needsDismount) {
+            Dismount();
+            for (auto& aura : auras)
+            {
+                RemoveAurasDueToSpell(aura->GetId());
+            }
+        }
     }
+
+    //TODOFROST CHECK - MountCompatability isnt available with 1.14 - also check references to SPELL_AURA_MOUNTED and mountcompatability store.
+    //AuraEffectList mounts = GetAuraEffectsByType(SPELL_AURA_MOUNTED);
+    //for (AuraEffect* aurEff : mounts)
+    //{
+    //    aurEff->RecalculateAmount();
+    //    if (!aurEff->GetAmount())
+    //        aurEff->GetBase()->Remove();
+    //    else if (MountCapabilityEntry const* capability = sMountCapabilityStore.LookupEntry(aurEff->GetAmount())) // aura may get removed by interrupt flag, reapply
+    //        if (!HasAura(capability->ModSpellAuraID))
+    //            CastSpell(this, capability->ModSpellAuraID, aurEff);
+    //}
 }
 
 bool Unit::IsServiceProvider() const
