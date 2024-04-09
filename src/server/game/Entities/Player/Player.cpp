@@ -2534,6 +2534,13 @@ void Player::InitStatsForLevel(bool reapplyMods)
     for (uint8 i = BASE_ATTACK; i < MAX_ATTACK; ++i)
         SetBaseAttackTime(WeaponAttackType(i), BASE_ATTACK_TIME);
 
+
+    SetStatFloatValue(UF::UNIT_FIELD_MINDAMAGE, 0.0f);
+    SetStatFloatValue(UF::UNIT_FIELD_MAXDAMAGE, 0.0f);
+    SetStatFloatValue(UF::UNIT_FIELD_MINOFFHANDDAMAGE, 0.0f);
+    SetStatFloatValue(UF::UNIT_FIELD_MAXOFFHANDDAMAGE, 0.0f);
+    SetStatFloatValue(UF::UNIT_FIELD_MINRANGEDDAMAGE, 0.0f);
+    SetStatFloatValue(UF::UNIT_FIELD_MAXRANGEDDAMAGE, 0.0f);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::MinDamage), 0.0f);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::MaxDamage), 0.0f);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::MinOffHandDamage), 0.0f);
@@ -2579,6 +2586,12 @@ void Player::InitStatsForLevel(bool reapplyMods)
 
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModTargetResistance), 0);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModTargetPhysicalResistance), 0);
+
+    for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
+    {
+        SetUInt32Value(UF::UNIT_FIELD_POWER_COST_MODIFIER + i, 0);
+        SetFloatValue(UF::UNIT_FIELD_POWER_COST_MULTIPLIER + i, 0.0f);
+    }
 
     // Reset no reagent cost field
     SetNoRegentCostMask(flag128());

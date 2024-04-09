@@ -5067,7 +5067,7 @@ void Spell::SendChannelStart(uint32 duration)
             if (target.EffectMask & channelAuraMask)
                 unitCaster->AddChannelObject(target.TargetGUID);
     }
-    else if (m_spellInfo->HasAttribute(SPELL_ATTR1_IS_SELF_CHANNELLED))
+    else if (m_spellInfo->IsChanneled()) //TODOFROST check (was)  ->HasAttribute(SPELL_ATTR1_IS_SELF_CHANNELLED)
         unitCaster->AddChannelObject(unitCaster->GetGUID());
 
     if (Creature* creatureCaster = unitCaster->ToCreature())

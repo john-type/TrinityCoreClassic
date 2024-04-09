@@ -1620,13 +1620,22 @@ class TC_GAME_API Unit : public WorldObject
                 .ModifyValue(&UF::UnitData::ChannelData)
                 .ModifyValue(&UF::UnitChannel::SpellXSpellVisualID), spellXSpellVisual);
         }
-        void AddChannelObject(ObjectGuid guid) { AddDynamicUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects)) = guid; }
-        void SetChannelObject(uint32 slot, ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects, slot), guid); }
+        void AddChannelObject(ObjectGuid guid) {
+            AddDynamicStructuredValue(UF::UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS, &guid);
+            AddDynamicUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects)) = guid;
+        }
+        void SetChannelObject(uint32 slot, ObjectGuid guid) {
+            SetDynamicStructuredValue(UF::UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS, 0, &guid);
+            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects, slot), guid);
+        }
         void RemoveChannelObject(ObjectGuid guid)
         {
             int32 index = m_unitData->ChannelObjects.FindIndex(guid);
-            if (index >= 0)
+            if (index >= 0) {
+                //TODOFROST CHECK
+                ClearDynamicValue(UF::UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS);
                 RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects), index);
+            }
         }
         void ClearChannelObjects() { ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects)); }
 
