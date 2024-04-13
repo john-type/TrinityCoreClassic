@@ -5,6 +5,8 @@ import database as db
 
 next_entry_guid = 333000
 
+imported_entry_guids = []
+
 def Import():
     global next_entry_guid
     next_creature_row = db.tri_world.get_row("SELECT MAX(guid) FROM creature")
@@ -12,9 +14,9 @@ def Import():
     
     # clean_templates_check_vmangos()
     # clean_entries_check_vmangos()
-    import_templates_vmangos()
-    import_entries_vmangos()
-    update_instance_info()
+    # import_templates_vmangos()
+    #import_entries_vmangos()
+    #update_instance_info()
 
 def clean_templates_check_vmangos():
     db.tri_world.chunk(
@@ -126,6 +128,7 @@ def import_entries_vmangos():
     )
 
 def _handle_import_entry_row(row):
+    global imported_entry_guids
     
     exact_match = db.tri_world.get_row("SELECT guid, id FROM creature WHERE guid = %s AND id = %s", (row[0], row[1],))
     if exact_match != None:
@@ -148,6 +151,10 @@ def _handle_import_entry_row(row):
                                 row[4] + diff,
                                 row[2],
                                 )) 
+        
+        for match in matches:
+            if match[0] in imported_entry_guids:
+                matches.remove(match)
         
         matches_len = len(matches)
         if(matches_len == 1):
@@ -248,7 +255,6 @@ def _upsert_creature_template(vm_ct_id, tri_ct_id = None) :
                              "%s, %s, %s, %s, %s, 40618"
                              ")", (vm_ct_id, display_index, display[0], display[1], display[2],))
         display_index += 1
-
     
 def _upsert_creature_entry(vm_ce_guid, tri_ce_guid = None):
     global next_entry_guid
@@ -281,6 +287,9 @@ def _upsert_creature_entry(vm_ce_guid, tri_ce_guid = None):
         tri_ce_guid,
     )
     )
+    
+    global imported_entry_guids
+    imported_entry_guids.append(tri_ce_guid)
 
     # check if is an event creature.
     event_rows = db.vm_world.get_rows("SELECT guid, event FROM game_event_creature WHERE guid = %s", (vm_ce_guid,))

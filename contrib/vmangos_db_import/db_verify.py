@@ -80,15 +80,15 @@ def _handle_verify_creature_template_row(row):
     return 0
 
 def verify_creatures():
-    vm_count_row = db.vm_world.get_row("SELECT COUNT(*) FROM creature")
+    vm_count_row = db.vm_world.get_row("SELECT COUNT(*) FROM creature WHERE patch_max = 10")
     tri_count_row = db.tri_world.get_row("SELECT COUNT(*) FROM creature")
     
     print("Vmangos Creature count: {}".format(vm_count_row[0]))
     print("Trinity Creature count: {}".format(tri_count_row[0]))
     
 def verify_gameobject_templates():
-    vm_count_row = db.vm_world.get_row("SELECT COUNT(*) FROM gameobject_template")
-    tri_count_row = db.tri_world.get_row("SELECT COUNT(*) FROM gameobject_template")
+    vm_count_row = db.vm_world.get_row("SELECT COUNT(DISTINCT entry) FROM gameobject_template")
+    tri_count_row = db.tri_world.get_row("SELECT COUNT(DISTINCT entry) FROM gameobject_template")
     
     print("Vmangos GO Template count: {}".format(vm_count_row[0]))
     print("Trinity GO Template count: {}".format(tri_count_row[0]))
@@ -116,7 +116,7 @@ def _handle_verify_gameobject_template_row(row):
 
 def verify_gameobjects():
     
-    vm_count_row = db.vm_world.get_row("SELECT COUNT(*) FROM gameobject")
+    vm_count_row = db.vm_world.get_row("SELECT COUNT(*) FROM gameobject WHERE patch_max = 10")
     tri_count_row = db.tri_world.get_row("SELECT COUNT(*) FROM gameobject")
     
     print("Vmangos GO count: {}".format(vm_count_row[0]))
