@@ -3,12 +3,18 @@
 import constants
 import database as db
 
+next_entry_guid = 333000
+
 def Import():
+    global next_entry_guid
+    next_creature_row = db.tri_world.get_row("SELECT MAX(guid) FROM creature")
+    next_entry_guid = next_creature_row[0] + 1
+    
     # clean_templates_check_vmangos()
     # clean_entries_check_vmangos()
-    # import_templates_vmangos()
+    import_templates_vmangos()
     import_entries_vmangos()
-    # update_instance_info()
+    update_instance_info()
 
 def clean_templates_check_vmangos():
     db.tri_world.chunk(
@@ -16,7 +22,6 @@ def clean_templates_check_vmangos():
         500,
         _handle_clean_template_row
     )
-
 
 def _handle_clean_template_row(row):
     
@@ -69,8 +74,7 @@ def clean_entries_check_vmangos():
         "SELECT guid, id, map, position_x, position_y, position_z FROM creature LIMIT %s OFFSET %s",
         500,
         _handle_clean_entry_row
-    )
-    
+    )    
    
 def _handle_clean_entry_row(row):
     dest_creature_query = ("SELECT guid, id, map, position_x, position_y, position_z FROM creature "
@@ -94,12 +98,11 @@ def _handle_clean_entry_row(row):
      
 def import_templates_vmangos():
     db.vm_world.chunk(
-        "SELECT entry, name FROM creature_template LIMIT %s OFFSET %s",
+        "SELECT entry, name FROM creature_template ORDER BY patch ASC LIMIT %s OFFSET %s",
         500,
         _handle_import_template_row
     )
     
-        
 def _handle_import_template_row(row):
     matches = db.tri_world.get_rows(
         "SELECT entry, name FROM creature_template WHERE entry = %s ", 
@@ -110,19 +113,17 @@ def _handle_import_template_row(row):
     if(matches_len == 0):
         _upsert_creature_template(row[0])
     elif(matches_len == 1):
-        if(row[1] == matches[0][1]): #basic name check, TODO handle name not matching.
-            _upsert_creature_template(row[0], matches[0][0])
-            
+        _upsert_creature_template(row[0], matches[0][0])
+
     return 0
                     
 
 def import_entries_vmangos():
     db.vm_world.chunk(
-        "SELECT guid, id, map, position_x, position_y, position_z FROM creature LIMIT %s OFFSET %s",
+        "SELECT guid, id, map, position_x, position_y, position_z FROM creature WHERE patch_max = 10 LIMIT %s OFFSET %s",
         500,
         _handle_import_entry_row
     )
-
 
 def _handle_import_entry_row(row):
     
@@ -164,6 +165,11 @@ def _handle_import_entry_row(row):
             
             _upsert_creature_entry(row[0], nearest_match[0])  
             return 0
+        
+    guid_missing = db.tri_world.get_row("SELECT guid, id FROM creature WHERE guid = %s", (row[0],))
+    if guid_missing == None:
+        _upsert_creature_entry(row[0], 0 - row[0])
+        return 0
     
     _upsert_creature_entry(row[0])
     return 0
@@ -182,7 +188,8 @@ def _upsert_creature_template(vm_ct_id, tri_ct_id = None) :
         "SELECT entry, level_min, level_max, faction, gold_min, gold_max, rank, "
         "display_id1, display_id2, display_id3, display_id4, "
         "display_scale1, display_scale2, display_scale3, display_scale4, "
-        "display_probability1, display_probability2, display_probability3, display_probability4 "
+        "display_probability1, display_probability2, display_probability3, display_probability4, "
+        "name, subname, gossip_menu_id, npc_flags, speed_walk, speed_run  "
         "FROM creature_template "
         "WHERE entry = %s "
         "ORDER BY patch DESC LIMIT 1"),
@@ -192,23 +199,29 @@ def _upsert_creature_template(vm_ct_id, tri_ct_id = None) :
         return
     
     if tri_ct_id == None:
-        #TODO handle inserts.
-        return
-    
+        db.tri_world.execute("INSERT INTO creature_template (entry) VALUES (%s)", (vm_ct_id,))
+   
     update_template_query = ("UPDATE creature_template SET "
-                             "minLevel = %s, maxLevel = %s, faction = %s, minGold = %s, maxGold = %s, rank = %s, VerifiedBuild = 40618 "
-                             "WHERE entry = %s"
-                             )
-    
+                                "minLevel = %s, maxLevel = %s, faction = %s, minGold = %s, maxGold = %s, rank = %s, VerifiedBuild = 40618,  "
+                                "name = %s, subname = %s, gossip_menu_id = %s, npcflag = %s, speed_walk = %s, speed_run = %s "
+                                "WHERE entry = %s"
+                                )
+        
     db.tri_world.execute(update_template_query, (
-        vm_ct_row[1],
-        vm_ct_row[2],
-        vm_ct_row[3],
-        vm_ct_row[4],
-        vm_ct_row[5],
-        vm_ct_row[6],
-        vm_ct_id,
-    ))
+            vm_ct_row[1],
+            vm_ct_row[2],
+            vm_ct_row[3],
+            vm_ct_row[4],
+            vm_ct_row[5],
+            vm_ct_row[6],
+            vm_ct_row[19],
+            vm_ct_row[20],
+            vm_ct_row[21],
+            vm_ct_row[22],
+            vm_ct_row[23],
+            vm_ct_row[24],
+            vm_ct_id,
+        ))
     
     
     db.tri_world.execute("DELETE FROM creature_template_model WHERE CreatureID = %s", (vm_ct_id,))
@@ -235,31 +248,36 @@ def _upsert_creature_template(vm_ct_id, tri_ct_id = None) :
                              "%s, %s, %s, %s, %s, 40618"
                              ")", (vm_ct_id, display_index, display[0], display[1], display[2],))
         display_index += 1
-    
-    
+
     
 def _upsert_creature_entry(vm_ce_guid, tri_ce_guid = None):
-    vm_row = db.vm_world.get_row("SELECT guid, id, position_x, position_y, position_z, orientation FROM creature WHERE guid = %s", (vm_ce_guid,))
+    global next_entry_guid
+    vm_row = db.vm_world.get_row((
+        "SELECT guid, id, "
+        "map, position_x, position_y, position_z, orientation, "
+        "spawntimesecsmin, wander_distance, movement_type  FROM creature WHERE guid = %s"
+        ), (vm_ce_guid,))
     
     if vm_row == None:
         return
     
-    #TODO handle insert
-            
     if tri_ce_guid == None:
-        return
-    
+        tri_ce_guid = next_entry_guid
+        next_entry_guid += 1
+        db.tri_world.execute("INSERT INTO creature (guid, id) VALUES (%s, %s)", (tri_ce_guid, vm_row[1],))
+    elif tri_ce_guid < 0:
+        tri_ce_guid = abs(tri_ce_guid)
+        db.tri_world.execute("INSERT INTO creature (guid, id) VALUES (%s, %s)", (tri_ce_guid, vm_row[1],))
 
-    #TODO update all fields.
+    #TODO health / power / flags
     db.tri_world.execute((
         "UPDATE creature SET "
-        "position_x = %s, position_y = %s, position_z = %s, orientation = %s"
+        "map = %s, position_x = %s, position_y = %s, position_z = %s, orientation = %s, "
+        "spawntimesecs = %s, wander_distance = %s, MovementType = %s, VerifiedBuild = 40618 "
         "WHERE guid = %s"
     ), (
-        vm_row[2],
-        vm_row[3],
-        vm_row[4],
-        vm_row[5],
+        vm_row[2], vm_row[3], vm_row[4], vm_row[5], vm_row[6],
+        vm_row[7], vm_row[8], vm_row[9],
         tri_ce_guid,
     )
     )
@@ -279,4 +297,5 @@ def _upsert_creature_entry(vm_ce_guid, tri_ce_guid = None):
         if(len(tri_event_rows) == 0):
             #TODO ensure event id's match between tri and vm.
             db.tri_world.execute("INSERT INTO game_event_creature (guid, eventEntry) VALUES (%s, %s)", (tri_ce_guid, match_row[1],))
+        
         

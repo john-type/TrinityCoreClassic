@@ -24,6 +24,8 @@
 
 #define SPEED_CHARGE 42.0f // assume it is 25 yard per 0.6 second
 
+//TODOFROST - handle CYCLIC_MOTION_TYPE 
+
 // EnumUtils: DESCRIBE THIS
 enum MovementGeneratorType : uint8
 {
