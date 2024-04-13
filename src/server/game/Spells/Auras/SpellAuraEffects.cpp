@@ -5190,11 +5190,26 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
         return;
     }
 
+    
+
     if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId, GetBase()->GetCastDifficulty()))
     {
         if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo) ? caster : target)
         {
-            triggerCaster->CastSpell(target, triggerSpellId, this);
+            Unit* triggerTarget = target;
+            //TODOFROST - check - copied from vmangos to make arcane missles work.
+            if (GetSpellInfo()->IsChanneled() && GetSpellEffectInfo().Effect != SPELL_EFFECT_PERSISTENT_AREA_AURA) {
+                if (target->GetGUID() == caster->GetGUID() && target->m_unitData->ChannelObjects.size() > 0) {
+                    if (WorldObject const* channelTarget = ObjectAccessor::GetWorldObject(*target, target->m_unitData->ChannelObjects[0])) {
+                        if (channelTarget->isType(TYPEMASK_UNIT)) {
+                            triggerTarget = (Unit*)channelTarget;
+                        }
+                    }
+                }
+            }
+
+
+            triggerCaster->CastSpell(triggerTarget, triggerSpellId, this);
             TC_LOG_DEBUG("spells.aura.effect", "AuraEffect::HandlePeriodicTriggerSpellAuraTick: Spell %u Trigger %u", GetId(), triggeredSpellInfo->Id);
         }
     }

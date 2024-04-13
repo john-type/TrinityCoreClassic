@@ -1625,6 +1625,7 @@ class TC_GAME_API Unit : public WorldObject
             AddDynamicUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects)) = guid;
         }
         void SetChannelObject(uint32 slot, ObjectGuid guid) {
+            assert(slot == 0);
             SetDynamicStructuredValue(UF::UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS, 0, &guid);
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects, slot), guid);
         }
