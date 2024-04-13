@@ -1108,7 +1108,7 @@ enum SpellEffectName
     SPELL_EFFECT_SCHOOL_DAMAGE                      = 2,
     SPELL_EFFECT_DUMMY                              = 3,
     SPELL_EFFECT_PORTAL_TELEPORT                    = 4, // Unused (4.3.4)
-    SPELL_EFFECT_5                                  = 5,
+    SPELL_EFFECT_5                                  = 5,    //TODOFROST - vmangos has this as 'teleport units', possibly rename.
     SPELL_EFFECT_APPLY_AURA                         = 6,
     SPELL_EFFECT_ENVIRONMENTAL_DAMAGE               = 7,
     SPELL_EFFECT_POWER_DRAIN                        = 8,
