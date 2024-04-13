@@ -5350,8 +5350,9 @@ void Spell::HandleThreatSpells()
     if (m_UniqueTargetInfo.empty())
         return;
 
-    if (!m_spellInfo->HasInitialAggro())
-        return;
+    //TODOFROST - check - vmangos doesnt have this, including this causes some spells to incorrectly have no threat, e.g arcane missles.
+    /*if (!m_spellInfo->HasInitialAggro())
+        return;*/
 
     float threat = 0.0f;
     if (SpellThreatEntry const* threatEntry = sSpellMgr->GetSpellThreatEntry(m_spellInfo->Id))
