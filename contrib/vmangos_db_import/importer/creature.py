@@ -6,8 +6,8 @@ import database as db
 def Import():
     # clean_templates_check_vmangos()
     # clean_entries_check_vmangos()
-    import_templates_vmangos()
-    # import_entries_vmangos()
+    # import_templates_vmangos()
+    import_entries_vmangos()
     # update_instance_info()
 
 def clean_templates_check_vmangos():
@@ -127,44 +127,45 @@ def import_entries_vmangos():
 def _handle_import_entry_row(row):
     
     exact_match = db.tri_world.get_row("SELECT guid, id FROM creature WHERE guid = %s AND id = %s", (row[0], row[1],))
-
     if exact_match != None:
         _upsert_creature_entry(row[0], exact_match[0])
         return 0
     
-    dest_ct_query = ("SELECT guid, id, map, position_x, position_y, position_z FROM creature "
-                    "WHERE id = %s "
-                    "AND position_x BETWEEN %s AND %s "
-                    "AND position_y BETWEEN %s AND %s "
-                    "AND map = %s")
-    
-    diff = 5
-    matches = db.tri_world.get_rows(dest_ct_query, (
-                            row[1],
-                            row[3] - diff,
-                            row[3] + diff,
-                            row[4] - diff,
-                            row[4] + diff,
-                            row[2],
-                            )) 
-    
-    matches_len = len(matches)
-    if(matches_len == 0):
-        _upsert_creature_entry(row[0])
-    elif(matches_len == 1):
-        _upsert_creature_entry(row[0], matches[0][0])
-    elif(matches_len > 1):
-        nearest_match = matches[0]
-        nearest_abs = abs(matches[0][3] - row[3]) + abs(matches[0][4] - row[4])
+    diff_sizes = [5, 10, 15, 20, 35, 50, 100]
+    for diff in diff_sizes:  
+        dest_ct_query = ("SELECT guid, id, map, position_x, position_y, position_z FROM creature "
+                        "WHERE id = %s "
+                        "AND position_x BETWEEN %s AND %s "
+                        "AND position_y BETWEEN %s AND %s "
+                        "AND map = %s")
+        
+        matches = db.tri_world.get_rows(dest_ct_query, (
+                                row[1],
+                                row[3] - diff,
+                                row[3] + diff,
+                                row[4] - diff,
+                                row[4] + diff,
+                                row[2],
+                                )) 
+        
+        matches_len = len(matches)
+        if(matches_len == 1):
+            _upsert_creature_entry(row[0], matches[0][0])
+            return 0
+        elif(matches_len > 1):
+            nearest_match = matches[0]
+            nearest_abs = abs(matches[0][3] - row[3]) + abs(matches[0][4] - row[4])
 
-        for near_match in matches:
-            next_abs = abs(near_match[3] - row[3]) + abs(near_match[4] - row[4])
-            if(next_abs < nearest_abs):
-                nearest_match = near_match
-                nearest_abs = next_abs
-        
-        _upsert_creature_entry(row[0], nearest_match[0])  
-        
+            for near_match in matches:
+                next_abs = abs(near_match[3] - row[3]) + abs(near_match[4] - row[4])
+                if(next_abs < nearest_abs):
+                    nearest_match = near_match
+                    nearest_abs = next_abs
+            
+            _upsert_creature_entry(row[0], nearest_match[0])  
+            return 0
+    
+    _upsert_creature_entry(row[0])
     return 0
 
 def update_instance_info():
