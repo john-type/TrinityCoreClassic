@@ -7022,7 +7022,12 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(WorldLocation const& lo
     if (areaId == zoneId)
         return nullptr;
 
-    return GetClosestGraveyard(zoneId, location, team, conditionObject);
+    if (WorldSafeLocsEntry const* pGY = GetClosestGraveyard(zoneId, location, team, conditionObject))
+        return pGY;
+
+    if (zoneId != 0) // zone == 0 can't be fixed, used by bliz for bugged zones
+        TC_LOG_ERROR("sql.sql", "Table `game_graveyard_zone` incomplete: Zone %u Team %u does not have a linked graveyard.", zoneId, team);
+    return GetDefaultGraveyard(team);
 }
 
 WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(uint32 areaOrZoneId, WorldLocation const& location, uint32 team, WorldObject* conditionObject) const
@@ -7049,14 +7054,6 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(uint32 areaOrZoneId, Wo
     //     then check faction
     GraveyardMapBounds range = GraveyardStore.equal_range(areaOrZoneId);
     MapEntry const* map = sMapStore.LookupEntry(MapId);
-
-    // not need to check validity of map object; MapId _MUST_ be valid here
-    if (range.first == range.second && !map->IsBattlegroundOrArena())
-    {
-        if (areaOrZoneId != 0) // zone == 0 can't be fixed, used by bliz for bugged zones
-            TC_LOG_ERROR("sql.sql", "Table `game_graveyard_zone` incomplete: Zone %u Team %u does not have a linked graveyard.", areaOrZoneId, team);
-        return GetDefaultGraveyard(team);
-    }
 
     // at corpse map
     bool foundNear = false;
