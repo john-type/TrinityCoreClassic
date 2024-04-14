@@ -14,7 +14,7 @@ def Import():
     
     # clean_templates_check_vmangos()
     # clean_entries_check_vmangos()
-    # import_templates_vmangos()
+    import_templates_vmangos()
     #import_entries_vmangos()
     #update_instance_info()
 
@@ -196,7 +196,7 @@ def _upsert_creature_template(vm_ct_id, tri_ct_id = None) :
         "display_id1, display_id2, display_id3, display_id4, "
         "display_scale1, display_scale2, display_scale3, display_scale4, "
         "display_probability1, display_probability2, display_probability3, display_probability4, "
-        "name, subname, gossip_menu_id, npc_flags, speed_walk, speed_run  "
+        "name, subname, gossip_menu_id, npc_flags, speed_walk, speed_run, type, type_flags  "
         "FROM creature_template "
         "WHERE entry = %s "
         "ORDER BY patch DESC LIMIT 1"),
@@ -210,10 +210,15 @@ def _upsert_creature_template(vm_ct_id, tri_ct_id = None) :
    
     update_template_query = ("UPDATE creature_template SET "
                                 "minLevel = %s, maxLevel = %s, faction = %s, minGold = %s, maxGold = %s, rank = %s, VerifiedBuild = 40618,  "
-                                "name = %s, subname = %s, gossip_menu_id = %s, npcflag = %s, speed_walk = %s, speed_run = %s "
+                                "name = %s, subname = %s, gossip_menu_id = %s, npcflag = %s, speed_walk = %s, speed_run = %s, type = %s, type_flags = %s "
                                 "WHERE entry = %s"
                                 )
         
+    type_flags = vm_ct_row[26]
+    if vm_ct_row[21] > 0: #has gossip
+        type_flags = type_flags | 0x08000000 #force gossip
+        #TODO handle other trinity type flags.
+    
     db.tri_world.execute(update_template_query, (
             vm_ct_row[1],
             vm_ct_row[2],
@@ -224,9 +229,11 @@ def _upsert_creature_template(vm_ct_id, tri_ct_id = None) :
             vm_ct_row[19],
             vm_ct_row[20],
             vm_ct_row[21],
-            vm_ct_row[22],
+            constants.ConvertNPCFlags(vm_ct_row[22]),
             vm_ct_row[23],
             vm_ct_row[24],
+            vm_ct_row[25],
+            type_flags,
             vm_ct_id,
         ))
     
