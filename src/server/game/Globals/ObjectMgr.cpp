@@ -7012,14 +7012,26 @@ WorldSafeLocsEntry const* ObjectMgr::GetDefaultGraveyard(uint32 team) const
 
 WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(WorldLocation const& location, uint32 team, WorldObject* conditionObject) const
 {
+    uint32 zoneId, areaId;
+    sTerrainMgr.GetZoneAndAreaId(conditionObject ? conditionObject->GetPhaseShift() : PhasingHandler::GetEmptyPhaseShift(), zoneId, areaId, location);
+
+
+    if (WorldSafeLocsEntry const* pGY = GetClosestGraveyard(areaId, location, team, conditionObject))
+        return pGY;
+
+    if (areaId == zoneId)
+        return nullptr;
+
+    return GetClosestGraveyard(zoneId, location, team, conditionObject);
+}
+
+WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(uint32 areaOrZoneId, WorldLocation const& location, uint32 team, WorldObject* conditionObject) const
+{
     float x, y, z;
     location.GetPosition(x, y, z);
     uint32 MapId = location.GetMapId();
 
-    // search for zone associated closest graveyard
-    uint32 zoneId = sTerrainMgr.GetZoneId(conditionObject ? conditionObject->GetPhaseShift() : PhasingHandler::GetEmptyPhaseShift(), MapId, x, y, z);
-
-    if (!zoneId)
+    if (!areaOrZoneId)
     {
         if (z > -500)
         {
@@ -7035,14 +7047,14 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(WorldLocation const& lo
     //     then check faction
     //   if mapId != graveyard.mapId (ghost in instance) and search any graveyard associated
     //     then check faction
-    GraveyardMapBounds range = GraveyardStore.equal_range(zoneId);
+    GraveyardMapBounds range = GraveyardStore.equal_range(areaOrZoneId);
     MapEntry const* map = sMapStore.LookupEntry(MapId);
 
     // not need to check validity of map object; MapId _MUST_ be valid here
     if (range.first == range.second && !map->IsBattlegroundOrArena())
     {
-        if (zoneId != 0) // zone == 0 can't be fixed, used by bliz for bugged zones
-            TC_LOG_ERROR("sql.sql", "Table `game_graveyard_zone` incomplete: Zone %u Team %u does not have a linked graveyard.", zoneId, team);
+        if (areaOrZoneId != 0) // zone == 0 can't be fixed, used by bliz for bugged zones
+            TC_LOG_ERROR("sql.sql", "Table `game_graveyard_zone` incomplete: Zone %u Team %u does not have a linked graveyard.", areaOrZoneId, team);
         return GetDefaultGraveyard(team);
     }
 

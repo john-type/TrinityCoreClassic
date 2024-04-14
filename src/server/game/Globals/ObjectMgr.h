@@ -1234,6 +1234,7 @@ class TC_GAME_API ObjectMgr
 
         WorldSafeLocsEntry const* GetDefaultGraveyard(uint32 team) const;
         WorldSafeLocsEntry const* GetClosestGraveyard(WorldLocation const& location, uint32 team, WorldObject* conditionObject) const;
+        WorldSafeLocsEntry const* GetClosestGraveyard(uint32 areaOrZoneId, WorldLocation const& location, uint32 team, WorldObject* conditionObject) const;
         bool AddGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool persist = true);
         void RemoveGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool persist = false);
         void LoadGraveyardZones();
