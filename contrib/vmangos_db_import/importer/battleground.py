@@ -8,10 +8,10 @@ def Import():
     remove_battlegrounds()
 
 def remove_battle_fields():
-    db.tri_world.execute('DELETE FROM battlefield_template')
+    db.tri_world.execute_raw('DELETE FROM battlefield_template')
     
 def remove_battlegrounds():
-    db.tri_world.execute('DELETE FROM battleground_template WHERE ID >= 4')
-    db.tri_world.execute('DELETE FROM battlemaster_entry WHERE bg_template >= 4')
+    db.tri_world.execute_raw('DELETE FROM battleground_template WHERE ID >= 4')
+    db.tri_world.execute_raw('DELETE FROM battlemaster_entry WHERE bg_template >= 4')
     
 #TODO import additional battleground_template data from vmangos

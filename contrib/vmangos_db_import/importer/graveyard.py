@@ -16,71 +16,82 @@ def Import():
     
     for wsl in world_safe_locs:
         if wsl['Continent'] <= constants.MaxMapId:
-            existing_rows = db.tri_world.get_rows(
-                'SELECT ID FROM world_safe_locs WHERE ID = %s',
-                (wsl['ID'],)
-            )
+            existing_row = db.tri_world.select_one(
+                    db.SelectQuery("world_safe_locs").where("ID", "=", wsl['ID'])
+                )
+
+            upsert_query = db.UpsertQuery("world_safe_locs").values({
+                "MapID": wsl['Continent'],
+                "LocX": wsl['LocX'],
+                "LocY": wsl['LocY'],
+                "LocZ": wsl['LocZ'],
+                "Comment": wsl['AreaName_Lang_enUS']
+            })
             
-            if len(existing_rows) == 0:
-                db.tri_world.execute(
-                    ("INSERT INTO world_safe_locs (ID, MapID, LocX, LocY, LocZ, Facing, Comment) "
-                    "VALUES (%s, %s, %s, %s, %s, %s, %s)"),
-                    (wsl['ID'],
-                    wsl['Continent'],
-                    wsl['LocX'],
-                    wsl['LocY'],
-                    wsl['LocZ'],
-                    0,
-                    wsl['AreaName_Lang_enUS'],)
-                )
+            if existing_row == None:
+                upsert_query.values({
+                    "ID": wsl['ID'],
+                    "Facing": 0 
+                })
             else:
-                db.tri_world.execute(
-                    ("UPDATE world_safe_locs SET "
-                    "MapID = %s, LocX = %s, LocY = %s, LocZ = %s, Comment = %s "
-                    "WHERE ID = %s"),
-                    (wsl['Continent'],
-                    wsl['LocX'],
-                    wsl['LocY'],
-                    wsl['LocZ'],
-                    wsl['AreaName_Lang_enUS'],
-                    wsl['ID'],)
-                )
-        
+                upsert_query.where("ID", "=", wsl['ID'])
+            
+            db.tri_world.upsert(upsert_query)
     
     # update graveyards
     
-    vm_graveyards = db.vm_world.get_rows(
-        'SELECT id, ghost_zone, faction FROM game_graveyard_zone WHERE patch_max = 10'
+    vm_graveyards = db.vm_world.select_all(
+        db.SelectQuery("game_graveyard_zone").where("patch_max", "=", 10)
     )
     
     for vm_gy in vm_graveyards:
         match_wsl = None
         for wsl in world_safe_locs:
-            if wsl['ID'] == vm_gy[0]:
+            if wsl['ID'] == vm_gy['id']:
                 match_wsl = wsl
                 break
 
         if match_wsl != None and match_wsl['Continent'] <= constants.MaxMapId:
-            existing_records = db.tri_world.get_rows(
-                ("SELECT ID, GhostZone, Faction, Comment FROM graveyard_zone "
-                "WHERE ID = %s "
-                "AND GhostZone = %s"),
-                (vm_gy[0], vm_gy[1],)
+            
+            match_condition = db.GroupCondition("AND").condition("ID", "=", vm_gy['id']).condition("GhostZone", "=", vm_gy['ghost_zone'])
+            existing_record = db.tri_world.select_one(
+                db.SelectQuery("graveyard_zone").where(match_condition)
             )
             
-            if len(existing_records) == 0:
-                db.tri_world.execute(
-                    ("INSERT INTO graveyard_zone (ID, GhostZone, Faction, Comment) "
-                    "VALUES (%s, %s, %s, %s)"),
-                    (vm_gy[0], vm_gy[1], vm_gy[2], match_wsl['AreaName_Lang_enUS'],)
-                )
+            upsert_query = db.UpsertQuery("graveyard_zone").values({
+                'Faction': vm_gy['faction'],
+                'Comment': match_wsl['AreaName_Lang_enUS']
+            })
+            
+            if existing_record == None:
+                upsert_query.values({
+                    'ID': vm_gy['id'],
+                    'GhostZone': vm_gy['ghost_zone']
+                })
             else:
-                db.tri_world.execute(
-                    ("UPDATE graveyard_zone SET "
-                    "Faction = %s, Comment = %s "
-                    "WHERE ID = %s AND GhostZone = %s"),
-                    (vm_gy[2], match_wsl['AreaName_Lang_enUS'], vm_gy[0], vm_gy[1],)
-                )
+                upsert_query.where(match_condition)
+                
+            db.tri_world.upsert(upsert_query)
     
 
     f.close()
+    
+    cleanup_obsolete_graveyards()
+    
+def cleanup_obsolete_graveyards():
+    
+    trinity_gys = db.tri_world.select_all(
+        db.SelectQuery("graveyard_zone")
+    )
+    
+    for trinity_gy in trinity_gys:
+        vm_gy = db.vm_world.select_one(
+            db.SelectQuery("game_graveyard_zone").where(
+                db.GroupCondition("AND").condition("patch_max", "=", 10).condition("id", "=", trinity_gy['ID'])
+            )
+        )
+        
+        if vm_gy == None:
+            db.tri_world.delete(
+                db.DeleteQuery("graveyard_zone").where("ID", "=", trinity_gy["ID"])
+            )

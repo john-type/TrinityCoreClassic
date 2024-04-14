@@ -11,11 +11,11 @@ def Import():
 def remove_obsolete():
     deleted = 0
     
-    rows = db.tri_world.get_rows("SELECT guid, entry FROM transports")
+    rows = db.tri_world.get_rows_raw("SELECT guid, entry FROM transports")
     for row in rows:
-        vm_rows = db.vm_world.get_rows("SELECT entry, name FROM transports WHERE entry = %s", (row[1],))
+        vm_rows = db.vm_world.get_rows_raw("SELECT entry, name FROM transports WHERE entry = %s", (row[1],))
         if len(vm_rows) == 0:
-            db.tri_world.execute("DELETE FROM transports WHERE entry = %s" (row[1],))
+            db.tri_world.execute_raw("DELETE FROM transports WHERE entry = %s" (row[1],))
             deleted += 1
             
     print("Deleted {} transports".format(deleted))  
@@ -31,9 +31,9 @@ def add_missing():
     
     added = 0
     
-    rows = db.vm_world.get_rows("SELECT entry, name FROM transports")
+    rows = db.vm_world.get_rows_raw("SELECT entry, name FROM transports")
     for row in rows:
-        tri_rows = db.tri_world.get_rows("SELECT entry, name FROM transports WHERE entry = %s", (row[0],))
+        tri_rows = db.tri_world.get_rows_raw("SELECT entry, name FROM transports WHERE entry = %s", (row[0],))
         if len(tri_rows) == 0:
             db.tri_world.Execute(insert_tri_transport, (row[0], row[1],))
             added += 1
@@ -41,10 +41,10 @@ def add_missing():
     print("Added {} transports".format(added)) 
     
 def update_gameobject_templates():
-    rows = db.tri_world.get_rows("SELECT entry FROM transports")
+    rows = db.tri_world.get_rows_raw("SELECT entry FROM transports")
     for row in rows:
-        tri_go_template_row = db.tri_world.get_row("SELECT entry FROM gameobject_template WHERE entry = %s", (row[0],))
-        vm_go_template_row = db.vm_world.get_row(
+        tri_go_template_row = db.tri_world.get_row_raw("SELECT entry FROM gameobject_template WHERE entry = %s", (row[0],))
+        vm_go_template_row = db.vm_world.get_row_raw(
             "SELECT entry, type, displayId, size, data0, data1, data2, data3, data4, data5, data6 FROM gameobject_template WHERE entry = %s",
             (row[0],)
         )
@@ -70,7 +70,7 @@ def update_gameobject_templates():
         "Data6 = %s "
         "WHERE entry = %s")
         
-        db.tri_world.execute(go_taxi_id_update, (
+        db.tri_world.execute_raw(go_taxi_id_update, (
             vm_go_template_row[1],
             vm_go_template_row[2],
             vm_go_template_row[3],

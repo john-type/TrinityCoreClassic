@@ -10,7 +10,7 @@ def Import():
     #remove_modern()
     
 def remove_modern():
-    db.tri_world.chunk(
+    db.tri_world.chunk_raw(
         "SELECT ID FROM quest_template WHERE Expansion > 2 AND VerifiedBuild <> 40618 LIMIT %s OFFSET %s",
         500,
         _handle_obsolete_modern_row
@@ -33,12 +33,12 @@ def _handle_obsolete_modern_row(row):
         "DELETE FROM quest_template WHERE ID = %s"
     ]
     
-    db.tri_world.execute_many(queries, (row[0],))
+    db.tri_world.execute_many_raw(queries, (row[0],))
     
     return -1
     
 def import_templates_vmangos():
-    db.vm_world.chunk(
+    db.vm_world.chunk_raw(
         ("SELECT entry, Method, QuestLevel, MinLevel, MaxLevel, "
          "Type, SuggestedPlayers, "
          "Title, Details, Objectives, EndText, "
@@ -54,7 +54,7 @@ def import_templates_vmangos():
 def _handle_import_template_row(row):
     dest_template_query = "SELECT ID, LogTitle FROM quest_template WHERE ID = %s"
     
-    match_row = db.tri_world.get_row(dest_template_query, (row[0],))
+    match_row = db.tri_world.get_row_raw(dest_template_query, (row[0],))
     
     if(match_row == None):
         _upsert_quest_template(row)
@@ -81,7 +81,7 @@ def _upsert_quest_template(vm_qt, tri_qt = None):
     "WHERE ID = %s"
     )
     
-    db.tri_world.execute(update_query, (
+    db.tri_world.execute_raw(update_query, (
         vm_qt[1], vm_qt[2], vm_qt[3], 
         vm_qt[5], vm_qt[6],
         vm_qt[7], vm_qt[8], vm_qt[9], vm_qt[10],
@@ -90,7 +90,7 @@ def _upsert_quest_template(vm_qt, tri_qt = None):
     ,))
     
     
-    existing_addon_entry = db.tri_world.get_row("SELECT ID FROM quest_template_addon WHERE ID = %s", (vm_qt[0],))
+    existing_addon_entry = db.tri_world.get_row_raw("SELECT ID FROM quest_template_addon WHERE ID = %s", (vm_qt[0],))
     
     #TODO more fieldss
     if existing_addon_entry == None:
@@ -115,7 +115,7 @@ def _upsert_quest_template(vm_qt, tri_qt = None):
         if(next_quest_id < 0):
             next_quest_id = 0
         
-        db.tri_world.execute(update_query, (
+        db.tri_world.execute_raw(update_query, (
             vm_qt[4],
             vm_qt[11], next_quest_id, vm_qt[13], vm_qt[14],
             vm_qt[15], vm_qt[17],
@@ -130,7 +130,7 @@ def _upsert_quest_template(vm_qt, tri_qt = None):
     
     
 def _update_quest_objectives(quest_id):
-    vm_row = db.vm_world.get_row((
+    vm_row = db.vm_world.get_row_raw((
         "SELECT "
         "ReqItemId1, ReqItemId2, ReqItemId3, ReqItemId4, " # objective item
         "ReqItemCount1, ReqItemCount2, ReqItemCount3, ReqItemCount4, "
@@ -154,7 +154,7 @@ def _update_quest_objectives(quest_id):
     #TODO handle spellCast (trinity doesnt seem to use this, but the GO for it instead), possibly easier to manually add.
     #TODO ensure all objective types are covered.
     
-    existing_objectives = db.tri_world.get_rows("SELECT ID from quest_objectives WHERE QuestID = %s ORDER BY `Order` ASC", (quest_id,))
+    existing_objectives = db.tri_world.get_rows_raw("SELECT ID from quest_objectives WHERE QuestID = %s ORDER BY `Order` ASC", (quest_id,))
     
     #order is GO/Creature, Item, MinRep, Money
     #storage index appears to the same as order.
@@ -233,7 +233,7 @@ def _update_quest_objectives(quest_id):
         #TODO handle flags.
     
         if existing_id > 0:
-            db.tri_world.execute((
+            db.tri_world.execute_raw((
                 "UPDATE quest_objectives SET "
                 "`Type` = %s, `Order` = %s, StorageIndex = %s, "
                 "ObjectID = %s, Amount = %s, "
@@ -247,10 +247,10 @@ def _update_quest_objectives(quest_id):
                 existing_id, quest_id,
             ))
         else:
-            next_id = db.tri_world.get_row("SELECT MAX(ID) FROM quest_objectives")
+            next_id = db.tri_world.get_row_raw("SELECT MAX(ID) FROM quest_objectives")
             next_id = next_id[0] + 1
             
-            db.tri_world.execute((
+            db.tri_world.execute_raw((
                 "INSERT INTO quest_objectives ("
                 "ID, QuestId, `Type`, `Order`, StorageIndex, "
                 "ObjectID, Amount, "
@@ -272,7 +272,7 @@ def _update_quest_objectives(quest_id):
     
     
 def _update_quest_rewards(quest_id):
-    vm_row = db.vm_world.get_row((
+    vm_row = db.vm_world.get_row_raw((
         "SELECT "
         "RewChoiceItemId1, RewChoiceItemId2, RewChoiceItemId3, RewChoiceItemId4, RewChoiceItemId5, RewChoiceItemId6,"
         "RewChoiceItemCount1, RewChoiceItemCount2, RewChoiceItemCount3, RewChoiceItemCount4, RewChoiceItemCount5, RewChoiceItemCount6, "
@@ -301,7 +301,7 @@ def _update_quest_rewards(quest_id):
      "WHERE ID = %s"   
     )
     
-    db.tri_world.execute(update_query, (
+    db.tri_world.execute_raw(update_query, (
             vm_row[0], vm_row[1], vm_row[2], #choice
             vm_row[3], vm_row[4], vm_row[5], #choice
             vm_row[6], vm_row[7], vm_row[8], #choice

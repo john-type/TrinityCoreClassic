@@ -13,6 +13,7 @@ import importer.gossip
 import importer.item
 import importer.npc
 import importer.player
+import importer.pool
 import importer.quest
 import importer.skill
 import importer.spell
@@ -43,8 +44,8 @@ db.OpenAll()
 # print("gossips...")
 # importer.gossip.Import()
 
-# print("graveyards...")
-# importer.graveyard.Import()
+print("graveyards...")
+importer.graveyard.Import()
 
 # print("Items...")
 # importer.item.Import()
@@ -55,6 +56,9 @@ db.OpenAll()
 # print("Players...")
 # importer.player.Import()
 
+# print("Pool...")
+# importer.pool.Import()
+
 # print("Quests...")
 # importer.quest.Import()
 
@@ -64,8 +68,8 @@ db.OpenAll()
 # print("Spells...")
 # importer.spell.Import()
 
-print("Trainers")
-importer.trainer.Import()
+# print("Trainers")
+# importer.trainer.Import()
 
 # print("Transports...")
 # importer.transport.Import()

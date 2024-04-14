@@ -12,7 +12,7 @@ def Import():
 
     
 def clean_templates_check_vmangos():
-    db.tri_world.chunk(
+    db.tri_world.chunk_raw(
         "SELECT entry, type, displayId, name FROM gameobject_template LIMIT %s OFFSET %s",
         500,
         _handle_clean_template_row
@@ -40,20 +40,20 @@ def _handle_clean_template_row(row):
         ("DELETE FROM gameobject_template WHERE entry = %s")
     ]
     
-    match = db.vm_world.get_rows(dest_obj_query, (row[0],))
+    match = db.vm_world.get_rows_raw(dest_obj_query, (row[0],))
             
     if len(match) == 0:
-        entities = db.tri_world.get_rows("SELECT guid FROM gameobject WHERE id = %s", (row[0],))
+        entities = db.tri_world.get_rows_raw("SELECT guid FROM gameobject WHERE id = %s", (row[0],))
         for entity in entities:
-            db.tri_world.execute_many(delete_src_obj_entity_queries, (entity[0],))
+            db.tri_world.execute_many_raw(delete_src_obj_entity_queries, (entity[0],))
             
-        db.tri_world.execute_many(delete_src_queries, (row[0],))
+        db.tri_world.execute_many_raw(delete_src_queries, (row[0],))
         return -1
 
     return 0
 
 def clean_entries_check_vmangos():
-    db.tri_world.chunk(
+    db.tri_world.chunk_raw(
         "SELECT guid, id, map, position_x, position_y, position_z FROM gameobject LIMIT %s OFFSET %s",
         500,
         _handle_clean_entry_row
@@ -70,17 +70,17 @@ def _handle_clean_entry_row(row):
         ("DELETE FROM gameobject WHERE guid = %s"),
     ]
     
-    matches = db.wm_world.get_rows(dest_obj_query, (row[1],row[2],))
+    matches = db.wm_world.get_rows_raw(dest_obj_query, (row[1],row[2],))
     matches_len = len(matches)
 
     if(matches_len == 0):
-        db.tri_world.execute_many(delete_src_obj_entity_queries, (row[0],))
+        db.tri_world.execute_many_raw(delete_src_obj_entity_queries, (row[0],))
         return -1
     
     return 0
         
 def import_templates_vmangos():
-    db.vm_world.chunk(
+    db.vm_world.chunk_raw(
         ("SELECT entry, type, displayId, name, size, "
          "data0, data1, data2, data3, data4, data5, data6, data7, data8, data9, "
          "data10, data11, data12, data13, data14, data15, data16, data17, data18, data19, "
@@ -93,7 +93,7 @@ def import_templates_vmangos():
 def _handle_import_template_row(row):
     dest_template_query = "SELECT entry, type, displayid, name FROM gameobject_template WHERE entry = %s"
     
-    match_row = db.tri_world.get_row(dest_template_query, (row[0],))
+    match_row = db.tri_world.get_row_raw(dest_template_query, (row[0],))
     
     if(match_row == None):
         _upsert_gameobject_template(row)
@@ -103,7 +103,7 @@ def _handle_import_template_row(row):
     return 0
 
 def import_entries_vmangos():
-    db.vm_world.chunk(
+    db.vm_world.chunk_raw(
         "SELECT guid, id, map, position_x, position_y, position_z FROM gameobject WHERE patch_max = 10 LIMIT %s OFFSET %s",
         500,
         _handle_import_entry_row
@@ -117,7 +117,7 @@ def _handle_import_entry_row(row):
                     "AND map = %s")
     
     diff = 5
-    matches = db.tri_world.get_rows(dest_obj_query, (
+    matches = db.tri_world.get_rows_raw(dest_obj_query, (
                             row[1],
                             row[3] - diff,
                             row[3] + diff,
@@ -170,7 +170,7 @@ def _upsert_gameobject_template(vm_got, tri_got = None) :
     "WHERE entry = %s"
     )
     
-    db.tri_world.execute(update_query, (
+    db.tri_world.execute_raw(update_query, (
         vm_got[1],
         vm_got[2],
         vm_got[3],
@@ -183,11 +183,11 @@ def _upsert_gameobject_template(vm_got, tri_got = None) :
         vm_got[0] #entry
     ,))
     
-    existing_addon = db.tri_world.get_row("SELECT entry, flags FROM gameobject_template_addon WHERE entry = %s", (vm_got[0],))
+    existing_addon = db.tri_world.get_row_raw("SELECT entry, flags FROM gameobject_template_addon WHERE entry = %s", (vm_got[0],))
     # faction = vm_got[29]
         
     if existing_addon == None:
-        db.tri_world.execute((
+        db.tri_world.execute_raw((
             "INSERT INTO gameobject_template_addon ("
             "entry, faction, flags, mingold, maxgold, "
             "artkit0, artkit1, artkit2, artkit3, artkit4, WorldEffectID, AIAnimKitID"
@@ -203,7 +203,7 @@ def _upsert_gameobject_template(vm_got, tri_got = None) :
                 vm_got[32]
             ,))
     else:
-        db.tri_world.execute((
+        db.tri_world.execute_raw((
             "UPDATE gameobject_template_addon SET "
             "faction = %s, flags = %s, mingold = %s, maxgold = %s "
             "WHERE entry = %s"
@@ -218,7 +218,7 @@ def _upsert_gameobject_template(vm_got, tri_got = None) :
 def _upsert_gameobject_entry(vm_go_guid, tri_go_guid = None):
 
     
-    src_obj = db.vm_world.get_row((
+    src_obj = db.vm_world.get_row_raw((
         "SELECT id, map, position_x, position_y, position_z, orientation,"
         "rotation0, rotation1, rotation2, rotation3, spawntimesecsmin, animprogress, state "
         "FROM gameobject WHERE guid = %s"
@@ -249,7 +249,7 @@ def _upsert_gameobject_entry(vm_go_guid, tri_go_guid = None):
     if tri_go_guid == None:
         pass #TODO handle insert
     else:
-        db.tri_world.execute(dest_update, (
+        db.tri_world.execute_raw(dest_update, (
             src_obj[2], src_obj[3], src_obj[4], src_obj[5], src_obj[6],  src_obj[7],  src_obj[8],  src_obj[9],  
             src_obj[10], src_obj[11], src_obj[12], tri_go_guid
         ,))
@@ -259,7 +259,7 @@ def _upsert_gameobject_entry(vm_go_guid, tri_go_guid = None):
 
 
     # check if is an event creature.
-    # event_rows = db.vm_world.get_rows(
+    # event_rows = db.vm_world.get_rows_raw(
     #     "SELECT guid, event FROM game_event_gameobject WHERE guid = %s", 
     #     (vm_go_guid,)
     # )
@@ -268,34 +268,34 @@ def _upsert_gameobject_entry(vm_go_guid, tri_go_guid = None):
     # if(matches_len > 0):
     #     match_row = event_rows[0]
          
-    #     tri_event_rows = db.tri_world.get_rows(
+    #     tri_event_rows = db.tri_world.get_rows_raw(
     #         "SELECT guid, eventEntry FROM game_event_gameobject WHERE guid = %s AND eventEntry = %s"
     #         (tri_go_guid, match_row[1],)
     #     )
         
     #     if(len(tri_event_rows) == 0):
     #         #TODO ensure event id's match between tri and vm.
-    #         db.tri_world.execute(
+    #         db.tri_world.execute_raw(
     #             "INSERT INTO game_event_gameobject (guid, eventEntry) VALUES (%s, %s)", 
     #             (tri_go_guid, match_row[1],)
     #         )
         
 def remove_duplicate_entries():    
     # duplicates got in at some point :(
-    db.tri_world.chunk(
+    db.tri_world.chunk_raw(
         "SELECT guid, id, map, position_x, position_y, position_z, phaseId FROM gameobject WHERE id IN (174626) LIMIT %s OFFSET %s",
         500,
         _handle_clean_duplicate_entry_row
     )
 
 def _handle_clean_duplicate_entry_row(row):    
-    duplicates = db.tri_world.get_rows((
+    duplicates = db.tri_world.get_rows_raw((
         "SELECT guid, id, map, position_x, position_y, position_z FROM gameobject "
         "WHERE id = %s AND map = %s AND abs(position_x - %s) < 0.001 AND abs(position_y - %s) < 0.001 AND abs(position_z - %s) < 0.001 AND PhaseId = %s ORDER BY guid DESC"
         ),
         (row[1], row[2], row[3], row[4], row[5], row[6],)) 
     
-    vm_matches = db.vm_world.get_rows((
+    vm_matches = db.vm_world.get_rows_raw((
         "SELECT guid, id, map, position_x, position_y, position_z FROM gameobject "
         "WHERE id = %s AND map = %s AND abs(position_x - %s) < 0.001 AND abs(position_y - %s) < 0.001 AND abs(position_z - %s) < 0.001"
         ),
@@ -313,6 +313,6 @@ def _handle_clean_duplicate_entry_row(row):
                 continue    
     
     for dup_guid in to_remove_dups:
-        db.tri_world.execute("DELETE FROM gameobject WHERE guid = %s", (dup_guid,))
+        db.tri_world.execute_raw("DELETE FROM gameobject WHERE guid = %s", (dup_guid,))
                 
     return 0 - len(to_remove_dups)

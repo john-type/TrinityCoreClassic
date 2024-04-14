@@ -16,10 +16,10 @@ def import_broadcast_text_csv():
                 found_header = True
                 continue
         
-            existing_row = db.tri_hotfix.get_row("SELECT ID FROM broadcast_text WHERE ID = %s", (row[0],))
+            existing_row = db.tri_hotfix.get_row_raw("SELECT ID FROM broadcast_text WHERE ID = %s", (row[0],))
             
             if existing_row == None:
-                db.tri_hotfix.execute((
+                db.tri_hotfix.execute_raw((
                     "INSERT INTO broadcast_text ("
                     "Text, Text1, ID, LanguageID, ConditionID, EmotesID, Flags, ChatBubbleDurationMs, VoiceOverPriorityID, "
                     "SoundKitID1, SoundKitID2, "
@@ -33,7 +33,7 @@ def import_broadcast_text_csv():
                     row[7], row[8], row[9]
                 ,))
             else:
-                db.tri_hotfix.execute((
+                db.tri_hotfix.execute_raw((
                     "UPDATE broadcast_text SET "
                     "Text = %s, Text1 = %s, "
                     "LanguageID = %s, "

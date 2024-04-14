@@ -22,54 +22,54 @@ def Import():
 
 def cleanClassExpansionRequirements():
     query = "DELETE FROM class_expansion_requirement WHERE ClassID NOT IN ({0}) OR RaceID NOT IN ({1})".format(classes_str, races_str)
-    db.tri_world.execute(query)
+    db.tri_world.execute_raw(query)
     
 def cleanRaceUnlockRequirements():
     query = "DELETE FROM race_unlock_requirement WHERE raceID NOT IN ({0})".format(races_str)
-    db.tri_world.execute(query)
+    db.tri_world.execute_raw(query)
     
 def cleanPlayerCreateInfo():
     query = "DELETE FROM playercreateinfo WHERE class NOT IN ({0}) OR race NOT IN ({1})".format(classes_str, races_str)
-    db.tri_world.execute(query)
+    db.tri_world.execute_raw(query)
     query2 = "DELETE FROM playercreateinfo_action WHERE class NOT IN ({0}) OR race NOT IN ({1})".format(classes_str, races_str)
-    db.tri_world.execute(query2)
+    db.tri_world.execute_raw(query2)
     
 def handleXpForLevel():
-    rows = db.vm_world.get_rows("SELECT * FROM player_xp_for_level")
-    db.tri_world.execute("DELETE FROM player_xp_for_level")
+    rows = db.vm_world.get_rows_raw("SELECT * FROM player_xp_for_level")
+    db.tri_world.execute_raw("DELETE FROM player_xp_for_level")
     
     for row in rows:
-        db.tri_world.execute(
+        db.tri_world.execute_raw(
             "INSERT INTO player_xp_for_level (Level, Experience) VALUES (%s, %s)",
             (row[0], row[1],)
         )
         
 def handleExplorationXP():
-    rows = db.vm_world.get_rows("SELECT * FROM exploration_basexp")
-    db.tri_world.execute("DELETE FROM exploration_basexp")
+    rows = db.vm_world.get_rows_raw("SELECT * FROM exploration_basexp")
+    db.tri_world.execute_raw("DELETE FROM exploration_basexp")
     
     for row in rows:
-        db.tri_world.execute(
+        db.tri_world.execute_raw(
             "INSERT INTO exploration_basexp (level, basexp) VALUES (%s, %s)",
             (row[0], row[1],)
         )
     
 def update_player_create_info():
-    vm_rows = db.vm_world.get_rows("SELECT map, position_x, position_y, position_z, orientation, race, class FROM playercreateinfo")
+    vm_rows = db.vm_world.get_rows_raw("SELECT map, position_x, position_y, position_z, orientation, race, class FROM playercreateinfo")
     
     for vm_row in vm_rows:
         update_query = ("UPDATE playercreateinfo SET "
                         "map = %s, position_x = %s, position_y = %s, position_z = %s, orientation = %s "
                         "WHERE race = %s AND class = %s")
-        db.tri_world.execute(update_query, vm_row)
+        db.tri_world.execute_raw(update_query, vm_row)
         
 def update_class_level_stats():
-    vm_rows = db.vm_world.get_rows("SELECT basehp, basemana, class, level FROM player_classlevelstats")
+    vm_rows = db.vm_world.get_rows_raw("SELECT basehp, basemana, class, level FROM player_classlevelstats")
     
     for vm_row in vm_rows:
         update_query = ("UPDATE player_classlevelstats SET "
                         "basehp = %s, basemana = %s "
                         "WHERE class = %s AND level = %s")
         
-        db.tri_world.execute(update_query, vm_row)
+        db.tri_world.execute_raw(update_query, vm_row)
         

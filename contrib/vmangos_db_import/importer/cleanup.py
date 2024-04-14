@@ -17,7 +17,7 @@ def cleanBattlePets():
         "DELETE FROM battle_pet_quality"
     ]
     
-    db.tri_world.execute_many(queries)
+    db.tri_world.execute_many_raw(queries)
 
     print("Cleaned battle pets")
     
@@ -27,12 +27,12 @@ def cleanGarrison():
         "DELETE FROM garrison_plot_finalize_info"
     ]
     
-    db.tri_world.execute_many(queries)
+    db.tri_world.execute_many_raw(queries)
         
     print("Cleaned Garrisons")
     
 def cleanWorldStates():
-    rows = db.tri_world.get_rows("SELECT * FROM world_state")
+    rows = db.tri_world.get_rows_raw("SELECT * FROM world_state")
     for row in rows:
         map_ids = [0]
         if row[2] != None:
@@ -45,18 +45,18 @@ def cleanWorldStates():
                 break
         
         if contains_valid_map == False:
-            db.tri_world.execute("DELETE FROM world_state WHERE ID = %s", (row[0], ))
+            db.tri_world.execute_raw("DELETE FROM world_state WHERE ID = %s", (row[0], ))
         
     print("Cleaned world states")
     
 def cleanDisables():    
-    db.vm_world.chunk(
+    db.vm_world.chunk_raw(
         "SELECT entry FROM spell_template LIMIT %s OFFSET %s",
         500,
         _handle_disable_spell
     )
 
-    db.vm_world.chunk(
+    db.vm_world.chunk_raw(
         "SELECT entry FROM quest_template LIMIT %s OFFSET %s",
         500,
         _handle_disable_quest
@@ -69,9 +69,9 @@ def cleanDisables():
 
 
 def _handle_disable_spell(row):
-    db.tri_world.execute("DELETE FROM disables WHERE sourceType = 0 AND entry = %s", (row[0],))
+    db.tri_world.execute_raw("DELETE FROM disables WHERE sourceType = 0 AND entry = %s", (row[0],))
     return 0
     
 def _handle_disable_quest(row):
-    db.tri_world.execute("DELETE FROM disables WHERE sourceType = 1 AND entry = %s", (row[0],))
+    db.tri_world.execute_raw("DELETE FROM disables WHERE sourceType = 1 AND entry = %s", (row[0],))
     return 0
