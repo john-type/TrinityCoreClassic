@@ -7,10 +7,9 @@ def Import():
     # clean_templates_check_vmangos()
     # clean_entries_check_vmangos()
     # import_templates_vmangos()
-    import_entries_vmangos()
-    
-    #TODO need to be able to check and remove duplicates.
-    
+    # import_entries_vmangos()
+    remove_duplicate_entries()
+
     
 def clean_templates_check_vmangos():
     db.tri_world.chunk(
@@ -144,8 +143,7 @@ def _handle_import_entry_row(row):
         
         _upsert_gameobject_entry(row[0], nearest_match[0])    
     
-    return 0
-         
+    return 0   
 
 def _upsert_gameobject_template(vm_got, tri_got = None) :
     if tri_got == None:
@@ -216,9 +214,6 @@ def _upsert_gameobject_template(vm_got, tri_got = None) :
                 vm_got[32],
                 vm_got[0]
             ,))
-
-
-    
     
 def _upsert_gameobject_entry(vm_go_guid, tri_go_guid = None):
 
@@ -285,4 +280,39 @@ def _upsert_gameobject_entry(vm_go_guid, tri_go_guid = None):
     #             (tri_go_guid, match_row[1],)
     #         )
         
+def remove_duplicate_entries():    
+    # duplicates got in at some point :(
+    db.tri_world.chunk(
+        "SELECT guid, id, map, position_x, position_y, position_z, phaseId FROM gameobject WHERE id IN (174626) LIMIT %s OFFSET %s",
+        500,
+        _handle_clean_duplicate_entry_row
+    )
+
+def _handle_clean_duplicate_entry_row(row):    
+    duplicates = db.tri_world.get_rows((
+        "SELECT guid, id, map, position_x, position_y, position_z FROM gameobject "
+        "WHERE id = %s AND map = %s AND abs(position_x - %s) < 0.001 AND abs(position_y - %s) < 0.001 AND abs(position_z - %s) < 0.001 AND PhaseId = %s ORDER BY guid DESC"
+        ),
+        (row[1], row[2], row[3], row[4], row[5], row[6],)) 
     
+    vm_matches = db.vm_world.get_rows((
+        "SELECT guid, id, map, position_x, position_y, position_z FROM gameobject "
+        "WHERE id = %s AND map = %s AND abs(position_x - %s) < 0.001 AND abs(position_y - %s) < 0.001 AND abs(position_z - %s) < 0.001"
+        ),
+        (row[1], row[2], row[3], row[4], row[5],))
+    
+    vm_guids = []
+    for vm in vm_matches:
+        vm_guids.append(vm[0])
+    
+    to_remove_dups = []
+    while(len(duplicates) > len(vm_matches)):
+        for dup in duplicates:
+            if dup[0] not in vm_guids:
+                to_remove_dups.append(duplicates.pop(0)[0])
+                continue    
+    
+    for dup_guid in to_remove_dups:
+        db.tri_world.execute("DELETE FROM gameobject WHERE guid = %s", (dup_guid,))
+                
+    return 0 - len(to_remove_dups)
