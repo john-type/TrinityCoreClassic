@@ -1196,12 +1196,13 @@ void Item::SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint
                 owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), caster, GetGUID(), GetEntry(), id, slot);
     }
 
-
-    //TODOFROST 
     auto enchantmentField = m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Enchantment, slot);
     SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::ID), id);
     SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Duration), duration);
     SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Charges), charges);
+    SetUInt32Value(UF::ITEM_FIELD_ENCHANTMENT + slot * MAX_ENCHANTMENT_OFFSET + 0, id);
+    SetUInt32Value(UF::ITEM_FIELD_ENCHANTMENT + slot * MAX_ENCHANTMENT_OFFSET + 1, duration);
+    SetUInt32Value(UF::ITEM_FIELD_ENCHANTMENT + slot * MAX_ENCHANTMENT_OFFSET + 2, charges);
     SetState(ITEM_CHANGED, owner);
 }
 

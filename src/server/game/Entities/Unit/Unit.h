@@ -998,7 +998,6 @@ class TC_GAME_API Unit : public WorldObject
             RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags), flags);
         }
         void ReplaceAllUnitFlags(UnitFlags flags) {
-            //TODOFROST - check
             SetUInt32Value(UF::UNIT_FIELD_FLAGS, flags);
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags), flags);
         }
@@ -1015,7 +1014,6 @@ class TC_GAME_API Unit : public WorldObject
             RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags2), flags);
         }
         void ReplaceAllUnitFlags2(UnitFlags2 flags) {
-            //TODOFROST - check
             SetUInt32Value(UF::UNIT_FIELD_FLAGS_2, flags);
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags2), flags);
         }
@@ -1032,7 +1030,6 @@ class TC_GAME_API Unit : public WorldObject
             RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags3), flags);
         }
         void ReplaceAllUnitFlags3(UnitFlags3 flags) {
-            //TODOFROST - check
             SetUInt32Value(UF::UNIT_FIELD_FLAGS_3, flags);
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags3), flags);
         }
@@ -1186,30 +1183,30 @@ class TC_GAME_API Unit : public WorldObject
         NPCFlags GetNpcFlags() const { return NPCFlags(m_unitData->NpcFlags[0]); }
         bool HasNpcFlag(NPCFlags flags) const { return (m_unitData->NpcFlags[0] & flags) != 0; }
         void SetNpcFlag(NPCFlags flags) {
-            SetFlag(UF::UNIT_NPC_FLAGS, flags);//TODOFROST - check
+            SetFlag(UF::UNIT_NPC_FLAGS, flags);
             SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 0), flags);
         }
         void RemoveNpcFlag(NPCFlags flags) {
-            RemoveFlag(UF::UNIT_NPC_FLAGS, flags);//TODOFROST - check
+            RemoveFlag(UF::UNIT_NPC_FLAGS, flags);
             RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 0), flags);
         }
         void ReplaceAllNpcFlags(NPCFlags flags) {
-            SetUInt32Value(UF::UNIT_NPC_FLAGS, flags); //TODOFROST - check
+            SetUInt32Value(UF::UNIT_NPC_FLAGS, flags); 
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 0), flags);
         }
 
         NPCFlags2 GetNpcFlags2() const { return NPCFlags2(m_unitData->NpcFlags[1]); }
         bool HasNpcFlag2(NPCFlags2 flags) const { return (m_unitData->NpcFlags[1] & flags) != 0; }
         void SetNpcFlag2(NPCFlags2 flags) {
-            RemoveFlag(UF::UNIT_NPC_FLAGS + 1, flags);//TODOFROST - check
+            RemoveFlag(UF::UNIT_NPC_FLAGS + 1, flags);
             SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 1), flags);
         }
         void RemoveNpcFlag2(NPCFlags2 flags) {
-            RemoveFlag(UF::UNIT_NPC_FLAGS + 1, flags);//TODOFROST - check
+            RemoveFlag(UF::UNIT_NPC_FLAGS + 1, flags);
             RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 1), flags);
         }
         void ReplaceAllNpcFlags2(NPCFlags2 flags) {
-            SetUInt32Value(UF::UNIT_NPC_FLAGS + 1, flags); //TODOFROST - check
+            SetUInt32Value(UF::UNIT_NPC_FLAGS + 1, flags);
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NpcFlags, 1), flags);
         }
 
@@ -1633,8 +1630,7 @@ class TC_GAME_API Unit : public WorldObject
         {
             int32 index = m_unitData->ChannelObjects.FindIndex(guid);
             if (index >= 0) {
-                //TODOFROST CHECK
-                ClearDynamicValue(UF::UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS);
+                ClearDynamicValue(UF::UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS);//TODOFROST CHECK - how should index be handled?
                 RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects), index);
             }
         }

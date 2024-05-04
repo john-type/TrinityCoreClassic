@@ -762,7 +762,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sSpellMiscStore);
     LOAD_DB2(sSpellNameStore);
     LOAD_DB2(sSpellPowerStore);
-    //LOAD_DB2(sSpellPowerDifficultyStore); //TODOFROST - this needs to work!
+    //LOAD_DB2(sSpellPowerDifficultyStore);
     //LOAD_DB2(sSpellProcsPerMinuteStore);
     //LOAD_DB2(sSpellProcsPerMinuteModStore);
     LOAD_DB2(sSpellRadiusStore);
@@ -820,19 +820,26 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         return 0;
     }
 
-    // Check loaded DB2 files proper version
-    // //TODOFROST
-    //if (!sAreaTableStore.LookupEntry(14483) ||               // last area added in 3.4.0 (45942)
-    //    !sCharTitlesStore.LookupEntry(697) ||                // last char title added in 3.4.0 (45942)
-    //    !sGemPropertiesStore.LookupEntry(1629) ||            // last gem property added in 3.4.0 (45942)
-    //    !sItemStore.LookupEntry(200240) ||                   // last item added in 3.4.0 (45942)
-    //    !sItemExtendedCostStore.LookupEntry(7678) ||         // last item extended cost added in 3.4.0 (45942)
-    //    !sMapStore.LookupEntry(2567) ||                      // last map added in 3.4.0 (45942)
-    //    !sSpellNameStore.LookupEntry(395481))                // last spell added in 3.4.0 (45942)
-    //{
-    //    TC_LOG_ERROR("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
-    //    exit(1);
-    //}
+
+    // sanity check on loaded db2 files.
+    const uint32 max_map_id = std::accumulate(sMapStore.begin(), sMapStore.end(), 0, [](uint32 current, const auto& map) { return  std::max(current, map->ID); });
+    bool db2_contents_error = false;
+
+    static_assert(CURRENT_EXPANSION <= EXPANSION_WRATH_OF_THE_LICH_KING, "Unsupported expansion.");
+    if constexpr (CURRENT_EXPANSION == EXPANSION_CLASSIC) {
+        db2_contents_error = max_map_id != 533;
+    }
+    else if constexpr (CURRENT_EXPANSION == EXPANSION_THE_BURNING_CRUSADE) {
+        db2_contents_error = max_map_id != 598;
+    }
+    else if constexpr (CURRENT_EXPANSION == EXPANSION_WRATH_OF_THE_LICH_KING) {
+        db2_contents_error = max_map_id != 2567;
+    }
+
+    if (db2_contents_error) {
+        TC_LOG_ERROR("misc", "You have incorrect DB2 files. Please extract correct versions from current using client.");
+        exit(1);
+    }
 
     for (AreaGroupMemberEntry const* areaGroupMember : sAreaGroupMemberStore)
         _areaGroupMembers[areaGroupMember->AreaGroupID].push_back(areaGroupMember->AreaID);
@@ -1207,9 +1214,10 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
             if (talentInfo->SpellRank[j])
             {
                 sTalentSpellPosMap[talentInfo->SpellRank[j]] = TalentSpellPos(talentInfo->ID, j);
-                //TODOFROST
-                /*if (talentTab && talentTab->PetTalentMask)
-                    sPetTalentSpells.insert(talentInfo->SpellRank[j]);*/
+                //if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
+                //    if (talentTab && talentTab->PetTalentMask)
+                //        sPetTalentSpells.insert(talentInfo->SpellRank[j]);
+                //}
             }
         }
     }
@@ -1452,7 +1460,7 @@ void DB2Manager::LoadHotfixData()
             HotfixBlobKey key = std::make_pair(tableHash, recordId);
             if (std::none_of(_hotfixBlob.begin(), _hotfixBlob.end(), [key](HotfixBlobMap const& blob) { return blob.find(key) != blob.end(); }))
             {
-                //TODOFROST TC_LOG_ERROR("sql.sql", "Table `hotfix_data` references unknown DB2 store by hash 0x%X and has no reference to `hotfix_blob` in hotfix id %d with RecordID: %d", tableHash, id, recordId);
+                TC_LOG_ERROR("sql.sql", "Table `hotfix_data` references unknown DB2 store by hash 0x%X and has no reference to `hotfix_blob` in hotfix id %d with RecordID: %d", tableHash, id, recordId);
                 continue;
             }
         }
@@ -1632,7 +1640,6 @@ std::vector<DB2Manager::HotfixOptionalData> const* DB2Manager::GetHotfixOptional
 
 uint32 DB2Manager::GetEmptyAnimStateID() const
 {
-    //TODOFROST - confirm safe.
     if constexpr (CURRENT_EXPANSION == EXPANSION_CLASSIC) {
         return 1556;    // taken from hermes (40618)
     }

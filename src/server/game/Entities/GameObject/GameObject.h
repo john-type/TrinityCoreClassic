@@ -244,7 +244,6 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
             assert(m_gameObjectData->Flags == Object::GetUInt32Value(UF::GAMEOBJECT_FLAGS));
         }
         void ReplaceAllFlags(GameObjectFlags flags) {
-            //TODOFROST - check!
             Object::SetUInt32Value(UF::GAMEOBJECT_FLAGS, flags);
             SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags);
             assert(m_gameObjectData->Flags == Object::GetUInt32Value(UF::GAMEOBJECT_FLAGS));
@@ -256,7 +255,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         }
         GameobjectTypes GetGoType() const { return GameobjectTypes(*m_gameObjectData->TypeID); }
         void SetGoType(GameobjectTypes type) {
-            SetByteValue(UF::GAMEOBJECT_BYTES_1, 1, type);  //TODOFROST enum offset
+            SetByteValue(UF::GAMEOBJECT_BYTES_1, 1, type);
             SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::TypeID), type);
         }
         GOState GetGoState() const { return GOState(*m_gameObjectData->State); }
@@ -265,7 +264,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetGoArtKit(uint32 artkit);
         uint8 GetGoAnimProgress() const { return m_gameObjectData->PercentHealth; }
         void SetGoAnimProgress(uint8 animprogress) {
-            SetByteValue(UF::GAMEOBJECT_BYTES_1, 3, animprogress);  //TODOFROST enum offset
+            SetByteValue(UF::GAMEOBJECT_BYTES_1, 3, animprogress);
             SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::PercentHealth), animprogress);
         }
         static void SetGoArtKit(uint32 artkit, GameObject* go, ObjectGuid::LowType lowguid = UI64LIT(0));

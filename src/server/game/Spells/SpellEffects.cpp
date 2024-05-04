@@ -3356,8 +3356,8 @@ void Spell::EffectApplyGlyph()
                 //TODOFROST
                 //if (gp->GlyphSlotFlags != gs->Type)
                 //{
-                    SendCastResult(SPELL_FAILED_INVALID_GLYPH);
-                    return;                                 // glyph slot mismatch
+                //    SendCastResult(SPELL_FAILED_INVALID_GLYPH);
+                //    return;                                 // glyph slot mismatch
                 //}
             }
 

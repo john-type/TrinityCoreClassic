@@ -5067,7 +5067,7 @@ void Spell::SendChannelStart(uint32 duration)
             if (target.EffectMask & channelAuraMask)
                 unitCaster->AddChannelObject(target.TargetGUID);
     }
-    else if (m_spellInfo->IsChanneled()) //TODOFROST check (was)  ->HasAttribute(SPELL_ATTR1_IS_SELF_CHANNELLED)
+    else if (m_spellInfo->IsChanneled())
         unitCaster->AddChannelObject(unitCaster->GetGUID());
 
     if (Creature* creatureCaster = unitCaster->ToCreature())
@@ -5349,10 +5349,6 @@ void Spell::HandleThreatSpells()
 
     if (m_UniqueTargetInfo.empty())
         return;
-
-    //TODOFROST - check - vmangos doesnt have this, including this causes some spells to incorrectly have no threat, e.g arcane missles.
-    /*if (!m_spellInfo->HasInitialAggro())
-        return;*/
 
     float threat = 0.0f;
     if (SpellThreatEntry const* threatEntry = sSpellMgr->GetSpellThreatEntry(m_spellInfo->Id))

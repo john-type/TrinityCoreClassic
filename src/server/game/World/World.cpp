@@ -1750,21 +1750,6 @@ void World::SetInitialWorldSettings()
     ///- Init highest guids before any table loading to prevent using not initialized guids in some code.
     sObjectMgr->SetHighestGuids();
 
-    ///- Check the existence of the map files for all races' startup areas.
-    //if (!TerrainMgr::ExistMapAndVMap(0, -6240.32f, 331.033f)
-    //    || !TerrainMgr::ExistMapAndVMap(0, -8949.95f, -132.493f)
-    //    || !TerrainMgr::ExistMapAndVMap(1, -618.518f, -4251.67f)
-    //    || !TerrainMgr::ExistMapAndVMap(0, 1676.35f, 1677.45f)
-    //    || !TerrainMgr::ExistMapAndVMap(1, 10311.3f, 832.463f)
-    //    || !TerrainMgr::ExistMapAndVMap(1, -2917.58f, -257.98f)
-    //    || (m_int_configs[CONFIG_EXPANSION] && (
-    //        !TerrainMgr::ExistMapAndVMap(530, 10349.6f, -6357.29f) ||
-    //        !TerrainMgr::ExistMapAndVMap(530, -3961.64f, -13931.2f))))
-    //{
-    //    TC_LOG_FATAL("server.loading", "Unable to load critical files - server shutting down !!!");
-    //    exit(1);
-    //}
-
     ///- Initialize pool manager
     sPoolMgr->Initialize();
 
@@ -2107,7 +2092,6 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading AreaTrigger script names...");
     sObjectMgr->LoadAreaTriggerScripts();
 
-    //TODOFROST
     //TC_LOG_INFO("server.loading", "Loading LFG entrance positions..."); // Must be after areatriggers
     //sLFGMgr->LoadLFGDungeons();
 
@@ -2156,13 +2140,11 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Player Choices Locales...");
     sObjectMgr->LoadPlayerChoicesLocale();
 
-    //TODOFROST
     /*TC_LOG_INFO("server.loading", "Loading Jump Charge Params...");
     sObjectMgr->LoadJumpChargeParams();*/
 
     CharacterDatabaseCleaner::CleanDatabase();
 
-    //TODOFROST
     //TC_LOG_INFO("server.loading", "Loading the max pet number...");
     //sObjectMgr->LoadPetNumber();
 
@@ -2196,17 +2178,19 @@ void World::SetInitialWorldSettings()
     sCriteriaMgr->LoadCriteriaList();
     TC_LOG_INFO("server.loading", "Loading Criteria Data...");
     sCriteriaMgr->LoadCriteriaData();
-    //TODOFROST
-    //TC_LOG_INFO("server.loading", "Loading Achievements...");
-    //sAchievementMgr->LoadAchievementReferenceList();
-    //TC_LOG_INFO("server.loading", "Loading Achievements Scripts...");
-    //sAchievementMgr->LoadAchievementScripts();
-    //TC_LOG_INFO("server.loading", "Loading Achievement Rewards...");
-    //sAchievementMgr->LoadRewards();
-    //TC_LOG_INFO("server.loading", "Loading Achievement Reward Locales...");
-    //sAchievementMgr->LoadRewardLocales();
-    //TC_LOG_INFO("server.loading", "Loading Completed Achievements...");
-    //sAchievementMgr->LoadCompletedAchievements();
+
+    if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
+        TC_LOG_INFO("server.loading", "Loading Achievements...");
+        sAchievementMgr->LoadAchievementReferenceList();
+        TC_LOG_INFO("server.loading", "Loading Achievements Scripts...");
+        sAchievementMgr->LoadAchievementScripts();
+        TC_LOG_INFO("server.loading", "Loading Achievement Rewards...");
+        sAchievementMgr->LoadRewards();
+        TC_LOG_INFO("server.loading", "Loading Achievement Reward Locales...");
+        sAchievementMgr->LoadRewardLocales();
+        TC_LOG_INFO("server.loading", "Loading Completed Achievements...");
+        sAchievementMgr->LoadCompletedAchievements();
+    }
 
     // Load before guilds and arena teams
     TC_LOG_INFO("server.loading", "Loading character cache store...");
@@ -2217,7 +2201,6 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Auctions...");
     sAuctionMgr->LoadAuctions();
 
-    //TODOFROST
     //if (m_bool_configs[CONFIG_BLACKMARKET_ENABLED])
     //{
     //    TC_LOG_INFO("server.loading", "Loading Black Market Templates...");
@@ -2233,8 +2216,10 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Guilds...");
     sGuildMgr->LoadGuilds();
 
-    //TC_LOG_INFO("server.loading", "Loading ArenaTeams...");
-    //sArenaTeamMgr->LoadArenaTeams();
+    if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE) {
+        TC_LOG_INFO("server.loading", "Loading ArenaTeams...");
+        sArenaTeamMgr->LoadArenaTeams();
+    }
 
     TC_LOG_INFO("server.loading", "Loading Groups...");
     sGroupMgr->LoadGroups();
@@ -2313,7 +2298,7 @@ void World::SetInitialWorldSettings()
     */
     TC_LOG_INFO("server.loading", "Loading mount definitions...");
     CollectionMgr::LoadMountDefinitions();
-    /*
+    
     TC_LOG_INFO("server.loading", "Loading GM bugs...");
     sSupportMgr->LoadBugTickets();
 
@@ -2321,10 +2306,10 @@ void World::SetInitialWorldSettings()
     sSupportMgr->LoadComplaintTickets();
 
     TC_LOG_INFO("server.loading", "Loading GM suggestions...");
-    sSupportMgr->LoadSuggestionTickets();*/
+    sSupportMgr->LoadSuggestionTickets();
 
-    /*TC_LOG_INFO("server.loading", "Loading GM surveys...");
-    sSupportMgr->LoadSurveys();*/
+    //TC_LOG_INFO("server.loading", "Loading GM surveys...");
+    //sSupportMgr->LoadSurveys();
 
     //- Handle outdated emails (delete/return)
     TC_LOG_INFO("server.loading", "Returning old mails...");
@@ -2357,15 +2342,16 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading SmartAI scripts...");
     sSmartScriptMgr->LoadSmartAIFromDB();
 
-    //TODOFROST
-    //TC_LOG_INFO("server.loading", "Loading Calendar data...");
-    //sCalendarMgr->LoadFromDB();
+    if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
+        TC_LOG_INFO("server.loading", "Loading Calendar data...");
+        sCalendarMgr->LoadFromDB();
+    }
 
-    //TC_LOG_INFO("server.loading", "Loading Petitions...");
-    //sPetitionMgr->LoadPetitions();
+    TC_LOG_INFO("server.loading", "Loading Petitions...");
+    sPetitionMgr->LoadPetitions();
 
-    //TC_LOG_INFO("server.loading", "Loading Signatures...");
-    //sPetitionMgr->LoadSignatures();
+    TC_LOG_INFO("server.loading", "Loading Signatures...");
+    sPetitionMgr->LoadSignatures();
 
     TC_LOG_INFO("server.loading", "Loading Item loot...");
     sLootItemStorage->LoadStorageFromDB();
@@ -2496,7 +2482,6 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading realm names...");
     sObjectMgr->LoadRealmNames();
 
-    //TODOFROST
     //TC_LOG_INFO("server.loading", "Loading battle pets info...");
     //BattlePets::BattlePetMgr::Initialize();
 

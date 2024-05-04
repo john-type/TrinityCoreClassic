@@ -646,9 +646,8 @@ void WorldSession::LogoutPlayer(bool save)
         }
 
         //! Broadcast a logout message to the player's friends
-        //! //TODOFROST
-        //sSocialMgr->SendFriendStatus(_player, FRIEND_OFFLINE, _player->GetGUID(), true);
-        //_player->RemoveSocial();
+        sSocialMgr->SendFriendStatus(_player, FRIEND_OFFLINE, _player->GetGUID(), true);
+        _player->RemoveSocial();
 
         //! Call script hook before deletion
         sScriptMgr->OnPlayerLogout(_player);
@@ -1433,12 +1432,11 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
             break;
         }
 
-        //TODOFROST 
-        //case CMSG_QUEST_POI_QUERY:                      //   0              25         very high upload bandwidth usage
-        //{
-        //    maxPacketCounterAllowed = MAX_QUEST_LOG_SIZE;
-        //    break;
-        //}
+        case CMSG_QUEST_POI_QUERY:                      //   0              25         very high upload bandwidth usage
+        {
+            maxPacketCounterAllowed = MAX_QUEST_LOG_SIZE;
+            break;
+        }
 
         case CMSG_SPELL_CLICK:                          // not profiled
         case CMSG_MOVE_DISMISS_VEHICLE:                 // not profiled
@@ -1448,7 +1446,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         }
 
         case CMSG_SIGN_PETITION:                        //   9               4         2 sync 1 async db queries
-        //TODOFROST case CMSG_TURN_IN_PETITION:                     //   8               5.5       2 sync db query
+        case CMSG_TURN_IN_PETITION:                     //   8               5.5       2 sync db query
         //TODOFROST case CMSG_CHANGE_SUB_GROUP:                     //   6               5         1 sync 1 async db queries
         case CMSG_QUERY_PETITION:                       //   4               3.5       1 sync db query
         case CMSG_CHAR_CUSTOMIZE:                       //   5               5         1 sync db query

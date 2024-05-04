@@ -523,8 +523,8 @@ class TC_GAME_API Object
 
         void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player* target) const;
         virtual UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const;
-        virtual void BuildValuesCreate(ByteBuffer* data, Player const* target) const = 0;   //TODOFROST - remove? (too modern)
-        virtual void BuildValuesUpdate(ByteBuffer* data, Player const* target) const = 0;   //TODOFROST - remove? (too modern)
+        virtual void BuildValuesCreate(ByteBuffer* data, Player const* target) const = 0;   
+        virtual void BuildValuesUpdate(ByteBuffer* data, Player const* target) const = 0;
         virtual void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const* target) const;
         virtual void BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const* target) const;
 

@@ -2093,6 +2093,7 @@ void GameObject::ActivateObject(GameObjectActions action, int32 param, WorldObje
 
 void GameObject::SetGoArtKit(uint32 kit)
 {
+    SetByteValue(UF::GAMEOBJECT_BYTES_1, 2, kit);
     SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::ArtKit), kit);
     GameObjectData* data = const_cast<GameObjectData*>(sObjectMgr->GetGameObjectData(m_spawnId));
     if (data)
@@ -2857,7 +2858,10 @@ void GameObject::SetLocalRotation(float qx, float qy, float qz, float qw)
 
 void GameObject::SetParentRotation(QuaternionData const& rotation)
 {
-    //TODOFROST GAMEOBJECT_PARENTROTATION
+    SetFloatValue(UF::GAMEOBJECT_PARENTROTATION + 0, rotation.x);
+    SetFloatValue(UF::GAMEOBJECT_PARENTROTATION + 1, rotation.y);
+    SetFloatValue(UF::GAMEOBJECT_PARENTROTATION + 2, rotation.z);
+    SetFloatValue(UF::GAMEOBJECT_PARENTROTATION + 3, rotation.w);
     SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::ParentRotation), rotation);
 }
 
@@ -3063,7 +3067,7 @@ void GameObject::SetLootGenerationTime()
 void GameObject::SetGoState(GOState state)
 {
     GOState oldState = GetGoState();
-    SetByteValue(UF::GAMEOBJECT_BYTES_1, 0, state); //TODOFROST enum offset
+    SetByteValue(UF::GAMEOBJECT_BYTES_1, 0, state);
     SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::State), state);
     if (AI())
         AI()->OnStateChanged(state);

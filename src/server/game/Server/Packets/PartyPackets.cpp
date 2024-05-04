@@ -224,7 +224,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyMemberStats c
     data.WriteBit(memberStats.PetStats.has_value());
     data.FlushBits();
 
-    // data << memberStats.DungeonScore;    //TODOFROST remove field
+    // data << memberStats.DungeonScore;
 
     if (memberStats.PetStats.has_value())
         data << *memberStats.PetStats;
@@ -431,7 +431,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyPlayerInfo co
     data << uint8(playerInfo.Flags);
     data << uint8(playerInfo.RolesAssigned);
     data << uint8(playerInfo.Class);
-    //data << uint8(playerInfo.FactionGroup); //TODOFROST REMOVE FIELD
+    //data << uint8(playerInfo.FactionGroup);
     data.WriteString(playerInfo.Name);
     if (!playerInfo.VoiceStateID.empty())
         data << playerInfo.VoiceStateID;
@@ -483,7 +483,7 @@ WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
     _worldPacket << PartyGUID;
     _worldPacket << uint32(SequenceNum);
     _worldPacket << LeaderGUID;
-    // _worldPacket << uint8(LeaderFactionGroup); //TODOFROST REMOVE field
+    // _worldPacket << uint8(LeaderFactionGroup);
     _worldPacket << uint32(PlayerList.size());
     _worldPacket.WriteBit(LfgInfos.has_value());
     _worldPacket.WriteBit(LootSettings.has_value());

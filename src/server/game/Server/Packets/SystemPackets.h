@@ -157,7 +157,7 @@ namespace WorldPackets
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;
             RafSystemFeatureInfo RAFSystem;
-            std::vector<uint8> UnknownBytes;    //TODOFROST - RaceClassExpansionLevels
+            std::vector<uint8> UnknownBytes; //RaceClassExpansionLevels
         };
 
         class FeatureSystemStatusGlueScreen final : public ServerPacket

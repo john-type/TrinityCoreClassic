@@ -32,8 +32,6 @@
 #include "World.h"
 #include "WorldSession.h"
 
-//TODOFROST - decide what should happen to commented out code.
-
 namespace BattlePets
 {
 namespace

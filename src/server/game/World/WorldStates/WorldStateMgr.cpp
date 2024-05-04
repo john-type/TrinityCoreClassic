@@ -77,9 +77,8 @@ void WorldStateMgr::LoadFromDB()
 
         if (!mapIds.empty() && worldState.MapIds.empty())
         {
-            //TODOFROST
-            /*TC_LOG_ERROR("sql.sql", "Table `world_state` contains a world state %d with nonempty MapIDs (" STRING_VIEW_FMT ") but no valid map id was found, ignored",
-                id, STRING_VIEW_FMT_ARG(mapIds));*/
+            TC_LOG_ERROR("sql.sql", "Table `world_state` contains a world state %d with nonempty MapIDs (" STRING_VIEW_FMT ") but no valid map id was found, ignored",
+                id, STRING_VIEW_FMT_ARG(mapIds));
             continue;
         }
 

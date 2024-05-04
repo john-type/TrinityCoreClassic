@@ -131,10 +131,7 @@ void LoadGameTables(std::string const& dataPath)
     {
         std::ostringstream str;
         for (std::string const& err  : bad_gt_files)
-            str << err << std::endl;
-
-        //TODOFROST - some files arent being created by the mapextractor, cant seem them in the list file either
-        //WPFatal(false, "Some required *.txt GameTable files (" SZFMTD ") not found or not compatible:\n%s", bad_gt_files.size(), str.str().c_str());
+            TC_LOG_INFO("server.loading", "GameTable file not found or not compatible: %s", err.c_str());
     }
 
     TC_LOG_INFO("server.loading", ">> Initialized %d GameTables in %u ms", gameTableCount, GetMSTimeDiffToNow(oldMSTime));

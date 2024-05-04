@@ -1244,7 +1244,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         Gender GetNativeGender() const override { return Gender(*m_playerData->NativeSex); }
         void SetNativeGender(Gender gender) override {
-            SetByteValue(UF::PLAYER_BYTES, 2, gender);  //TODOFROST USE ENIUM FOR OFFSET
+            SetByteValue(UF::PLAYER_BYTES, 2, gender); 
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::NativeSex), gender);
         }
 
@@ -1384,7 +1384,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint8 GetInventorySlotCount() const { return m_activePlayerData->NumBackpackSlots; }
         void SetInventorySlotCount(uint8 slots);
         uint8 GetBankBagSlotCount() const { return m_activePlayerData->NumBankSlots; }
-        void SetBankBagSlotCount(uint8 count) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NumBankSlots), count); }
+        void SetBankBagSlotCount(uint8 count) {
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NumBankSlots), count);
+            SetByteValue(UF::PLAYER_BYTES, 1, count);
+        }
         bool HasItemCount(uint32 item, uint32 count = 1, bool inBankAlso = false) const;
         bool HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item const* ignoreItem = nullptr) const;
         bool CanNoReagentCast(SpellInfo const* spellInfo) const;
@@ -1957,7 +1960,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendActionButtons(uint32 state) const;
         bool IsActionButtonDataValid(uint8 button, uint32 action, uint8 type) const;
         void SetMultiActionBars(uint8 mask) {
-            SetByteValue(UF::ACTIVE_PLAYER_FIELD_BYTES, 1, mask); //TODOFROST - use enum for offset
+            SetByteValue(UF::ACTIVE_PLAYER_FIELD_BYTES, 1, mask);
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::MultiActionBars), mask);
         }
 
@@ -2780,7 +2783,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlags), flags);
         }
         void ReplaceAllPlayerFlags(PlayerFlags flags) {
-            //TODOFROST - check
             SetUInt32Value(UF::PLAYER_FLAGS, flags);
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlags), flags);
         }
@@ -2797,7 +2799,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlagsEx), flags);
         }
         void ReplaceAllPlayerFlagsEx(PlayerFlagsEx flags) {
-            //TODOFROST - check
             SetUInt32Value(UF::PLAYER_FLAGS_EX, flags);
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlagsEx), flags);
         }
@@ -2824,7 +2825,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
 
             ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
-            //TODOFROST - check / tidy
+            
             int offset = 0;
             for (auto&& customization : customizations)
             {
@@ -2838,11 +2839,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         }
         void SetPvpTitle(uint8 pvpTitle)
         {
-            SetByteValue(UF::PLAYER_BYTES_2, 0, pvpTitle);   //TODOFROST use enum for offset
+            SetByteValue(UF::PLAYER_BYTES_2, 0, pvpTitle);   
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PvpTitle), pvpTitle);
         }
         void SetArenaFaction(uint8 arenaFaction) {
-            SetByteValue(UF::PLAYER_BYTES_2, 1, arenaFaction);   //TODOFROST use enum for offset
+            SetByteValue(UF::PLAYER_BYTES_2, 1, arenaFaction);
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::ArenaFaction), arenaFaction);
         }
         void ApplyModFakeInebriation(int32 mod, bool apply) { ApplyModUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::FakeInebriation), mod, apply); }
@@ -2909,7 +2910,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         uint8 GetNumRespecs() const { return m_activePlayerData->NumRespecs; }
         void SetNumRespecs(uint8 numRespecs) {
-            SetByteValue(UF::ACTIVE_PLAYER_FIELD_BYTES, 3, numRespecs); //TODOFROST use enum for offset
+            SetByteValue(UF::ACTIVE_PLAYER_FIELD_BYTES, 3, numRespecs); 
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NumRespecs), numRespecs);
         }
 
@@ -2921,8 +2922,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void AddAuraVision(PlayerFieldByte2Flags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::AuraVision), flags); }
         void RemoveAuraVision(PlayerFieldByte2Flags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::AuraVision), flags); }
 
-        //TODOFROST
-        void SetTransportServerTime(int32 transportServerTime) { } //SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::TransportServerTime), transportServerTime); }
+        void SetTransportServerTime(int32 transportServerTime) { } //TODO find alternative?  SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::TransportServerTime), transportServerTime);
 
         bool IsInFriendlyArea() const;
         bool IsFriendlyArea(AreaTableEntry const* inArea) const;

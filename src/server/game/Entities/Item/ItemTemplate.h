@@ -751,7 +751,7 @@ struct TC_GAME_API ItemTemplate
     int32 GetAllowableClass() const { return ExtendedData->AllowableClass; }
     Trinity::RaceMask<int64> GetAllowableRace() const { return ExtendedData->AllowableRace; }
     uint32 GetItemLevel() const { return ExtendedData->ItemLevel; }
-    uint32 GetBaseItemLevel() const { return ExtendedData->ItemLevel; } //TODOFROST remove.
+    uint32 GetBaseItemLevel() const { return ExtendedData->ItemLevel; } 
     int32 GetBaseRequiredLevel() const { return ExtendedData->RequiredLevel; }
     uint32 GetRequiredSkill() const { return ExtendedData->RequiredSkill; }
     uint32 GetRequiredSkillRank() const { return ExtendedData->RequiredSkillRank; }
@@ -764,8 +764,8 @@ struct TC_GAME_API ItemTemplate
     int32 GetStatModifierBonusValue(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatModifierBonusAmount[index]; }
     int32 GetStatPercentEditor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatPercentEditor[index]; }
     float GetStatPercentageOfSocket(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatPercentageOfSocket[index]; }
-    uint32 GetScalingStatContentTuning() const { return 1; /* ExtendedData->ContentTuningID; */ } //TODOFROST - check replacement logic
-    uint32 GetPlayerLevelToItemLevelCurveId() const { return 1;/* ExtendedData->PlayerLevelToItemLevelCurveID */ } //TODOFROST - check replacement logic
+    uint32 GetScalingStatContentTuning() const { return 1; /* ExtendedData->ContentTuningID; */ } 
+    uint32 GetPlayerLevelToItemLevelCurveId() const { return 1;/* ExtendedData->PlayerLevelToItemLevelCurveID */ }
     uint32 GetDamageType() const { return ExtendedData->DamageType; }
     uint32 GetDelay() const { return ExtendedData->ItemDelay; }
     float GetRangedModRange() const { return ExtendedData->ItemRange; }

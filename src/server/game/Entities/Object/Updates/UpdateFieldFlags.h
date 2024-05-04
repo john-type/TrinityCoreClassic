@@ -23,8 +23,6 @@
 
 namespace UF
 {
-
-    //TODOFROST check against hermes
     enum UpdatefieldFlags
     {
         UF_FLAG_NONE = 0x000,

@@ -867,7 +867,6 @@ uint64 DB2FileLoaderRegularImpl::RecordGetPackedValue(uint8 const* packedRecordD
 
 uint16 DB2FileLoaderRegularImpl::GetFieldOffset(uint32 field) const
 {
-    //TODOFROST - originally no check was done on ColumnMetaSize
     if (_header->ColumnMetaSize == 0) {
         return 0;
     }

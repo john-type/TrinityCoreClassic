@@ -1183,8 +1183,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     }
 
     // friend status
-    // //TODOFROST
-    //sSocialMgr->SendFriendStatus(pCurrChar, FRIEND_ONLINE, pCurrChar->GetGUID(), true);
+    sSocialMgr->SendFriendStatus(pCurrChar, FRIEND_ONLINE, pCurrChar->GetGUID(), true);
 
     // Place character in world (and load zone) before some object loading
     pCurrChar->LoadCorpse(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION));

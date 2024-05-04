@@ -911,6 +911,7 @@ void Player::SetDrunkValue(uint8 newDrunkValue, uint32 itemId /*= 0*/)
 
     uint32 newDrunkenState = Player::GetDrunkenstateByValue(newDrunkValue);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Inebriation), newDrunkValue);
+    SetByteValue(UF::PLAYER_BYTES, 3, newDrunkValue);
     UpdateObjectVisibility();
 
     if (!isSobering)
@@ -2638,7 +2639,6 @@ void Player::InitStatsForLevel(bool reapplyMods)
     RemovePvpFlag(UNIT_BYTE2_FLAG_FFA_PVP | UNIT_BYTE2_FLAG_SANCTUARY);
 
     // restore if need some important flags
-    //TODOFROST TIDY
     SetByteFlag(UF::ACTIVE_PLAYER_FIELD_BYTES_6, 0, 0);
     SetByteFlag(UF::ACTIVE_PLAYER_FIELD_BYTES_6, 1, 0);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::LocalRegenFlags), 0);
@@ -9650,8 +9650,6 @@ Item* Player::GetItemByPos(uint16 pos) const
 
 Item* Player::GetItemByPos(uint8 bag, uint8 slot) const
 {
-    //TODOFROST CHECK - new changes from vmangos.
-    //if (bag == INVENTORY_SLOT_BAG_0 && slot < PLAYER_SLOT_END && (slot < KEYRING_SLOT_START || slot >= KEYRING_SLOT_END))
     if (bag == INVENTORY_SLOT_BAG_0 && (slot < BANK_SLOT_BAG_END || (slot >= KEYRING_SLOT_START && slot < KEYRING_SLOT_END)))
         return m_items[slot];
     if (Bag* pBag = GetBagByPos(bag))
@@ -9937,7 +9935,7 @@ void Player::SetInventorySlotCount(uint8 slots)
         }
     }
 
-    SetByteValue(UF::ACTIVE_PLAYER_FIELD_BYTES_6, 2, slots); //TODOFROST use enum for second arg
+    SetByteValue(UF::ACTIVE_PLAYER_FIELD_BYTES_6, 2, slots);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NumBackpackSlots), slots);
 }
 
@@ -11575,7 +11573,6 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
 
 InventoryResult Player::CanUseAmmo(uint32 item) const
 {
-    //TODOFROST should arg be Item* ?
     TC_LOG_DEBUG("entities.player.items", "STORAGE: CanUseAmmo item = %u", item);
     if (!IsAlive())
         return EQUIP_ERR_PLAYER_DEAD;
@@ -24260,13 +24257,8 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     /// SMSG_WORLD_SERVER_INFO
     WorldPackets::Misc::WorldServerInfo worldServerInfo;
-    //TODOFROST - better logic needed here, this has been specifically added because deeprun tram having a MapDifficulty entry of normal difficulty, but world maps are expected to be difficulty none.
     const auto* map_difficulty = GetMap()->GetMapDifficulty();
-    int8 map_max_players = 0;
-    if (map_difficulty != nullptr) {
-        map_max_players = map_difficulty->MaxPlayers;
-    }
-    worldServerInfo.InstanceGroupSize = map_max_players;
+    worldServerInfo.InstanceGroupSize = map_difficulty != nullptr ? map_difficulty->MaxPlayers : 0;
     worldServerInfo.IsTournamentRealm = 0; /// @todo
     // worldServerInfo.RestrictedAccountMaxLevel; /// @todo
     // worldServerInfo.RestrictedAccountMaxMoney; /// @todo
@@ -25949,7 +25941,7 @@ void Player::SetPartyType(GroupCategory category, uint8 type)
     value &= ~uint8(uint8(0xFF) << (category * 4));
     value |= uint8(uint8(type) << (category * 4));
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PartyType), value);
-    //TODOFROST
+    SetByteValue(UF::PLAYER_BYTES, 0, value);
 }
 
 void Player::ResetGroupUpdateSequenceIfNeeded(Group const* group)
@@ -26147,9 +26139,10 @@ bool Player::CanCaptureTowerPoint() const
 
 int64 Player::GetBarberShopCost(Trinity::IteratorPair<UF::ChrCustomizationChoice const*> newCustomizations) const
 {
-    return 0;
+    if constexpr (CURRENT_EXPANSION < EXPANSION_WRATH_OF_THE_LICH_KING) {
+        return 0;
+    }
 
-    //TODOFROST
     if (HasAuraType(SPELL_AURA_REMOVE_BARBER_SHOP_COST))
         return 0;
 

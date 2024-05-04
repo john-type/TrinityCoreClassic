@@ -511,7 +511,7 @@ namespace WorldPackets
             uint8 Subgroup = 0u;
             uint8 Flags = 0u;
             uint8 RolesAssigned = 0u;
-            uint8 FactionGroup = 0u;    //TODOFROST remove
+            uint8 FactionGroup = 0u;
             bool FromSocialQueue = false;
             bool VoiceChatSilenced = false;
             bool Connected = false; //TODOFROST see GroupMemberOnlineStatus in hermes
