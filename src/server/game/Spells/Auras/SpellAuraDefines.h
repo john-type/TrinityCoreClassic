@@ -39,8 +39,8 @@ enum AURA_FLAGS
     AFLAG_UNK20                  = 0x0020,
     AFLAG_UNK40                  = 0x0040,
     AFLAG_UNK80                  = 0x0080,
-    AFLAG_POSITIVE              = 0x0100,
-    AFLAG_PASSIVE                = 0x0200, //TODOFROST implement
+    AFLAG_POSITIVE               = 0x0100,
+    AFLAG_PASSIVE                = 0x0200,
 };
 
 // these are modes, in which aura effect handler may be called
