@@ -2570,10 +2570,15 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::OffhandCritPercentage), 0.0f);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::RangedCritPercentage), 0.0f);
 
+    SetFloatValue(UF::ACTIVE_PLAYER_FIELD_CRIT_PERCENTAGE, 0.0f);
+    SetFloatValue(UF::ACTIVE_PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE, 0.0f);
+    SetFloatValue(UF::ACTIVE_PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, 0.0f);
+
     // Init spell schools (will be recalculated in UpdateAllStats() at loading and in _ApplyAllStatBonuses() at reset
-    // //TODOFROST
-    //for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-    //    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::SpellCritPercentage, i), 0.0f);
+    for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i) {
+        SetFloatValue(UF::ACTIVE_PLAYER_FIELD_SPELL_CRIT_PERCENTAGE1 + i, 0.0f);
+        //SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::SpellCritPercentage, i), 0.0f);
+    }
 
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ParryPercentage), 0.0f);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BlockPercentage), 0.0f);
@@ -8067,7 +8072,7 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
         switch (i)
         {
             case SpellSchools::SPELL_SCHOOL_NORMAL:
-                //TODOFROST CHECK
+                HandleStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, val, apply);
             break;
             case SpellSchools::SPELL_SCHOOL_HOLY:
                 HandleStatFlatModifier(UNIT_MOD_RESISTANCE_HOLY, BASE_VALUE, val, apply);

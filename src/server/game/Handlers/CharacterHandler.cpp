@@ -928,8 +928,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin&
 
 void WorldSession::HandleGetAccountCharListOpcode(WorldPackets::Character::GetAccountCharacterList& accountCharList)
 {
-    //TODOFROST - real result, tidy and confir safe!!
-    //TODOFROST - this doesnt work for multiple realms!
+    //TODOFROST - real result, tidy and confirm safe! currently this doesnt work for multiple realms!
     auto handler = [this, token = accountCharList.Token](EnumCharactersQueryHolder const& holder) {
 
         WorldPackets::Character::GetAccountCharacterListResult list_result;

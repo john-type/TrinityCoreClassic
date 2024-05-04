@@ -747,9 +747,10 @@ void Player::UpdateSpellCritChance()
     crit += GetRatingBonusValue(CR_CRIT_SPELL);
 
     // Store crit value
-    //TODOFROST
- /*   for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
-        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::SpellCritPercentage, i), crit);*/
+    for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i) {
+        SetFloatValue(UF::ACTIVE_PLAYER_FIELD_SPELL_CRIT_PERCENTAGE1 + i, crit);
+        //SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::SpellCritPercentage, i), crit); 
+    }
 }
 
 void Player::UpdateArmorPenetration(int32 amount)
@@ -794,9 +795,11 @@ void Player::UpdateExpertise(WeaponAttackType attack)
     {
         case BASE_ATTACK:
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::MainhandExpertise), expertise);
+            SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_EXPERTISE, expertise);
             break;
         case OFF_ATTACK:
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::OffhandExpertise), expertise);
+            SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_OFFHAND_EXPERTISE, expertise);
             break;
         default:
             break;
