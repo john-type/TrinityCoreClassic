@@ -1872,8 +1872,8 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
     for (std::size_t i = 0; i < 6; ++i)
         if (changesMask.GetBlock(i))
             data.WriteBits(changesMask.GetBlock(i), 32);
-
-    bool noQuestLogChangesMask = false; // data.WriteBit(IsQuestLogChangesMaskSkipped()); //TODOFROST
+    
+    bool noQuestLogChangesMask = data.WriteBit(false);  //IsQuestLogChangesMaskSkipped = false
     if (changesMask[0])
     {
         if (changesMask[1])
