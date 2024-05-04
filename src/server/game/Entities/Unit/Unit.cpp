@@ -7865,7 +7865,6 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
 
 void Unit::UpdateMountCapability()
 {
-    //TODOFROST - check copied from vmangos.
     if (IsMounted())
     {
         AuraEffectList auras = GetAuraEffectsByType(SPELL_AURA_MOUNTED);
@@ -9799,14 +9798,13 @@ void CharmInfo::SetSpellAutocast(SpellInfo const* spellInfo, bool state)
 
 void Unit::SetMovedUnit(Unit* target)
 {
-    //TODOFROST
-    //m_unitMovedByMe->m_playerMovingMe = nullptr;
-    //m_unitMovedByMe = ASSERT_NOTNULL(target);
-    //m_unitMovedByMe->m_playerMovingMe = ASSERT_NOTNULL(ToPlayer());
+    m_unitMovedByMe->m_playerMovingMe = nullptr;
+    m_unitMovedByMe = ASSERT_NOTNULL(target);
+    m_unitMovedByMe->m_playerMovingMe = ASSERT_NOTNULL(ToPlayer());
 
-    //WorldPackets::Movement::MoveSetActiveMover packet;
-    //packet.MoverGUID = target->GetGUID();
-    //ToPlayer()->SendDirectMessage(packet.Write());
+    WorldPackets::Movement::MoveSetActiveMover packet;
+    packet.MoverGUID = target->GetGUID();
+    ToPlayer()->SendDirectMessage(packet.Write());
 }
 
 ProcFlagsHit createProcHitMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCondition)
@@ -13430,9 +13428,8 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player const* t
             else if (index == UF::UNIT_FIELD_FLAGS)
             {
                 uint32 appendValue = m_uint32Values[UF::UNIT_FIELD_FLAGS];
-                //TODOFROST
-                /*if (target->IsGameMaster())
-                    appendValue &= ~UF::UNIT_FLAG_NOT_SELECTABLE;*/
+                if (target->IsGameMaster())
+                    appendValue &= ~UNIT_FLAG_UNINTERACTIBLE;
 
                 *data << uint32(appendValue);
             }

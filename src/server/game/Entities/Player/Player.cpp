@@ -26193,8 +26193,9 @@ void Player::InitGlyphsForLevel()
     if (level >= 80)
         value |= 0x20;
 
-    //TODOFROST
+    //if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
     //SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphsEnabled), value);
+    //}
 }
 
 void Player::UpdateGlyphsEnabled()
@@ -26214,15 +26215,29 @@ void Player::UpdateGlyphsEnabled()
     if (level >= 80)
         value |= 0x20;
 
-    //TODOFROST
+    // if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
     //SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphsEnabled), value);
+    //}
+}
+
+void Player::SetGlyphSlot(uint8 slotIndex, uint32 slotType) {
+    //if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
+    //    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphInfos, slotIndex).ModifyValue(&UF::GlyphInfo::GlyphSlot), slotType);
+    //}
+} 
+uint32 Player::GetGlyphSlot(uint8 slotIndex) const {
+    //if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
+    //    return m_activePlayerData->GlyphInfos[slotIndex].GlyphSlot
+    //}
+    return 0;
 }
 
 void Player::SetGlyph(uint8 slotIndex, uint32 glyph)
 {
     GetGlyphs(GetActiveTalentGroup())[slotIndex] = glyph;
-    //TODOFROST
-    //SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphInfos, slotIndex).ModifyValue(&UF::GlyphInfo::Glyph), glyph);
+    //if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
+    //    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphInfos, slotIndex).ModifyValue(&UF::GlyphInfo::Glyph), glyph);
+    //}
 }
 
 bool Player::isTotalImmune() const

@@ -1889,9 +1889,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void InitGlyphsForLevel();
         void UpdateGlyphsEnabled();
-        //TODOFROST
-        void SetGlyphSlot(uint8 slotIndex, uint32 slotType) { } // SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphInfos, slotIndex).ModifyValue(&UF::GlyphInfo::GlyphSlot), slotType);}
-        uint32 GetGlyphSlot(uint8 slotIndex) const { return 0; } // return m_activePlayerData->GlyphInfos[slotIndex].GlyphSlot; }
+        void SetGlyphSlot(uint8 slotIndex, uint32 slotType);
+        uint32 GetGlyphSlot(uint8 slotIndex) const;
         void SetGlyph(uint8 slotIndex, uint32 glyph);
         uint32 GetGlyph(uint8 slotIndex) { return _specializationInfo.Glyphs[GetActiveTalentGroup()][slotIndex]; }
         PlayerTalentMap const& GetPlayerTalentMap(uint8 talentGroupId) const { return _specializationInfo.Talents[talentGroupId]; }

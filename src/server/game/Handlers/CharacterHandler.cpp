@@ -1032,8 +1032,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     SendTutorialsData();
 
     pCurrChar->GetMotionMaster()->Initialize();
-    //TODOFROST
-    //pCurrChar->SendDungeonDifficulty();
+    pCurrChar->SendDungeonDifficulty();
 
     WorldPackets::Character::LoginVerifyWorld loginVerifyWorld;
     loginVerifyWorld.MapID = pCurrChar->GetMapId();
