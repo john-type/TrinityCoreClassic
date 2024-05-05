@@ -35,6 +35,21 @@ class DbInstance:
 
         return None
     
+    def select_chunked(self, builder, size):
+        has_more = True
+        offset = 0
+        
+        while has_more:
+            builder.limit(size, offset)
+            rows = self.select_all(builder)
+            
+            for row in rows:
+                yield row
+            
+            offset += size
+            has_more = len(rows) > 0
+            
+    
     def upsert(self, builder):
         built = builder.build_sql()
         self._cursor.execute(built['sql'], built['args'])
@@ -131,7 +146,7 @@ class SelectQuery:
     def group_by(self, groups):
         if type(groups) == str:
             groups = [groups]
-        self.groups = groups
+        self._groups = groups
         return self
     
     def limit(self, limit, offset = None):
