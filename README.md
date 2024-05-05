@@ -1,3 +1,31 @@
+# Frostshake/TrinityCoreClassic
+
+This project is a fork of [TrinityCore](https://github.com/TrinityCore/TrinityCore), with the aim of adding support for the modern classic clients.
+
+Development branch: **vanilla_classic**
+Supported client: **classic 1.14.0.40618**
+
+Notable references:
+
+Link | Note
+:------------: | :------------:
+|[TrinityCore/TrinityCore [wotlk_classic]](https://github.com/Frostshake/TrinityCoreClassic/commit/2d50c3da52f356ba88ff5cdb38d537f1f02ccb00)|Project starting point.|
+|[TDB 927.22082](https://github.com/TrinityCore/TrinityCore/releases/tag/TDB927.22082)| Database starting point.|
+|[TrinityCore/TrinityCore [~legion]](https://github.com/TrinityCore/TrinityCore/commit/8725eec9c1c15f3e76bd9d524d4a5d8d0b3f0a44)|Reference for update fields.|
+|[TrinityCore/TrinityCore [3.3.5]](https://github.com/TrinityCore/TrinityCore/tree/3.3.5)| Reference for classic behaviour. |
+|[VMangos/Core](https://github.com/vmangos/core)|Reference data and classic behaviour.|
+|[WowLegacyCore/HermesProxy](https://github.com/WowLegacyCore/HermesProxy)| 1.12/1.14 conversions. |
+
+
+### Further Info
+This project is an effort to build a version of trinitycore that is compatible with modern classic wow clients. Currently only `1.14.0` is supported, but I beleive more could be supported via conditional compilation, e.g a single code base for `1.14.x` and `2.5.x`.
+
+As reference data already exists for the expansions covered, data will be imported in from other projects rather than maintaining seperate dataset here. Currently only a vmangos data importer exists (in-progress).
+
+See `contrib/vmangos_db_import` & `python db_import.py`
+
+--------------
+
 # ![logo](https://community.trinitycore.org/public/style_images/1_trinitycore.png) TrinityCore (master)
 
 [![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Average time to resolve an issue") [![Percentage of issues still open](https://isitmaintained.com/badge/open/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Percentage of issues still open")
