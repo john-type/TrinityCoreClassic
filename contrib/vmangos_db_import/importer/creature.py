@@ -14,8 +14,8 @@ def Import():
     
     #clean_templates_check_vmangos()
     #clean_entries_check_vmangos()
-    #import_templates_vmangos()
-    import_entries_vmangos()
+    import_templates_vmangos()
+    #import_entries_vmangos()
     #update_instance_info()
 
 
@@ -259,6 +259,21 @@ def _upsert_creature_template(vm_row, tri_row = None) :
         creature_template_upsert.where('entry', "=", tri_row['entry'])
         
     db.tri_world.upsert(creature_template_upsert)
+    
+    
+    existing_tc_addon = db.tri_world.select_one(
+        db.SelectQuery("creature_template_addon").where('entry', "=", tri_row['entry'])
+    )
+    
+    if existing_tc_addon != None:
+        #vmangos seems to assume these always set for creatures (SHEATH_STATE_MELEE, UNIT_BYTE2_FLAG_AURAS), see Creature::UpdateEntry
+        addon_bytes_2 = (0x1 << 0) + (0x10 << 8) 
+        addon_bytes_2 = addon_bytes_2 | existing_tc_addon['bytes2']
+        creature_template_addon_upsert = db.UpsertQuery("creature_template_addon").values({
+            'bytes2': addon_bytes_2
+        }).where('entry', "=", tri_row['entry'])
+
+        db.tri_world.upsert(creature_template_addon_upsert)
     
     db.tri_world.execute_raw("DELETE FROM creature_template_model WHERE CreatureID = %s", (vm_row['entry'],))
     
