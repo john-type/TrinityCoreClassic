@@ -12,13 +12,14 @@ def Import():
     next_creature_row = db.tri_world.get_row_raw("SELECT MAX(guid) FROM creature")
     next_entry_guid = next_creature_row[0] + 1
     
-    # clean_templates_check_vmangos()
-    # clean_entries_check_vmangos()
-    import_templates_vmangos()
-    #import_entries_vmangos()
+    #clean_templates_check_vmangos()
+    #clean_entries_check_vmangos()
+    #import_templates_vmangos()
+    import_entries_vmangos()
     #update_instance_info()
 
-def clean_templates_check_vmangos():
+
+def clean_templates_check_vmangos():    
     db.tri_world.chunk_raw(
         "SELECT entry, name FROM creature_template LIMIT %s OFFSET %s",
         500,
@@ -99,28 +100,22 @@ def _handle_clean_entry_row(row):
     return 0
      
 def import_templates_vmangos():
-    db.vm_world.chunk_raw(
-        "SELECT entry, name FROM creature_template ORDER BY patch ASC LIMIT %s OFFSET %s",
-        500,
-        _handle_import_template_row
+    vm_rows = db.vm_world.select_chunked(
+        db.SelectQuery("creature_template").order_by("patch ASC"),
+        500
     )
     
-def _handle_import_template_row(row):
-    matches = db.tri_world.get_rows_raw(
-        "SELECT entry, name FROM creature_template WHERE entry = %s ", 
-        (row[0],)
-    ) 
-            
-    matches_len = len(matches)
-    if(matches_len == 0):
-        _upsert_creature_template(row[0])
-    elif(matches_len == 1):
-        _upsert_creature_template(row[0], matches[0][0])
-
-    return 0
+    for vm_row in vm_rows:
+        existing_row = db.tri_world.select_one(
+            db.SelectQuery("creature_template").select("entry, name").where("entry", "=", vm_row['entry'])
+        )
+        _upsert_creature_template(vm_row, existing_row)
                     
 
 def import_entries_vmangos():
+    
+    db.tri_world.execute_raw("DELETE FROM creature_equip_template") # TODO more intelligent method of loading/resetting equipment.
+    
     db.vm_world.chunk_raw(
         "SELECT guid, id, map, position_x, position_y, position_z FROM creature WHERE patch_max = 10 LIMIT %s OFFSET %s",
         500,
@@ -190,86 +185,147 @@ def update_instance_info():
     for instance_id in constants.RaidMaps:
         db.tri_world.execute_raw(dest_update, (instance_id,))
 
-def _upsert_creature_template(vm_ct_id, tri_ct_id = None) :
-    vm_ct_row = db.vm_world.get_row_raw((
-        "SELECT entry, level_min, level_max, faction, gold_min, gold_max, rank, "
-        "display_id1, display_id2, display_id3, display_id4, "
-        "display_scale1, display_scale2, display_scale3, display_scale4, "
-        "display_probability1, display_probability2, display_probability3, display_probability4, "
-        "name, subname, gossip_menu_id, npc_flags, speed_walk, speed_run, type, type_flags  "
-        "FROM creature_template "
-        "WHERE entry = %s "
-        "ORDER BY patch DESC LIMIT 1"),
-        (vm_ct_id,))
+def _upsert_creature_template(vm_row, tri_row = None) :
     
-    if vm_ct_row == None:
-        return
+    #TODO check missing fields, both TC and Vmangos.
     
-    if tri_ct_id == None:
-        db.tri_world.execute_raw("INSERT INTO creature_template (entry) VALUES (%s)", (vm_ct_id,))
-   
-    update_template_query = ("UPDATE creature_template SET "
-                                "minLevel = %s, maxLevel = %s, faction = %s, minGold = %s, maxGold = %s, rank = %s, VerifiedBuild = 40618,  "
-                                "name = %s, subname = %s, gossip_menu_id = %s, npcflag = %s, speed_walk = %s, speed_run = %s, type = %s, type_flags = %s "
-                                "WHERE entry = %s"
-                                )
-        
-    type_flags = vm_ct_row[26]
-    if vm_ct_row[21] > 0: #has gossip
+    type_flags = vm_row['type_flags']
+    if vm_row['gossip_menu_id'] > 0:
         type_flags = type_flags | 0x08000000 #force gossip
         #TODO handle other trinity type flags.
     
-    db.tri_world.execute_raw(update_template_query, (
-            vm_ct_row[1],
-            vm_ct_row[2],
-            vm_ct_row[3],
-            vm_ct_row[4],
-            vm_ct_row[5],
-            vm_ct_row[6],
-            vm_ct_row[19],
-            vm_ct_row[20],
-            vm_ct_row[21],
-            constants.ConvertNPCFlags(vm_ct_row[22]),
-            vm_ct_row[23],
-            vm_ct_row[24],
-            vm_ct_row[25],
-            type_flags,
-            vm_ct_id,
-        ))
+    creature_template_upsert = db.UpsertQuery("creature_template").values({
+        'name': vm_row['name'],
+        'subname': vm_row['subname'],
+        'gossip_menu_id': vm_row['gossip_menu_id'],
+        'minlevel': vm_row['level_min'],
+        'maxlevel': vm_row['level_max'],
+        'RequiredExpansion': 0,
+        'faction': vm_row['faction'],
+        'npcflag': constants.ConvertNPCFlags(vm_row['npc_flags']),
+        'speed_walk': vm_row['speed_walk'],
+        'speed_run': vm_row['speed_run'],
+        'rank': vm_row['rank'],
+        'dmgschool': vm_row['damage_school'],
+        'BaseAttackTime': vm_row['base_attack_time'],
+        'RangeAttackTime': vm_row['ranged_attack_time'],
+        'BaseVariance': vm_row['damage_variance'],
+        'RangeVariance': vm_row['damage_variance'],
+        'unit_class': vm_row['unit_class'],
+        #'unit_flags'
+        #'unit_flags2'
+        #'unit_flags3'
+        #'dynamicflags'
+        #'family'
+        'trainer_class': vm_row['trainer_class'],
+        'type':  vm_row['type'],
+        'type_flags': type_flags,
+        #'type_flags2'
+        'lootid': vm_row['loot_id'],
+        'pickpocketloot': vm_row['pickpocket_loot_id'],
+        'skinloot': vm_row['skinning_loot_id'],
+        'mingold': vm_row['gold_min'],
+        'maxgold': vm_row['gold_max'],
+        'MovementType': vm_row['movement_type'],
+        'HealthModifier': vm_row['health_multiplier'],
+        #'HealthModiferExtra'
+        'ManaModifier': vm_row['mana_multiplier'],
+        #'ManaModifierExtra'
+        'ArmorModifier': vm_row['armor_multiplier'],
+        'DamageModifier': vm_row['damage_multiplier'],
+        'ExperienceModifier': vm_row['xp_multiplier'],
+        'RacialLeader': vm_row['racial_leader'],
+        #'movementId'
+        #'CreatureDifficultyID'
+        'RegenHealth': vm_row['regeneration'] > 0,
+        'Civilian': vm_row['civilian'],
+        #'PetSpellDataId'
+        #'mechanic_immune_mask': vm_row['mechanic_immune_mask'],
+        #'spell_school_immune_mask': vm_row['spell_school_immune_mask'],
+        #'flags_extra': vm_row['flags_extra'],
+        'VerifiedBuild': constants.TargetBuild
+    })
     
-    
-    db.tri_world.execute_raw("DELETE FROM creature_template_model WHERE CreatureID = %s", (vm_ct_id,))
-    
-    displays = []
-    
-    if vm_ct_row[7] > 0:
-        displays.append([vm_ct_row[7], vm_ct_row[11], vm_ct_row[15]])
+    if tri_row == None:
+        creature_template_upsert.values({
+            'entry': vm_row['entry'],
+            'HealthScalingExpansion': 0,
+            'VignetteID': 0,
+            'scale': 1,
+            'VechicleId': 0,
+            'HoverHeight': 1,
+        })
+    else:
+        creature_template_upsert.where('entry', "=", tri_row['entry'])
         
-    if vm_ct_row[8] > 0:
-        displays.append([vm_ct_row[8], vm_ct_row[12], vm_ct_row[16]])
-        
-    if vm_ct_row[9] > 0:
-        displays.append([vm_ct_row[9], vm_ct_row[13], vm_ct_row[17]])
-            
-    if vm_ct_row[10] > 0:
-        displays.append([vm_ct_row[10], vm_ct_row[14], vm_ct_row[18]])
-        
+    db.tri_world.upsert(creature_template_upsert)
+    
+    db.tri_world.execute_raw("DELETE FROM creature_template_model WHERE CreatureID = %s", (vm_row['entry'],))
+    
     display_index = 0
-    for display in displays:
-        db.tri_world.execute_raw("INSERT INTO creature_template_model ("
-                             "CreatureID, Idx, CreatureDisplayID, DisplayScale, Probability, VerifiedBuild"
-                             ") VALUES ("
-                             "%s, %s, %s, %s, %s, 40618"
-                             ")", (vm_ct_id, display_index, display[0], display[1], display[2],))
-        display_index += 1
+    for i in range(1, 4 + 1):
+        if vm_row['display_id'+str(i)] > 0:
+            db.tri_world.upsert(
+                db.UpsertQuery("creature_template_model").values({
+                    'CreatureID': vm_row['entry'],
+                    'Idx': display_index,
+                    'CreatureDisplayID': vm_row['display_id'+str(i)],
+                    'DisplayScale': vm_row['display_scale'+str(i)],
+                    'Probability': vm_row['display_probability'+str(i)],
+                    'VerifiedBuild': constants.TargetBuild
+                })
+            )
+            display_index += 1
+            
+    
+    db.tri_world.execute_raw("DELETE FROM creature_template_resistance WHERE CreatureID = %s", (vm_row['entry'],))
+    
+    resist_fields = {
+        'holy_res': 1,
+        'fire_res': 2,
+        'nature_res': 3,
+        'frost_res': 4,
+        'shadow_res': 5,
+        'arcane_res': 6
+    }
+    
+    for res_name, res_id in resist_fields.items():
+        if(vm_row[res_name] > 0):
+            db.tri_world.upsert(
+                db.UpsertQuery("creature_template_resistance").values({
+                    'CreatureID': vm_row['entry'],
+                    'School': res_id,
+                    'Resistance': vm_row[res_name],
+                    'VerifiedBuild': constants.TargetBuild
+                })
+            )
+    
+    db.tri_world.execute_raw("DELETE FROM creature_template_spell WHERE CreatureID = %s", (vm_row['entry'],))
+    
+    spell_index = 0
+    for i in range(1, 4+1):
+        field_name = 'spell_id'+str(i)
+        if(vm_row[field_name] > 0):
+            db.tri_world.upsert(
+                db.UpsertQuery("creature_template_spell").values({
+                    'CreatureID': vm_row['entry'],
+                    '`Index`': spell_index,
+                    'Spell': vm_row[field_name],
+                    'VerifiedBuild': constants.TargetBuild
+                })
+            )
+            spell_index += 1
+
     
 def _upsert_creature_entry(vm_ce_guid, tri_ce_guid = None):
     global next_entry_guid
-    vm_row = db.vm_world.get_row_raw((
-        "SELECT guid, id, "
-        "map, position_x, position_y, position_z, orientation, "
-        "spawntimesecsmin, wander_distance, movement_type  FROM creature WHERE guid = %s"
-        ), (vm_ce_guid,))
+    
+    vm_row = db.vm_world.select_one(
+        db.SelectQuery("creature").where("guid", "=", vm_ce_guid).order_by("patch_max DESC")
+    )
+    vm_addon_row = db.vm_world.select_one(
+        db.SelectQuery("creature_addon").where('guid', "=", vm_ce_guid).order_by("patch DESC")
+    )
     
     if vm_row == None:
         return
@@ -277,41 +333,107 @@ def _upsert_creature_entry(vm_ce_guid, tri_ce_guid = None):
     if tri_ce_guid == None:
         tri_ce_guid = next_entry_guid
         next_entry_guid += 1
-        db.tri_world.execute_raw("INSERT INTO creature (guid, id) VALUES (%s, %s)", (tri_ce_guid, vm_row[1],))
+        db.tri_world.execute_raw("INSERT INTO creature (guid, id) VALUES (%s, %s)", (tri_ce_guid, vm_row['id'],))
     elif tri_ce_guid < 0:
         tri_ce_guid = abs(tri_ce_guid)
-        db.tri_world.execute_raw("INSERT INTO creature (guid, id) VALUES (%s, %s)", (tri_ce_guid, vm_row[1],))
+        db.tri_world.execute_raw("INSERT INTO creature (guid, id) VALUES (%s, %s)", (tri_ce_guid, vm_row['id'],))
 
-    #TODO health / power / flags
-    db.tri_world.execute_raw((
-        "UPDATE creature SET "
-        "map = %s, position_x = %s, position_y = %s, position_z = %s, orientation = %s, "
-        "spawntimesecs = %s, wander_distance = %s, MovementType = %s, VerifiedBuild = 40618 "
-        "WHERE guid = %s"
-    ), (
-        vm_row[2], vm_row[3], vm_row[4], vm_row[5], vm_row[6],
-        vm_row[7], vm_row[8], vm_row[9],
-        tri_ce_guid,
-    )
-    )
+    # handle equipment
+    tri_equip_id = 0
+    vm_equipment_id = 0
+    try_vm_template = True
+    if vm_addon_row:
+        vm_equipment_id = vm_addon_row['equipment_id']
+        try_vm_template = vm_equipment_id < 0
     
-    global imported_entry_guids
-    imported_entry_guids.append(tri_ce_guid)
-
-    # check if is an event creature.
-    event_rows = db.vm_world.get_rows_raw("SELECT guid, event FROM game_event_creature WHERE guid = %s", (vm_ce_guid,))
-    matches_len = len(event_rows)
-    
-    if(matches_len > 0):
-        match_row = event_rows[0]
-        
-        tri_event_rows = db.tri_world.get_rows_raw(
-            "SELECT guid, eventEntry FROM game_event_creature WHERE guid = %s AND eventEntry = %s", 
-            (tri_ce_guid, match_row[1],)
+    if try_vm_template:
+        vm_template = db.vm_world.select_one(
+            db.SelectQuery("creature_template").select("entry, equipment_id").where("entry", "=", vm_row['id'])
         )
         
-        if(len(tri_event_rows) == 0):
-            #TODO ensure event id's match between tri and vm.
-            db.tri_world.execute_raw("INSERT INTO game_event_creature (guid, eventEntry) VALUES (%s, %s)", (tri_ce_guid, match_row[1],))
+        if vm_template:
+            vm_equipment_id = vm_template['equipment_id']
+            
+    if vm_equipment_id > 0:
+        vm_equipment_row = db.vm_world.select_one(
+            db.SelectQuery("creature_equip_template").where("entry", "=", vm_equipment_id).order_by("patch_max DESC, probability DESC")    #TODO handle multiple probable options, maybe related to TC equipment_id == -1 ?
+        )
         
+        if vm_equipment_row:
+            existing_equip_row = db.tri_world.select_one(
+                db.SelectQuery("creature_equip_template").where(
+                    db.GroupCondition("AND").condition("CreatureID", "=", vm_row['id'])
+                        .condition("ItemID1", "=", vm_equipment_row['item1'])
+                        .condition("ItemID2", "=", vm_equipment_row['item2'])
+                        .condition("ItemID3", "=", vm_equipment_row['item3'])
+                )
+            )
+            
+            if existing_equip_row:
+                tri_equip_id = existing_equip_row['ID']
+            else: 
+                existing_equip_count = db.tri_world.get_row_raw("SELECT COUNT(ID) FROM creature_equip_template WHERE CreatureID = %s", (vm_row['id'],))
+                next_equip_id = existing_equip_count[0] + 1
+                tri_equip_id = next_equip_id
+                db.tri_world.upsert(
+                    db.UpsertQuery("creature_equip_template").values({
+                        'CreatureID': vm_row['id'],
+                        'ID': next_equip_id,
+                        'ItemID1': vm_equipment_row['item1'],
+                        'AppearanceModID1': 0,
+                        'ItemVisual1': 0,
+                        'ItemID2': vm_equipment_row['item2'],
+                        'AppearanceModID2': 0,
+                        'ItemVisual2': 0,
+                        'ItemID3': vm_equipment_row['item3'],
+                        'AppearanceModID3': 0,
+                        'ItemVisual3': 0,
+                        'VerifiedBuild': constants.TargetBuild
+                    })
+                )
         
+    #TODO check all fields used.
+    creature_upsert = db.UpsertQuery("creature").values({
+        'map': vm_row['map'],
+        #...
+        'modelid': vm_addon_row['display_id'] if vm_addon_row != None else 0,
+        'equipment_id': tri_equip_id,
+        'position_x': vm_row['position_x'],
+        'position_y': vm_row['position_y'],
+        'position_z': vm_row['position_z'],
+        'orientation': vm_row['orientation'],
+        'spawntimesecs': vm_row['spawntimesecsmin'],
+        'wander_distance': vm_row['wander_distance'],
+        #'curhealth': ...
+        #'curmana': ...
+        'MovementType': vm_row['movement_type'],
+        #flags...
+        'VerifiedBuild': constants.TargetBuild
+    })
+
+
+    global imported_entry_guids
+    imported_entry_guids.append(tri_ce_guid)
+    
+    creature_upsert.where("guid", "=", tri_ce_guid)  
+    db.tri_world.upsert(creature_upsert)
+
+
+    # check if is an event creature.
+    vm_event_row = db.vm_world.select_one(
+        db.SelectQuery("game_event_creature").where('guid', "=", vm_ce_guid)
+    )
+    
+    if vm_event_row:
+        existing_event_row = db.tri_world.select_one(
+            db.SelectQuery("game_event_creature").where('guid', "=", tri_ce_guid)
+        )
+        
+        if existing_event_row == None:
+            db.tri_world.upsert(
+                db.UpsertQuery("game_event_creature").values({
+                    'eventEntry': vm_event_row['event'],
+                    'guid': tri_ce_guid
+                })
+            )
+    
