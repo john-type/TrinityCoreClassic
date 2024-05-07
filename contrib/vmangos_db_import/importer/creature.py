@@ -14,9 +14,9 @@ def Import():
     
     #clean_templates_check_vmangos()
     #clean_entries_check_vmangos()
-    import_templates_vmangos()
+    #import_templates_vmangos()
     #import_entries_vmangos()
-    #update_instance_info()
+    update_instance_info()
 
 
 def clean_templates_check_vmangos():    
@@ -121,6 +121,8 @@ def import_entries_vmangos():
         500,
         _handle_import_entry_row
     )
+    
+    import_creature_models()
 
 def _handle_import_entry_row(row):
     global imported_entry_guids
@@ -177,13 +179,38 @@ def _handle_import_entry_row(row):
     return 0
 
 def update_instance_info():
-    dest_update = 'UPDATE creature SET spawnDifficulties = "1,2", VerifiedBuild = 40618 WHERE map = %s'
+    for instance_id in constants.NormalMaps:
+        db.tri_world.upsert(
+            db.UpsertQuery("creature").values({
+                'spawnDifficulties': "0",
+                "VerifiedBuild": constants.TargetBuild
+            }).where("map", "=", instance_id)
+        )
+        
     for instance_id in constants.DungeonMaps:
-        db.tri_world.execute_raw(dest_update, (instance_id,))
+        db.tri_world.upsert(
+            db.UpsertQuery("creature").values({
+                'spawnDifficulties': "1",
+                "VerifiedBuild": constants.TargetBuild
+            }).where("map", "=", instance_id)
+        )
+        
+    for instance_id in constants.Raid20Maps:
+        db.tri_world.upsert(
+            db.UpsertQuery("creature").values({
+                'spawnDifficulties': "148",
+                "VerifiedBuild": constants.TargetBuild
+            }).where("map", "=", instance_id)
+        )
+
+    for instance_id in constants.Raid40Maps:
+        db.tri_world.upsert(
+            db.UpsertQuery("creature").values({
+                'spawnDifficulties': "9",
+                "VerifiedBuild": constants.TargetBuild
+            }).where("map", "=", instance_id)
+        )
     
-    dest_update = 'UPDATE creature SET spawnDifficulties = "3,4,5,6,9,148", VerifiedBuild = 40618 WHERE map = %s'
-    for instance_id in constants.RaidMaps:
-        db.tri_world.execute_raw(dest_update, (instance_id,))
 
 def _upsert_creature_template(vm_row, tri_row = None) :
     
@@ -252,7 +279,7 @@ def _upsert_creature_template(vm_row, tri_row = None) :
             'HealthScalingExpansion': 0,
             'VignetteID': 0,
             'scale': 1,
-            'VechicleId': 0,
+            'VehicleId': 0,
             'HoverHeight': 1,
         })
     else:
@@ -452,3 +479,31 @@ def _upsert_creature_entry(vm_ce_guid, tri_ce_guid = None):
                 })
             )
     
+def import_creature_models():
+    db.tri_world.execute_raw("DELETE FROM creature_model_info")
+    
+    vm_rows = db.vm_world.select_chunked(
+        db.SelectQuery("creature_display_info_addon").order_by("build ASC"),
+        500
+    )
+    
+    for vm_row in vm_rows:
+        existing_row = db.tri_world.select_one(
+            db.SelectQuery("creature_model_info").where("DisplayID", "=", vm_row['display_id'])
+        )
+        
+        upsert = db.UpsertQuery("creature_model_info").values({
+            'BoundingRadius': vm_row['bounding_radius'],
+            'CombatReach': vm_row['combat_reach'],
+            'DisplayID_Other_Gender': vm_row['display_id_other_gender'],
+            'VerifiedBuild': constants.TargetBuild
+        })
+        
+        if existing_row == None:
+            upsert.values({
+                'DisplayID': vm_row['display_id']
+            })
+        else:
+            upsert.where("DisplayID", "=", vm_row['display_id'])
+            
+        db.tri_world.upsert(upsert)

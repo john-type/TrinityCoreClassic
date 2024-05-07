@@ -10,6 +10,7 @@ def Import():
 #     handle_areatriggers()
 #     handle_areatrigger_templates()
     remove_instances()
+    #TODO handle areatrigger_bg_entrance
 
 
 def handle_taverns():

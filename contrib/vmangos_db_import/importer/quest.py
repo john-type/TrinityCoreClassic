@@ -6,8 +6,13 @@ import database as db
 #TODO
 
 def Import():
+    remove_poi()
     import_templates_vmangos()
     remove_modern()
+    
+def remove_poi():
+    db.tri_world.execute_raw("DELETE FROM quest_poi_points")
+    db.tri_world.execute_raw("DELETE FROM quest_poi")
     
 def remove_modern():
     db.tri_world.chunk_raw(

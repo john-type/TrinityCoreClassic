@@ -9,7 +9,9 @@ def Clean():
     # cleanBattlePets()
     # cleanGarrison()
     # cleanWorldStates()
-    cleanDisables()
+    cleanVehicles()
+    #cleanDisables()
+
 
 def cleanBattlePets():
     queries = [
@@ -75,3 +77,9 @@ def _handle_disable_spell(row):
 def _handle_disable_quest(row):
     db.tri_world.execute_raw("DELETE FROM disables WHERE sourceType = 1 AND entry = %s", (row[0],))
     return 0
+
+def cleanVehicles():
+    db.tri_world.execute_raw("DELETE FROM vehicle_accessory")
+    db.tri_world.execute_raw("DELETE FROM vehicle_seat_addon")
+    db.tri_world.execute_raw("DELETE FROM vehicle_template")
+    db.tri_world.execute_raw("DELETE FROM vehicle_template_accessory")

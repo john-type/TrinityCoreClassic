@@ -5,6 +5,8 @@ import database as db
 
 def Import():
     import_pages()
+    import_weather()
+    import_points_of_interest()
 
 
 def import_pages():
@@ -68,3 +70,34 @@ def import_weather():
             upsert.values({'zone': vm_row['zone']})
         else:
             upsert.where("zone", "=", vm_row['zone'])
+            
+def import_points_of_interest():
+    vm_rows = db.vm_world.select_all(
+        db.SelectQuery("points_of_interest")
+    )
+    
+    for vm_row in vm_rows:
+        existing = db.tri_world.select_one(
+            db.SelectQuery("points_of_interest").where("ID", "=", vm_row['entry'])
+        )
+        
+        upsert = db.UpsertQuery("points_of_interest").values({
+            'PositionX': vm_row['x'],
+            'PositionY': vm_row['y'],
+            'PositionZ': 0,
+            'Icon': vm_row['icon'],
+            'Flags': vm_row['flags'],
+            'Importance': vm_row['data'],
+            'Name': vm_row['icon_name'],
+            'VerifiedBuild': constants.TargetBuild
+        })
+        
+        if existing == None:
+            upsert.values({
+                'ID': vm_row['entry']
+            })
+        else:
+            upsert.where("ID", "=", vm_row['entry'])
+            
+            
+        db.tri_world.upsert(upsert)

@@ -3,12 +3,19 @@
 import constants
 import database as db
 
+def uint32_to_int32(uint32_value):
+    if uint32_value <= 2147483647:
+        return uint32_value
+    else:
+        return uint32_value - 4294967296
+
 def Import():
     # clean_templates_check_vmangos()
     # clean_entries_check_vmangos()
-    # import_templates_vmangos()
+    import_templates_vmangos()
     # import_entries_vmangos()
-    remove_duplicate_entries()
+    #remove_duplicate_entries()
+    #update_instance_info()
 
     
 def clean_templates_check_vmangos():
@@ -80,27 +87,18 @@ def _handle_clean_entry_row(row):
     return 0
         
 def import_templates_vmangos():
-    db.vm_world.chunk_raw(
-        ("SELECT entry, type, displayId, name, size, "
-         "data0, data1, data2, data3, data4, data5, data6, data7, data8, data9, "
-         "data10, data11, data12, data13, data14, data15, data16, data17, data18, data19, "
-         "data20, data21, data22, data23, faction, flags, mingold, maxgold "
-         "FROM gameobject_template GROUP BY entry LIMIT %s OFFSET %s"),
-        500,
-        _handle_import_template_row
+    vm_rows = db.vm_world.select_chunked(
+        db.SelectQuery("gameobject_template").order_by("entry ASC, patch ASC"),
+        250
     )
-
-def _handle_import_template_row(row):
-    dest_template_query = "SELECT entry, type, displayid, name FROM gameobject_template WHERE entry = %s"
     
-    match_row = db.tri_world.get_row_raw(dest_template_query, (row[0],))
+    for vm_row in vm_rows:
+        existing_row = db.tri_world.select_one(
+            db.SelectQuery("gameobject_template").select("entry, type, displayid, name").where("entry", "=", vm_row['entry'])
+        )
+        
+        _upsert_gameobject_template(vm_row, existing_row)
     
-    if(match_row == None):
-        _upsert_gameobject_template(row)
-    else: 
-        _upsert_gameobject_template(row, match_row)
-    
-    return 0
 
 def import_entries_vmangos():
     db.vm_world.chunk_raw(
@@ -145,75 +143,71 @@ def _handle_import_entry_row(row):
     
     return 0   
 
-def _upsert_gameobject_template(vm_got, tri_got = None) :
+def _upsert_gameobject_template(vm_got, tri_got = None) :  
+        
+    if tri_got != None:
+        #confirm safe type conversions
+        safe = vm_got['type'] == tri_got['type'] or \
+            (vm_got['type'] == 3 and tri_got['type'] == 50)   # gather_node -> chest
+        
+        if safe == False:
+            return  #TODO when importer is fully implemented this can be removed.
+        
+    
+    go_upsert = db.UpsertQuery("gameobject_template").values({
+        'type': vm_got['type'],
+        'displayId': vm_got['displayId'],
+        'name': vm_got['name'],
+        'size': vm_got['size'],
+        'ContentTuningId': 0,
+        'VerifiedBuild': constants.TargetBuild
+    })
+    
+    # manually fixing data attributes!
+    #ensure max >+ min.
+    if vm_got['type'] == 3: # chest
+        vm_got['data5'] = max(vm_got['data4'], vm_got['data5']) 
+    elif vm_got['type'] == 25: # fishing hole
+        vm_got['data3'] =  max(vm_got['data2'], vm_got['data3'])  
+    
+    for i in range(0, 23 + 1):
+        go_upsert.values({
+            'Data'+str(i): uint32_to_int32(vm_got['data'+str(i)])
+        })
+    
+    #TODO handle additional data fields.
+    
     if tri_got == None:
-        #TODO handle inserts
-        return
+        go_upsert.values({
+            'entry': vm_got['entry']
+        })
+    else:
+        go_upsert.where('entry', "=", vm_got['entry'])
     
-    #confirm safe type conversions
-    safe = vm_got[1] == tri_got[1] or \
-        (vm_got[1] == 3 and tri_got[1] == 50)   # gather_node -> chest
-    
-    if safe == False:
-        return 
-    
-    update_query = ("UPDATE gameobject_template SET "
-    "type = %s, "
-    "displayId = %s, "
-    "name = %s, "
-    "size = %s, "
-    "Data0 = %s, Data1 = %s, Data2 = %s, Data3 = %s, Data4 = %s, Data5 = %s, "
-    "Data6 = %s, Data7 = %s, Data8 = %s, Data9 = %s, Data10 = %s, "
-    "Data11 = %s, Data12 = %s, Data13 = %s, Data14 = %s, Data15 = %s, "
-    "Data16 = %s, Data17 = %s, Data18 = %s, Data19 = %s, Data20 = %s, "
-    "Data21 = %s, Data22 = %s, Data23 = %s, VerifiedBuild = 40618, ContentTuningId = 0 "
-    "WHERE entry = %s"
+    db.tri_world.upsert(go_upsert)
+        
+    existing_addon = db.tri_world.select_one(
+        db.SelectQuery("gameobject_template_addon").where("entry", "=", vm_got['entry'])
     )
     
-    db.tri_world.execute_raw(update_query, (
-        vm_got[1],
-        vm_got[2],
-        vm_got[3],
-        vm_got[4], #size
-        vm_got[5], vm_got[6], vm_got[7], vm_got[8], vm_got[9],
-        vm_got[10], vm_got[11], vm_got[12], vm_got[13], vm_got[14],
-        vm_got[15], vm_got[16], vm_got[17], vm_got[18], vm_got[19],
-        vm_got[20], vm_got[21], vm_got[22], vm_got[23], vm_got[24],
-        vm_got[25], vm_got[26], vm_got[27], vm_got[28],
-        vm_got[0] #entry
-    ,))
+    addon_upsert = db.UpsertQuery("gameobject_template_addon").values({
+        'faction': vm_got['faction'],
+        'flags': vm_got['flags'],
+        'mingold': vm_got['mingold'],
+        'maxgold': vm_got['maxgold'],
+        #artkits?
+    })
     
-    existing_addon = db.tri_world.get_row_raw("SELECT entry, flags FROM gameobject_template_addon WHERE entry = %s", (vm_got[0],))
-    # faction = vm_got[29]
-        
     if existing_addon == None:
-        db.tri_world.execute_raw((
-            "INSERT INTO gameobject_template_addon ("
-            "entry, faction, flags, mingold, maxgold, "
-            "artkit0, artkit1, artkit2, artkit3, artkit4, WorldEffectID, AIAnimKitID"
-            ") VALUES ("
-            "%s, %s, %s, %s, %s, "
-            "0, 0, 0, 0, 0, 0, 0"
-            ")"
-            ),(
-                vm_got[0],
-                vm_got[29],
-                vm_got[30],
-                vm_got[31],
-                vm_got[32]
-            ,))
+        addon_upsert.values({
+            'entry': vm_got['entry']
+        })
     else:
-        db.tri_world.execute_raw((
-            "UPDATE gameobject_template_addon SET "
-            "faction = %s, flags = %s, mingold = %s, maxgold = %s "
-            "WHERE entry = %s"
-            ),(
-                vm_got[29],
-                vm_got[30],
-                vm_got[31],
-                vm_got[32],
-                vm_got[0]
-            ,))
+        addon_upsert.where('entry', "=", vm_got['entry'])
+        
+    db.tri_world.upsert(addon_upsert)
+    
+
     
 def _upsert_gameobject_entry(vm_go_guid, tri_go_guid = None):
 
@@ -316,3 +310,36 @@ def _handle_clean_duplicate_entry_row(row):
         db.tri_world.execute_raw("DELETE FROM gameobject WHERE guid = %s", (dup_guid,))
                 
     return 0 - len(to_remove_dups)
+
+def update_instance_info():
+    for instance_id in constants.NormalMaps:
+        db.tri_world.upsert(
+            db.UpsertQuery("gameobject").values({
+                'spawnDifficulties': "0",
+                "VerifiedBuild": constants.TargetBuild
+            }).where("map", "=", instance_id)
+        )
+        
+    for instance_id in constants.DungeonMaps:
+        db.tri_world.upsert(
+            db.UpsertQuery("gameobject").values({
+                'spawnDifficulties': "1",
+                "VerifiedBuild": constants.TargetBuild
+            }).where("map", "=", instance_id)
+        )
+
+    for instance_id in constants.Raid20Maps:
+        db.tri_world.upsert(
+            db.UpsertQuery("gameobject").values({
+                'spawnDifficulties': "148",
+                "VerifiedBuild": constants.TargetBuild
+            }).where("map", "=", instance_id)
+        )
+        
+    for instance_id in constants.Raid40Maps:
+        db.tri_world.upsert(
+            db.UpsertQuery("gameobject").values({
+                'spawnDifficulties': "9",
+                "VerifiedBuild": constants.TargetBuild
+            }).where("map", "=", instance_id)
+        )

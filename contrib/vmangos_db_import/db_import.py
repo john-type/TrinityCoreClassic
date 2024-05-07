@@ -11,6 +11,7 @@ import importer.gameobject
 import importer.graveyard
 import importer.gossip
 import importer.item
+import importer.loot
 import importer.misc
 import importer.npc
 import importer.player
@@ -28,6 +29,9 @@ print("Starting VMangos -> Trinity DB Import...")
 print("Opening DB...")
 db.OpenAll()
 
+# print("Misc...")
+# importer.misc.Import()
+
 # print("Areas...")
 # importer.area.Import()
 
@@ -40,8 +44,8 @@ db.OpenAll()
 # print("Creatures...")
 # importer.creature.Import()
 
-# print("GameObjects...")
-# importer.gameobject.Import()
+print("GameObjects...")
+importer.gameobject.Import()
 
 # print("gossips...")
 # importer.gossip.Import()
@@ -51,6 +55,9 @@ db.OpenAll()
 
 # print("Items...")
 # importer.item.Import()
+
+# print("Loot...")
+# importer.loot.Import()
 
 # print("NPCs...")
 # importer.npc.Import()
@@ -78,9 +85,6 @@ db.OpenAll()
 
 # print("Waypoints...")
 # importer.waypoint.Import()
-
-print("Misc...")
-importer.misc.Import()
 
 # print("Cleanup...")
 # importer.cleanup.Clean()
