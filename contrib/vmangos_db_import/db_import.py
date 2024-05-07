@@ -44,8 +44,8 @@ db.OpenAll()
 # print("Creatures...")
 # importer.creature.Import()
 
-print("GameObjects...")
-importer.gameobject.Import()
+# print("GameObjects...")
+# importer.gameobject.Import()
 
 # print("gossips...")
 # importer.gossip.Import()
@@ -65,8 +65,8 @@ importer.gameobject.Import()
 # print("Players...")
 # importer.player.Import()
 
-# print("Pool...")
-# importer.pool.Import()
+print("Pool...")
+importer.pool.Import()
 
 # print("Quests...")
 # importer.quest.Import()

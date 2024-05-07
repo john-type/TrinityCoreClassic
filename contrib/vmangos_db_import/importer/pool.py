@@ -8,10 +8,13 @@ TRINITY_POOL_TYPE_GAMEOJECT = 1
 TRINITY_POOL_TYPE_POOL = 2 
 
 def Import():
+    remove_old()
     handle_pool_templates()
     handle_pool_members()
     
-#TODO delete obsolete data
+def remove_old():
+    db.tri_world.execute_raw("DELETE FROM pool_template")
+    db.tri_world.execute_raw("DELETE FROM pool_members")
     
 def handle_pool_templates():
     
@@ -45,20 +48,24 @@ def handle_pool_members():
     #TODO handle creature template and GO template pools.
     
     vm_creature_pools = db.vm_world.select_chunked(
-        db.SelectQuery("pool_creature").order_by("guid ASC, pool_entry ASC"),
+        db.SelectQuery("pool_creature").where('patch_max', '=', 10).order_by("guid ASC, pool_entry ASC"),
         250
     )
     
     for vm_cp in vm_creature_pools:
-        _upsert_pool_member(TRINITY_POOL_TYPE_CREATURE, vm_cp['guid'], vm_cp['pool_entry'], vm_cp['chance'], vm_cp['description'])
+        tri_guid = tri_closest('creature', vm_cp['guid'])
+        if tri_guid:
+            _upsert_pool_member(TRINITY_POOL_TYPE_CREATURE, tri_guid, vm_cp['pool_entry'], vm_cp['chance'], vm_cp['description'])
     
     vm_go_pools = db.vm_world.select_chunked(
-        db.SelectQuery("pool_gameobject").order_by("guid ASC, pool_entry ASC"),
+        db.SelectQuery("pool_gameobject").where('patch_max', '=', 10).order_by("guid ASC, pool_entry ASC"),
         250
     )
     
     for vm_gp in vm_go_pools:
-        _upsert_pool_member(TRINITY_POOL_TYPE_GAMEOJECT, vm_gp['guid'], vm_gp['pool_entry'], vm_gp['chance'], vm_gp['description'])
+        tri_guid = tri_closest('gameobject', vm_gp['guid'])
+        if tri_guid:
+            _upsert_pool_member(TRINITY_POOL_TYPE_GAMEOJECT, tri_guid, vm_gp['pool_entry'], vm_gp['chance'], vm_gp['description'])
 
     
             
@@ -91,4 +98,29 @@ def _upsert_pool_member(type, spawn_id, pool_spawn_id, chance, desc):
             )
         )
 
+
+def tri_closest(table, vm_guid):
+    vm_row = db.vm_world.select_one(
+        db.SelectQuery(table).select("guid, id, map, position_x, position_y, position_z").where('guid', "=", vm_guid)
+    )
     
+    if vm_row:
+        tri_row = db.tri_world.select_one(
+            db.SelectQuery(table).select('guid').where(
+                db.GroupCondition("AND").condition(
+                    "id", "=", vm_row['id']
+                ).condition(
+                    "map", "=", vm_row['map']
+                ).condition(
+                    'position_x', 'BETWEEN', [vm_row['position_x'] - 0.001, vm_row['position_x'] + 0.001]
+                ).condition(
+                    'position_y', 'BETWEEN', [vm_row['position_y'] - 0.001, vm_row['position_y'] + 0.001]
+                ).condition(
+                    'position_z', 'BETWEEN', [vm_row['position_z'] - 0.001, vm_row['position_z'] + 0.001]
+                )
+            )
+        )
+        if tri_row:
+            return tri_row['guid']
+        
+    return None
