@@ -3,14 +3,13 @@
 import constants
 import database as db
 
-#TODO#
-
 def Clean():
-    # cleanBattlePets()
-    # cleanGarrison()
-    # cleanWorldStates()
+    cleanBattlePets()
+    cleanGarrison()
+    cleanWorldStates()
     cleanVehicles()
-    #cleanDisables()
+    cleanDisables()
+    cleanTeles()
 
 
 def cleanBattlePets():
@@ -83,3 +82,8 @@ def cleanVehicles():
     db.tri_world.execute_raw("DELETE FROM vehicle_seat_addon")
     db.tri_world.execute_raw("DELETE FROM vehicle_template")
     db.tri_world.execute_raw("DELETE FROM vehicle_template_accessory")
+    
+def cleanTeles():
+    db.tri_world.delete(
+        db.DeleteQuery("game_tele").where('map', '>', constants.MaxMapId)
+    )

@@ -301,13 +301,18 @@ class Condition:
         
     def build_sql(self):
         
-        if (self._op == "IN" or self._op == "NOT IN") and isinstance(self._value, list):
-            placeholder = ', '.join(['%s'] * len(self._value))
-            return {
-                'sql': "(" + self._field + " " + self._op + " (" + placeholder +"))",
-                'args': self._value
-            } 
-        
+        if isinstance(self._value, list):
+            if (self._op == "IN" or self._op == "NOT IN") :
+                placeholder = ', '.join(['%s'] * len(self._value))
+                return {
+                    'sql': "(" + self._field + " " + self._op + " (" + placeholder +"))",
+                    'args': self._value
+                } 
+            elif self._op == 'BETWEEN':
+                return {
+                    'sql': "(" + self._field + " BETWEEN %s AND %s)",
+                    'args': self._value
+                }
         
         return {
             'sql': "(" + self._field + " " + self._op + " %s)",

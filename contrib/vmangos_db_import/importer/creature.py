@@ -14,7 +14,7 @@ def Import():
     
     #clean_templates_check_vmangos()
     #clean_entries_check_vmangos()
-    #import_templates_vmangos()
+    import_templates_vmangos()
     #import_entries_vmangos()
     update_instance_info()
 
@@ -80,8 +80,6 @@ def clean_entries_check_vmangos():
     )    
    
 def _handle_clean_entry_row(row):
-    dest_creature_query = ("SELECT guid, id, map, position_x, position_y, position_z FROM creature "
-                    "WHERE id = %s AND map = %s AND patch_max = 10")
     
     delete_src_obj_creature_queries = [
         ("DELETE FROM creature_addon WHERE guid = %s"),
@@ -90,10 +88,23 @@ def _handle_clean_entry_row(row):
         ("DELETE FROM creature WHERE guid = %s"),
     ]
     
-    matches = db.vm_world.get_rows_raw(dest_creature_query, (row[1], row[2]))
-    matches_len = len(matches)
+    match = db.vm_world.select_one(
+        db.SelectQuery("creature").where(
+            db.GroupCondition("AND").condition(
+                'id', '=', row[1]
+            ).condition(
+                'map', '=', row[2]
+            ).condition(
+                'position_x', 'BETWEEN', [row[3] - 0.01, row[3] + 0.01]
+            ).condition(
+                'position_y', 'BETWEEN', [row[4] - 0.01, row[4] + 0.01]
+            ).condition(
+                'position_z', 'BETWEEN', [row[5] - 0.01, row[5] + 0.01]
+            )
+        )
+    )
     
-    if(matches_len == 0):
+    if match == None:
         db.tri_world.execute_many_raw(delete_src_obj_creature_queries, (row[0],))                
         return -1
     
@@ -114,6 +125,7 @@ def import_templates_vmangos():
 
 def import_entries_vmangos():
     
+    db.tri_world.execute_raw("DELETE FROM game_event_creature")
     db.tri_world.execute_raw("DELETE FROM creature_equip_template") # TODO more intelligent method of loading/resetting equipment.
     
     db.vm_world.chunk_raw(
@@ -222,12 +234,22 @@ def _upsert_creature_template(vm_row, tri_row = None) :
         #TODO handle other trinity type flags.
     
     creature_template_upsert = db.UpsertQuery("creature_template").values({
+        'difficulty_entry_1': 0,
+        'difficulty_entry_2': 0,
+        'difficulty_entry_3': 0,
+        'KillCredit1': 0,
+        'KillCredit2': 0,
         'name': vm_row['name'],
+        'femaleName': None,
         'subname': vm_row['subname'],
+        'TitleAlt': None,
+        'IconName': None,
         'gossip_menu_id': vm_row['gossip_menu_id'],
         'minlevel': vm_row['level_min'],
         'maxlevel': vm_row['level_max'],
+        'HealthScalingExpansion': 0,
         'RequiredExpansion': 0,
+        'VignetteID': 0,
         'faction': vm_row['faction'],
         'npcflag': constants.ConvertNPCFlags(vm_row['npc_flags']),
         'speed_walk': vm_row['speed_walk'],
@@ -243,7 +265,7 @@ def _upsert_creature_template(vm_row, tri_row = None) :
         #'unit_flags2'
         #'unit_flags3'
         #'dynamicflags'
-        #'family'
+        'family': vm_row['pet_family'],
         'trainer_class': vm_row['trainer_class'],
         'type':  vm_row['type'],
         'type_flags': type_flags,
@@ -276,8 +298,6 @@ def _upsert_creature_template(vm_row, tri_row = None) :
     if tri_row == None:
         creature_template_upsert.values({
             'entry': vm_row['entry'],
-            'HealthScalingExpansion': 0,
-            'VignetteID': 0,
             'scale': 1,
             'VehicleId': 0,
             'HoverHeight': 1,
@@ -436,8 +456,10 @@ def _upsert_creature_entry(vm_ce_guid, tri_ce_guid = None):
         
     #TODO check all fields used.
     creature_upsert = db.UpsertQuery("creature").values({
+        'id': vm_row['id'],
         'map': vm_row['map'],
         #...
+        'phaseId': 0, #TODO check
         'modelid': vm_addon_row['display_id'] if vm_addon_row != None else 0,
         'equipment_id': tri_equip_id,
         'position_x': vm_row['position_x'],

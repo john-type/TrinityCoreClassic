@@ -59,14 +59,14 @@ db.OpenAll()
 # print("Loot...")
 # importer.loot.Import()
 
-# print("NPCs...")
-# importer.npc.Import()
+print("NPCs...")
+importer.npc.Import()
 
 # print("Players...")
 # importer.player.Import()
 
-print("Pool...")
-importer.pool.Import()
+# print("Pool...")
+# importer.pool.Import()
 
 # print("Quests...")
 # importer.quest.Import()
@@ -86,8 +86,8 @@ importer.pool.Import()
 # print("Waypoints...")
 # importer.waypoint.Import()
 
-# print("Cleanup...")
-# importer.cleanup.Clean()
+print("Cleanup...")
+importer.cleanup.Clean()
 
 print("Closing DB...")
 db.CloseAll()
