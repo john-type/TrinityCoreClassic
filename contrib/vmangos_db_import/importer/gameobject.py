@@ -301,49 +301,6 @@ def _upsert_gameobject_entry(vm_go_guid, tri_go_guid = None):
     db.tri_world.upsert(go_upsert)
     
     #TODO gameobject_addon
-    
-    
-    #############################
-    
-    src_obj = db.vm_world.get_row_raw((
-        "SELECT id, map, position_x, position_y, position_z, orientation,"
-        "rotation0, rotation1, rotation2, rotation3, spawntimesecsmin, animprogress, state "
-        "FROM gameobject WHERE guid = %s"
-        ), (vm_go_guid,))
-    
-    if src_obj == None:
-        return
-    
-    dest_insert = (
-        "INSERT INTO gameobject ("
-        "id, map, zoneId, areaId, spawnDifficulties, phaseUseFlags, PhaseId, PhaseGroup, terrainSwapMap, "
-        "position_x, position_y, position_z, orientation, rotation0, rotation1, rotation2, rotation3, "
-        "spawntimesecs, animprogress, state, ScriptName, VerifiedBuild"
-        ") VALUES ("
-        "%s, %s, 0, 0, 0, 0, 0, 0, -1, "
-        "%s, %s, %s, %s, %s, %s, %s, %s,"
-        "%s, %s, %s, \"\", 40618"
-        ")"
-        )
-    
-    dest_update = (
-        "UPDATE gameobject SET "
-        "position_x = %s, position_y = %s, position_z=%s, orientation=%s, rotation0=%s, rotation1=%s, rotation2=%s, rotation3=%s, "
-        "spawntimesecs = %s, animprogress=%s, state = %s, VerifiedBuild = 40618 "
-        "WHERE guid = %s"
-    )
-    
-    if tri_go_guid == None:
-        pass #TODO handle insert
-    else:
-        db.tri_world.execute_raw(dest_update, (
-            src_obj[2], src_obj[3], src_obj[4], src_obj[5], src_obj[6],  src_obj[7],  src_obj[8],  src_obj[9],  
-            src_obj[10], src_obj[11], src_obj[12], tri_go_guid
-        ,))
-    
-    if tri_go_guid == None:
-        return
-
 
     # check if is an event go
     vm_event_row = db.vm_world.select_one(

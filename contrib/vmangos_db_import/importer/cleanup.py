@@ -10,6 +10,9 @@ def Clean():
     cleanVehicles()
     cleanDisables()
     cleanTeles()
+    cleanAccessRequirements()
+    cleanAchievements()
+    cleanConversations()
 
 
 def cleanBattlePets():
@@ -87,3 +90,19 @@ def cleanTeles():
     db.tri_world.delete(
         db.DeleteQuery("game_tele").where('map', '>', constants.MaxMapId)
     )
+    
+def cleanAccessRequirements():
+    db.tri_world.delete(
+        db.DeleteQuery("access_requirement").where('mapId', ">", constants.MaxMapId)
+    )
+    
+def cleanAchievements():
+    db.tri_world.execute_raw("DELETE FROM achievement_dbc")
+    db.tri_world.execute_raw("DELETE FROM achievement_reward")
+    db.tri_world.execute_raw("DELETE FROM achievement_reward_locale")
+    db.tri_world.execute_raw("DELETE FROM achievement_scripts")
+    
+def cleanConversations():
+    db.tri_world.execute_raw("DELETE FROM conversation_actors")
+    db.tri_world.execute_raw("DELETE FROM conversation_line_template")
+    db.tri_world.execute_raw("DELETE FROM conversation_template")

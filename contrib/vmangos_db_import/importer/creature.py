@@ -15,7 +15,7 @@ def Import():
     #clean_templates_check_vmangos()
     #clean_entries_check_vmangos()
     import_templates_vmangos()
-    #import_entries_vmangos()
+    import_entries_vmangos()
     update_instance_info()
 
 
