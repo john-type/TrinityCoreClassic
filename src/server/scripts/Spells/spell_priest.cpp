@@ -996,8 +996,6 @@ class spell_pri_power_word_shield_aura : public AuraScript
 
             if (Player* player = caster->ToPlayer())
             {
-                AddPct(amountF, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
-
                 if (AuraEffect const* mastery = caster->GetAuraEffect(SPELL_PRIEST_MASTERY_GRACE, EFFECT_0))
                     if (GetUnitOwner()->HasAura(SPELL_PRIEST_ATONEMENT_TRIGGERED) || GetUnitOwner()->HasAura(SPELL_PRIEST_ATONEMENT_TRIGGERED_TRINITY))
                         AddPct(amountF, mastery->GetAmount());

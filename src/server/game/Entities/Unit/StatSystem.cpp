@@ -460,10 +460,6 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float weaponMinDamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weaponMaxDamage = GetWeaponDamageRange(attType, MAXDAMAGE);
 
-    float versaDmgMod = 1.0f;
-
-    AddPct(versaDmgMod, GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + float(GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY)));
-
     SpellShapeshiftFormEntry const* shapeshift = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm());
     if (shapeshift && shapeshift->CombatRoundTime)
     {
@@ -488,8 +484,8 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
         weaponMaxDamage += GetAmmoDPS() * attackPowerMod;
     }
 
-    minDamage = ((weaponMinDamage + baseValue) * basePct + totalValue) * totalPct * versaDmgMod;
-    maxDamage = ((weaponMaxDamage + baseValue) * basePct + totalValue) * totalPct * versaDmgMod;
+    minDamage = ((weaponMinDamage + baseValue) * basePct + totalValue) * totalPct;
+    maxDamage = ((weaponMaxDamage + baseValue) * basePct + totalValue) * totalPct;
 }
 
 void Player::UpdateDefenseBonusesMod()
@@ -609,8 +605,6 @@ void Player::UpdateVersatilityDamageDone()
 void Player::UpdateHealingDonePercentMod()
 {
     float value = 1.0f;
-
-    AddPct(value, GetRatingBonusValue(CR_VERSATILITY_HEALING_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY));
 
     for (AuraEffect const* auraEffect : GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE_PERCENT))
         AddPct(value, auraEffect->GetAmount());

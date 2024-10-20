@@ -6595,10 +6595,6 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     if (GetTypeId() == TYPEID_UNIT && !IsPet())
         DoneTotalMod *= ToCreature()->GetSpellDamageMod(ToCreature()->GetCreatureTemplate()->rank);
 
-    // Versatility
-    if (Player* modOwner = GetSpellModOwner())
-        AddPct(DoneTotalMod, modOwner->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + modOwner->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY));
-
     float maxModDamagePercentSchool = 0.0f;
     if (Player const* thisPlayer = ToPlayer())
     {
@@ -6679,14 +6675,6 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
     // Spells with SPELL_ATTR4_IGNORE_DAMAGE_TAKEN_MODIFIERS should only benefit from mechanic damage mod auras.
     if (!spellProto->HasAttribute(SPELL_ATTR4_IGNORE_DAMAGE_TAKEN_MODIFIERS))
     {
-        // Versatility
-        if (Player* modOwner = GetSpellModOwner())
-        {
-            // only 50% of SPELL_AURA_MOD_VERSATILITY for damage reduction
-            float versaBonus = modOwner->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY) / 2.0f;
-            AddPct(TakenTotalMod, -(modOwner->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + versaBonus));
-        }
-
         // from positive and negative SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN
         // multiplicative bonus, for example Dispersion + Shadowform (0.10*0.85=0.085)
         TakenTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, spellProto->GetSchoolMask());
@@ -7615,14 +7603,6 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
         TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN_PCT);
     else
         TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN_PCT);
-
-    // Versatility
-    if (Player* modOwner = GetSpellModOwner())
-    {
-        // only 50% of SPELL_AURA_MOD_VERSATILITY for damage reduction
-        float versaBonus = modOwner->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY) / 2.0f;
-        AddPct(TakenTotalMod, -(modOwner->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + versaBonus));
-    }
 
     // Sanctified Wrath (bypass damage reduction)
     if (TakenTotalMod < 1.0f)
