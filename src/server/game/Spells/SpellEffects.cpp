@@ -910,7 +910,7 @@ void Spell::EffectTeleportUnits()
     if (targetDest.GetMapId() == unitTarget->GetMapId())
         unitTarget->NearTeleportTo(targetDest, unitTarget == m_caster);
     else if (player)
-        player->TeleportTo(targetDest, unitTarget == m_caster ? TELE_TO_SPELL : 0);
+        player->TeleportTo(targetDest, unitTarget == m_caster ? TELE_TO_SPELL : TELE_TO_NONE);
     else
     {
         TC_LOG_ERROR("spells", "Spell::EffectTeleportUnits - spellId %u attempted to teleport creature to a different map.", m_spellInfo->Id);
@@ -921,7 +921,7 @@ void Spell::EffectTeleportUnits()
 class DelayedSpellTeleportEvent : public BasicEvent
 {
 public:
-    explicit DelayedSpellTeleportEvent(Unit* target, WorldLocation const& targetDest, uint32 options, uint32 spellId)
+    explicit DelayedSpellTeleportEvent(Unit* target, WorldLocation const& targetDest, TeleportToOptions options, uint32 spellId)
         : _target(target), _targetDest(targetDest), _options(options), _spellId(spellId){ }
 
     bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override
@@ -939,7 +939,7 @@ public:
 private:
     Unit* _target;
     WorldLocation _targetDest;
-    uint32 _options;
+    TeleportToOptions _options;
     uint32 _spellId;
 };
 
@@ -970,7 +970,7 @@ void Spell::EffectTeleportUnitsWithVisualLoadingScreen()
         if (Player* playerTarget = unitTarget->ToPlayer())
             playerTarget->SendDirectMessage(WorldPackets::Spells::SpellVisualLoadScreen(effectInfo->MiscValueB, effectInfo->MiscValue).Write());
 
-    unitTarget->m_Events.AddEventAtOffset(new DelayedSpellTeleportEvent(unitTarget, targetDest, unitTarget == m_caster ? TELE_TO_SPELL : 0, m_spellInfo->Id),
+    unitTarget->m_Events.AddEventAtOffset(new DelayedSpellTeleportEvent(unitTarget, targetDest, unitTarget == m_caster ? TELE_TO_SPELL : TELE_TO_NONE, m_spellInfo->Id),
         Milliseconds(effectInfo->MiscValue));
 }
 
@@ -5128,7 +5128,7 @@ void Spell::EffectTeleportToReturnPoint()
 
     if (Player* player = unitTarget->ToPlayer())
         if (WorldLocation const* dest = player->GetStoredAuraTeleportLocation(effectInfo->MiscValue))
-            player->TeleportTo(*dest, unitTarget == m_caster ? TELE_TO_SPELL | TELE_TO_NOT_LEAVE_COMBAT : 0);
+            player->TeleportTo(*dest, unitTarget == m_caster ? TELE_TO_SPELL | TELE_TO_NOT_LEAVE_COMBAT : TELE_TO_NONE);
 }
 
 void Spell::EffectSummonRaFFriend()

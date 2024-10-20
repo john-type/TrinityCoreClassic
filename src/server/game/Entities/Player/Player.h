@@ -823,6 +823,7 @@ class InstanceSave;
 
 enum TeleportToOptions
 {
+    TELE_TO_NONE                = 0x00,
     TELE_TO_GM_MODE             = 0x01,
     TELE_TO_NOT_LEAVE_TRANSPORT = 0x02,
     TELE_TO_NOT_LEAVE_COMBAT    = 0x04,
@@ -832,6 +833,8 @@ enum TeleportToOptions
     TELE_REVIVE_AT_TELEPORT     = 0x40,
     TELE_TO_SEAMLESS            = 0x80
 };
+
+DEFINE_ENUM_FLAG(TeleportToOptions);
 
 /// Type of environmental damages
 enum EnviromentalDamage : uint8
@@ -1132,6 +1135,14 @@ enum class ZonePVPTypeOverride : uint32
     Combat      = 4
 };
 
+struct TeleportLocation
+{
+    WorldLocation Location;
+    Optional<ObjectGuid> TransportGuid;
+    Optional<uint32> InstanceId;
+    Optional<uint32> LfgDungeonsId;
+};
+
 class TC_GAME_API Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -1152,8 +1163,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SetObjectScale(float scale) override;
 
-        bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0, Optional<uint32> instanceId = {});
-        bool TeleportTo(WorldLocation const& loc, uint32 options = 0, Optional<uint32> instanceId = {});
+        bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, TeleportToOptions  options = TELE_TO_NONE, Optional<uint32> instanceId = {});
+        bool TeleportTo(WorldLocation const& loc, TeleportToOptions  options = TELE_TO_NONE, Optional<uint32> instanceId = {});
+        bool TeleportTo(TeleportLocation const& teleportLocation, TeleportToOptions options = TELE_TO_NONE);
         bool TeleportToBGEntryPoint();
 
         bool HasSummonPending() const;
@@ -2275,8 +2287,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillPermBonus, pos), bonus);
         }
 
-        WorldLocation& GetTeleportDest() { return m_teleport_dest; }
-        Optional<uint32> GetTeleportDestInstanceId() const { return m_teleport_instanceId; }
+        TeleportLocation& GetTeleportDest() { return m_teleport_dest; }
         uint32 GetTeleportOptions() const { return m_teleport_options; }
         bool IsBeingTeleported() const { return IsBeingTeleportedNear() || IsBeingTeleportedFar(); }
         bool IsBeingTeleportedNear() const { return mSemaphoreTeleport_Near; }
@@ -2550,10 +2561,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SaveRecallPosition()
         {
-            m_recall_location.WorldRelocate(*this);
-            m_recall_instanceId = GetInstanceId();
+            m_recall_location.Location.WorldRelocate(*this);
+            m_recall_location.InstanceId = GetInstanceId();
         }
-        void Recall() { TeleportTo(m_recall_location, 0, m_recall_instanceId); }
+        void Recall() { TeleportTo(m_recall_location, TELE_TO_NONE); }
 
         void SetHomebind(WorldLocation const& loc, uint32 areaId);
         void SendBindPointUpdate() const;
@@ -3204,12 +3215,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         // Player summoning
         time_t m_summon_expire;
-        WorldLocation m_summon_location;
-        uint32 m_summon_instanceId;
+        TeleportLocation m_summon_location;
 
         // Recall position
-        WorldLocation m_recall_location;
-        uint32 m_recall_instanceId;
+        TeleportLocation m_recall_location;
 
         DeclinedName *m_declinedname;
         Runes *m_runes;
@@ -3261,9 +3270,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint8 m_MirrorTimerFlagsLast;
 
         // Current teleport data
-        WorldLocation m_teleport_dest;
-        Optional<uint32> m_teleport_instanceId;
-        uint32 m_teleport_options;
+        TeleportLocation m_teleport_dest;
+        TeleportToOptions  m_teleport_options;
         bool mSemaphoreTeleport_Near;
         bool mSemaphoreTeleport_Far;
 

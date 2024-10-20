@@ -12363,20 +12363,20 @@ bool Unit::CanSwim() const
 void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)
 {
     DisableSpline();
+    TeleportLocation target{ .Location = { GetMapId(), pos } };
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        WorldLocation target(GetMapId(), pos);
-        ToPlayer()->TeleportTo(target, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (casting ? TELE_TO_SPELL : 0));
+        ToPlayer()->TeleportTo(target, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (casting ? TELE_TO_SPELL : TELE_TO_NONE));
     }
     else
     {
-        SendTeleportPacket(pos);
+        SendTeleportPacket(target);
         UpdatePosition(pos, true);
         UpdateObjectVisibility();
     }
 }
 
-void Unit::SendTeleportPacket(Position const& pos)
+void Unit::SendTeleportPacket(TeleportLocation const& teleportLocation)
 {
     // SMSG_MOVE_UPDATE_TELEPORT is sent to nearby players to signal the teleport
     // SMSG_MOVE_TELEPORT is sent to self in order to trigger CMSG_MOVE_TELEPORT_ACK and update the position server side
@@ -12391,7 +12391,7 @@ void Unit::SendTeleportPacket(Position const& pos)
     if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
     {
         float x, y, z, o;
-        pos.GetPosition(x, y, z, o);
+        teleportLocation.Location.GetPosition(x, y, z, o);
         if (TransportBase* transportBase = GetDirectTransport())
             transportBase->CalculatePassengerOffset(x, y, z, &o);
 
@@ -12410,7 +12410,7 @@ void Unit::SendTeleportPacket(Position const& pos)
         // This is the only packet sent for creatures which contains MovementInfo structure
         // we do not update m_movementInfo for creatures so it needs to be done manually here
         moveUpdateTeleport.Status->guid = GetGUID();
-        moveUpdateTeleport.Status->pos.Relocate(pos);
+        moveUpdateTeleport.Status->pos.Relocate(teleportLocation.Location);
         moveUpdateTeleport.Status->time = getMSTime();
     }
 
