@@ -187,7 +187,14 @@ void TempSummon::InitStats(uint32 duration)
     m_lifetime = duration;
 
     if (m_type == TEMPSUMMON_MANUAL_DESPAWN)
-        m_type = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
+    {
+        if (duration <= 0s)
+            m_type = TEMPSUMMON_DEAD_DESPAWN;
+        else if (m_Properties && m_Properties->GetFlags().HasFlag(SummonPropertiesFlags::UseDemonTimeout))
+            m_type = TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT;
+        else
+            m_type = TEMPSUMMON_TIMED_DESPAWN;
+    }
 
     Unit* owner = GetSummonerUnit();
 
