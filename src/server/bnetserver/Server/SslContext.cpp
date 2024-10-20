@@ -19,6 +19,40 @@
 #include "Log.h"
 #include "Config.h"
 
+bool Battlenet::SslContext::_usesDevWildcardCertificate = false;
+
+namespace
+{
+auto CreatePasswordUiMethodFromPemCallback(::pem_password_cb* callback)
+{
+    return Trinity::make_unique_ptr_with_deleter(UI_UTIL_wrap_read_pem_callback(callback, 0), &::UI_destroy_method);
+}
+
+auto OpenOpenSSLStore(boost::filesystem::path const& storePath, UI_METHOD const* passwordCallback, void* passwordCallbackData)
+{
+    std::string uri;
+    uri.reserve(6 + storePath.size());
+
+    uri += "file:";
+    std::string genericPath = storePath.generic_string();
+    if (!genericPath.empty() && !genericPath.starts_with('/'))
+        uri += '/'; // ensure the path starts with / (windows special case, unix absolute paths already do)
+
+    uri += genericPath;
+
+    return Trinity::make_unique_ptr_with_deleter(OSSL_STORE_open(uri.c_str(), passwordCallback, passwordCallbackData, nullptr, nullptr), &::OSSL_STORE_close);
+}
+
+boost::system::error_code GetLastOpenSSLError()
+{
+    auto ossl_error = ::ERR_get_error();
+    if (ERR_SYSTEM_ERROR(ossl_error))
+        return boost::system::error_code(static_cast<int>(::ERR_GET_REASON(ossl_error)), boost::asio::error::get_system_category());
+
+    return boost::system::error_code(static_cast<int>(ossl_error), boost::asio::error::get_ssl_category());
+}
+}
+
 bool Battlenet::SslContext::Initialize()
 {
     boost::system::error_code err;
