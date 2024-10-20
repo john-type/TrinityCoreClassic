@@ -25,10 +25,13 @@
 
 void TCSoapThread(const std::string& host, uint16 port)
 {
-    struct soap soap;
-    soap_init(&soap);
-    soap_set_imode(&soap, SOAP_C_UTFSTRING);
-    soap_set_omode(&soap, SOAP_C_UTFSTRING);
+    auto soap = Trinity::make_unique_ptr_with_deleter(new struct soap(), [](struct soap* soap)
+    {
+        soap_destroy(soap);
+        soap_end(soap);
+        soap_done(soap);
+        delete soap;
+    });
 
 #if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
     soap.bind_flags = SO_REUSEADDR;

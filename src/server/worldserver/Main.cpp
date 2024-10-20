@@ -280,7 +280,7 @@ extern int main(int argc, char** argv)
 
     sRealmList->Initialize(*ioContext, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
 
-    std::shared_ptr<void> sRealmListHandle(nullptr, [](void*) { sRealmList->Close(); });
+    auto sRealmListHandle = Trinity::make_unique_ptr_with_deleter(sRealmList, [](RealmList* realmList) { realmList->Close(); });
 
     LoadRealmInfo();
 
@@ -294,33 +294,32 @@ extern int main(int argc, char** argv)
 
     TC_METRIC_EVENT("events", "Worldserver started", "");
 
-    std::shared_ptr<void> sMetricHandle(nullptr, [](void*)
+    auto sMetricHandle = Trinity::make_unique_ptr_with_deleter(sMetric, [](Metric* metric)
     {
         TC_METRIC_EVENT("events", "Worldserver shutdown", "");
-        sMetric->Unload();
+        metric->Unload();
     });
 
+    auto scriptReloadMgrHandle = Trinity::make_unique_ptr_with_deleter(sScriptReloadMgr, [](ScriptReloadMgr* mgr) { mgr->Unload(); });
+
     sScriptMgr->SetScriptLoader(AddScripts);
-    std::shared_ptr<void> sScriptMgrHandle(nullptr, [](void*)
-    {
-        sScriptMgr->Unload();
-        sScriptReloadMgr->Unload();
-    });
+    auto sScriptMgrHandle = Trinity::make_unique_ptr_with_deleter(sScriptMgr, [](ScriptMgr* mgr) { mgr->Unload(); });
 
     // Initialize the World
     sSecretMgr->Initialize(SECRET_OWNER_WORLDSERVER);
     sWorld->SetInitialWorldSettings();
 
-    std::shared_ptr<void> mapManagementHandle(nullptr, [](void*)
-    {
-        // unload battleground templates before different singletons destroyed
-        sBattlegroundMgr->DeleteAllBattlegrounds();
+    auto instanceLockMgrHandle = Trinity::make_unique_ptr_with_deleter(&sInstanceLockMgr, [](InstanceLockMgr* mgr) { mgr->Unload(); });
 
-        sInstanceSaveMgr->Unload();
-        sOutdoorPvPMgr->Die();                    // unload it before MapManager
-        sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
-        sTerrainMgr.UnloadAll();
-    });
+    auto terrainMgrHandle = Trinity::make_unique_ptr_with_deleter(&sTerrainMgr, [](TerrainMgr* mgr) { mgr->UnloadAll(); });
+
+    auto outdoorPvpMgrHandle = Trinity::make_unique_ptr_with_deleter(sOutdoorPvPMgr, [](OutdoorPvPMgr* mgr) { mgr->Die(); });
+
+    // unload all grids (including locked in memory)
+    auto mapManagementHandle = Trinity::make_unique_ptr_with_deleter(sMapMgr, [](MapManager* mgr) { mgr->UnloadAll(); });
+
+    // unload battleground templates before different singletons destroyed
+    auto battlegroundMgrHandle = Trinity::make_unique_ptr_with_deleter(sBattlegroundMgr, [](BattlegroundMgr* mgr) { mgr->DeleteAllBattlegrounds(); });
 
     // Start the Remote Access port (acceptor) if enabled
     std::unique_ptr<AsyncAcceptor> raAcceptor;
@@ -360,12 +359,12 @@ extern int main(int argc, char** argv)
         return 1;
     }
 
-    std::shared_ptr<void> sWorldSocketMgrHandle(nullptr, [](void*)
+    auto sWorldSocketMgrHandle = Trinity::make_unique_ptr_with_deleter(&sWorldSocketMgr, [](WorldSocketMgr* mgr)
     {
         sWorld->KickAll();                                       // save and kick all players
         sWorld->UpdateSessions(1);                             // real players unload required UpdateSessions call
 
-        sWorldSocketMgr.StopNetwork();
+        mgr->StopNetwork();
 
         ///- Clean database before leaving
         ClearOnlineAccounts();
