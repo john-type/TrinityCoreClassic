@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "Realm.h"
+#include "Optional.h"
 #include <array>
 #include <map>
 #include <shared_mutex>
@@ -82,6 +83,9 @@ public:
     void Close();
 
     Realm const* GetRealm(Battlenet::RealmHandle const& id) const;
+    Battlenet::RealmHandle GetCurrentRealmId() const;
+    void SetCurrentRealmId(Battlenet::RealmHandle const& id);
+    Realm const* GetCurrentRealm() const;
 
     RealmBuildInfo const* GetBuildInfo(uint32 build) const;
     uint32 GetMinorMajorBugfixVersionForBuild(uint32 build) const;
@@ -107,6 +111,7 @@ private:
     uint32 _updateInterval;
     std::unique_ptr<Trinity::Asio::DeadlineTimer> _updateTimer;
     std::unique_ptr<Trinity::Asio::Resolver> _resolver;
+    Optional<Battlenet::RealmHandle> _currentRealmId;
 };
 
 #define sRealmList RealmList::Instance()

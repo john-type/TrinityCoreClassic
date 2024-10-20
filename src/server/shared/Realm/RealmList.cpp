@@ -212,6 +212,10 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
 
         _subRegions.swap(newSubRegions);
         _realms.swap(newRealms);
+
+        if (_currentRealmId)
+            if (Realm const* realm = GetRealm(*_currentRealmId))
+                _currentRealmId = realm->Id;    // fill other fields of realm id
     }
 
     if (_updateInterval)
@@ -228,6 +232,23 @@ Realm const* RealmList::GetRealm(Battlenet::RealmHandle const& id) const
     if (itr != _realms.end())
         return &itr->second;
 
+    return nullptr;
+}
+
+Battlenet::RealmHandle RealmList::GetCurrentRealmId() const
+{
+    return _currentRealmId ? *_currentRealmId : Battlenet::RealmHandle();
+}
+
+void RealmList::SetCurrentRealmId(Battlenet::RealmHandle const& id)
+{
+    _currentRealmId = id;
+}
+
+Realm const* RealmList::GetCurrentRealm() const
+{
+    if (_currentRealmId)
+        return GetRealm(*_currentRealmId);
     return nullptr;
 }
 

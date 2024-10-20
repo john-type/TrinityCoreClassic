@@ -33,6 +33,7 @@
 #include "GitRevision.h"
 #include "IPLocation.h"
 #include "LoginRESTService.h"
+#include "Memory.h"
 #include "MySQLThreading.h"
 #include "OpenSSLCrypto.h"
 #include "ProcessPriority.h"
@@ -189,7 +190,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    auto sLoginServiceHandle = Trinity::make_unique_ptr_with_deleter(&sLoginService, [](Battlenet::LoginRESTService* service) { service->StopNetwork(); });
+    auto sLoginServiceHandle = Trinity::make_unique_ptr_with_deleter(&sLoginService, [](LoginRESTService* service) { service->Stop(); });
 
     // Get the list of realms for the server
     sRealmList->Initialize(*ioContext, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));

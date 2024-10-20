@@ -35,6 +35,7 @@
 #include "InstanceSaveMgr.h"
 #include "IoContext.h"
 #include "MapManager.h"
+#include "Memory.h"
 #include "Metric.h"
 #include "MySQLThreading.h"
 #include "ObjectAccessor.h"
@@ -116,6 +117,7 @@ bool StartDB();
 void StopDB();
 void WorldUpdateLoop();
 void ClearOnlineAccounts();
+struct ShutdownTCSoapThread { void operator()(std::thread* thread) const; };
 void ShutdownCLIThread(std::thread* cliThread);
 bool LoadRealmInfo();
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& cfg_service);
@@ -309,17 +311,17 @@ extern int main(int argc, char** argv)
     sSecretMgr->Initialize(SECRET_OWNER_WORLDSERVER);
     sWorld->SetInitialWorldSettings();
 
-    auto instanceLockMgrHandle = Trinity::make_unique_ptr_with_deleter(&sInstanceLockMgr, [](InstanceLockMgr* mgr) { mgr->Unload(); });
+    std::shared_ptr<void> mapManagementHandle(nullptr, [](void*)
+        {
+            // unload battleground templates before different singletons destroyed
+            sBattlegroundMgr->DeleteAllBattlegrounds();
 
-    auto terrainMgrHandle = Trinity::make_unique_ptr_with_deleter(&sTerrainMgr, [](TerrainMgr* mgr) { mgr->UnloadAll(); });
+            sInstanceSaveMgr->Unload();
+            sOutdoorPvPMgr->Die();                    // unload it before MapManager
+            sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
+            sTerrainMgr.UnloadAll();
+        });
 
-    auto outdoorPvpMgrHandle = Trinity::make_unique_ptr_with_deleter(sOutdoorPvPMgr, [](OutdoorPvPMgr* mgr) { mgr->Die(); });
-
-    // unload all grids (including locked in memory)
-    auto mapManagementHandle = Trinity::make_unique_ptr_with_deleter(sMapMgr, [](MapManager* mgr) { mgr->UnloadAll(); });
-
-    // unload battleground templates before different singletons destroyed
-    auto battlegroundMgrHandle = Trinity::make_unique_ptr_with_deleter(sBattlegroundMgr, [](BattlegroundMgr* mgr) { mgr->DeleteAllBattlegrounds(); });
 
     // Start the Remote Access port (acceptor) if enabled
     std::unique_ptr<AsyncAcceptor> raAcceptor;
@@ -327,15 +329,13 @@ extern int main(int argc, char** argv)
         raAcceptor.reset(StartRaSocketAcceptor(*ioContext));
 
     // Start soap serving thread if enabled
-    std::shared_ptr<std::thread> soapThread;
+    std::unique_ptr<std::thread, ShutdownTCSoapThread> soapThread;
     if (sConfigMgr->GetBoolDefault("SOAP.Enabled", false))
     {
-        soapThread.reset(new std::thread(TCSoapThread, sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878))),
-            [](std::thread* thr)
-        {
-            thr->join();
-            delete thr;
-        });
+        if (std::thread* soap = CreateSoapThread(sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878))))
+            soapThread.reset(soap);
+        else
+            return -1;
     }
 
     // Launch the worldserver listener socket
@@ -421,6 +421,13 @@ extern int main(int argc, char** argv)
     // 2 - restart command used, this code can be used by restarter for restart Trinityd
 
     return World::GetExitCode();
+}
+
+
+void ShutdownTCSoapThread::operator()(std::thread* thread) const
+{
+    thread->join();
+    delete thread;
 }
 
 void ShutdownCLIThread(std::thread* cliThread)
