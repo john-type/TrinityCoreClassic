@@ -280,6 +280,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
         m_baseRatingValue[i] = 0;
 
     m_baseSpellPower = 0;
+    m_baseFeralAP = 0;
     m_baseManaRegen = 0;
     m_baseHealthRegen = 0;
     m_spellPenetrationItemMod = 0;
@@ -8163,6 +8164,24 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
     WeaponAttackType attType = Player::GetAttackBySlot(slot, proto->GetInventoryType());
     if (attType != MAX_ATTACK)
         _ApplyWeaponDamage(slot, item, apply);
+
+    if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
+        // Druids get feral AP bonus from weapon dps (also use DPS from ScalingStatValue)
+        if (GetClass() == CLASS_DRUID)
+        {
+            //int32 dpsMod = 0;
+            //int32 feral_bonus = 0;
+            //if (ssv)
+            //{
+            //    dpsMod = ssv->getDPSMod(proto->ScalingStatValue);
+            //    feral_bonus += ssv->getFeralBonus(proto->ScalingStatValue);
+            //}
+
+            //feral_bonus += proto->getFeralBonus(dpsMod);
+            //if (feral_bonus)
+            //    ApplyFeralAPBonus(feral_bonus, apply);
+        }
+    }
 }
 
 void Player::_ApplyWeaponDamage(uint8 slot, Item* item, bool apply)

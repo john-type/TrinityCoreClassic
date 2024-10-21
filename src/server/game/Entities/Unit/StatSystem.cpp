@@ -352,6 +352,13 @@ void Player::UpdateMaxPower(Powers power)
     SetMaxPower(power, (int32)std::lroundf(value));
 }
 
+void Player::ApplyFeralAPBonus(int32 amount, bool apply)
+{
+    _ModifyUInt32(apply, m_baseFeralAP, amount);
+    UpdateAttackPowerAndDamage();
+}
+
+
 void Player::UpdateAttackPowerAndDamage(bool ranged)
 {
     float val2 = 0.0f;
@@ -360,30 +367,110 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     ChrClassesEntry const* entry = sChrClassesStore.AssertEntry(GetClass());
     UnitMods unitMod = ranged ? UNIT_MOD_ATTACK_POWER_RANGED : UNIT_MOD_ATTACK_POWER;
 
-    if (!HasAuraType(SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SP_PCT))
+    if (ranged)
     {
-        if (!ranged)
+        switch (GetClass())
         {
-            float strengthValue = std::max(GetStat(STAT_STRENGTH) * entry->AttackPowerPerStrength, 0.0f);
-            float agilityValue = std::max(GetStat(STAT_AGILITY) * entry->AttackPowerPerAgility, 0.0f);
-
-            SpellShapeshiftFormEntry const* form = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm());
-            // Directly taken from client, SHAPESHIFT_FLAG_AP_FROM_STRENGTH ?
-            if (form && form->Flags & 0x20)
-                agilityValue += std::max(GetStat(STAT_AGILITY) * entry->AttackPowerPerStrength, 0.0f);
-
-            val2 = strengthValue + agilityValue;
+        case CLASS_HUNTER:
+            val2 = level * 2.0f + GetStat(STAT_AGILITY) - 10.0f;
+            break;
+        case CLASS_ROGUE:
+            val2 = level + GetStat(STAT_AGILITY) - 10.0f;
+            break;
+        case CLASS_WARRIOR:
+            val2 = level + GetStat(STAT_AGILITY) - 10.0f;
+            break;
+        case CLASS_DRUID:
+            switch (GetShapeshiftForm())
+            {
+            case FORM_CAT_FORM:
+            case FORM_BEAR_FORM:
+            case FORM_DIRE_BEAR_FORM:
+                val2 = 0.0f; break;
+            default:
+                val2 = GetStat(STAT_AGILITY) - 10.0f; break;
+            }
+            break;
+        default: val2 = GetStat(STAT_AGILITY) - 10.0f; break;
         }
-        else
-            val2 = (level + std::max(GetStat(STAT_AGILITY), 0.0f)) * entry->RangedAttackPowerPerAgility;
     }
     else
     {
-        int32 minSpellPower = m_activePlayerData->ModHealingDonePos;
-        for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-            minSpellPower = std::min(minSpellPower, m_activePlayerData->ModDamageDonePos[i]);
+        switch (GetClass())
+        {
+        case CLASS_WARRIOR:
+            val2 = level * 3.0f + GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
+            break;
+        case CLASS_PALADIN:
+            val2 = level * 3.0f + GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
+            break;
+        case CLASS_DEATH_KNIGHT:
+            val2 = level * 3.0f + GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
+            break;
+        case CLASS_ROGUE:
+            val2 = level * 2.0f + GetStat(STAT_STRENGTH) + GetStat(STAT_AGILITY) - 20.0f;
+            break;
+        case CLASS_HUNTER:
+            val2 = level * 2.0f + GetStat(STAT_STRENGTH) + GetStat(STAT_AGILITY) - 20.0f;
+            break;
+        case CLASS_SHAMAN:
+            val2 = level * 2.0f + GetStat(STAT_STRENGTH) + GetStat(STAT_AGILITY) - 20.0f;
+            break;
+        case CLASS_DRUID:
+        {
+            // Check if Predatory Strikes is skilled
+            float levelBonus = 0.0f;
+            float weaponBonus = 0.0f;
+            if (IsInFeralForm())
+            {
+                if (AuraEffect const* levelMod = GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_DRUID, flag128(1563, EFFECT_0)))
+                    levelBonus = CalculatePct(1.0f, levelMod->GetAmount());
 
-        val2 = CalculatePct(float(minSpellPower), *m_activePlayerData->OverrideAPBySpellPowerPercent);
+                if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
+                    //// = 0 if removing the weapon, do not calculate bonus (uses template)
+                    //if (m_baseFeralAP)
+                    //{
+                    //    if (Item const* weapon = m_items[EQUIPMENT_SLOT_MAINHAND])
+                    //    {
+                    //        if (AuraEffect const* weaponMod = GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_DRUID, flag128(1563, EFFECT_1)))
+                    //        {
+                    //            ItemTemplate const* itemTemplate = weapon->GetTemplate();
+                    //            int32 bonusAP = itemTemplate->GetTotalAPBonus() + m_baseFeralAP;
+                    //            weaponBonus = CalculatePct(static_cast<float>(bonusAP), weaponMod->GetAmount());
+                    //        }
+                    //    }
+                    //}
+                }
+            }
+
+            switch (GetShapeshiftForm())
+            {
+            case FORM_CAT_FORM:
+                val2 = GetLevel() * levelBonus + GetStat(STAT_STRENGTH) * 2.0f + GetStat(STAT_AGILITY) - 20.0f + weaponBonus + m_baseFeralAP;
+                break;
+            case FORM_BEAR_FORM:
+            case FORM_DIRE_BEAR_FORM:
+                val2 = GetLevel() * levelBonus + GetStat(STAT_STRENGTH) * 2.0f - 20.0f + weaponBonus + m_baseFeralAP;
+                break;
+            case FORM_MOONKIN_FORM:
+                val2 = GetStat(STAT_STRENGTH) * 2.0f - 20.0f + m_baseFeralAP;
+                break;
+            default:
+                val2 = GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
+                break;
+            }
+            break;
+        }
+        case CLASS_MAGE:
+            val2 = GetStat(STAT_STRENGTH) - 10.0f;
+            break;
+        case CLASS_PRIEST:
+            val2 = GetStat(STAT_STRENGTH) - 10.0f;
+            break;
+        case CLASS_WARLOCK:
+            val2 = GetStat(STAT_STRENGTH) - 10.0f;
+            break;
+        }
     }
 
     SetStatFlatModifier(unitMod, BASE_VALUE, val2);
@@ -391,6 +478,32 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float base_attPower = GetFlatModifierValue(unitMod, BASE_VALUE) * GetPctModifierValue(unitMod, BASE_PCT);
     float attPowerMod = GetFlatModifierValue(unitMod, TOTAL_VALUE);
     float attPowerMultiplier = GetPctModifierValue(unitMod, TOTAL_PCT) - 1.0f;
+
+    //TODO handle non-classic
+
+    if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE) {
+        //add dynamic flat mods
+        //if (ranged)
+        //{
+        //    if ((GetClassMask() & CLASSMASK_WAND_USERS) == 0)
+        //    {
+        //        AuraEffectList const& mRAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT);
+        //        for (AuraEffect const* aurEff : mRAPbyStat)
+        //            attPowerMod += CalculatePct(GetStat(Stats(aurEff->GetMiscValue())), aurEff->GetAmount());
+        //    }
+        //}
+        //else
+        //{
+        //    AuraEffectList const& mAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT);
+        //    for (AuraEffect const* aurEff : mAPbyStat)
+        //        attPowerMod += CalculatePct(GetStat(Stats(aurEff->GetMiscValue())), aurEff->GetAmount());
+        //}
+    }
+
+    if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
+        // applies to both, amount updated in PeriodicTick each 30 seconds
+        //attPowerMod += GetTotalAuraModifier(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR);
+    }
 
     if (ranged)
     {
