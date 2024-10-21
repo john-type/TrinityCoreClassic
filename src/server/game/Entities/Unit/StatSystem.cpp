@@ -545,7 +545,7 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
 
 void Player::UpdateAllCritPercentages()
 {
-    float value = 5.0f;
+    float value = GetMeleeCritFromAgility();
 
     SetBaseModPctValue(CRIT_PERCENTAGE, value);
     SetBaseModPctValue(OFFHAND_CRIT_PERCENTAGE, value);
@@ -625,7 +625,6 @@ float const m_diminishing_k[MAX_CLASSES] =
     0.9830f,  // Warlock
     0.9830f,  // Monk
     0.9720f,  // Druid
-    0.9830f   // Demon Hunter
 };
 
 // helper function
@@ -664,7 +663,6 @@ float const parry_cap[MAX_CLASSES] =
     0.0f,           // Warlock
     90.6425f,       // Monk
     0.0f,           // Druid
-    65.631440f      // Demon Hunter
 };
 
 void Player::UpdateParryPercentage()
@@ -706,7 +704,6 @@ float const dodge_cap[MAX_CLASSES] =
     150.375940f,    // Warlock
     145.560408f,    // Monk
     116.890707f,    // Druid
-    145.560408f     // Demon Hunter
 };
 
 void Player::UpdateDodgePercentage()

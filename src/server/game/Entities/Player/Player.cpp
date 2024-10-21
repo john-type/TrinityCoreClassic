@@ -713,7 +713,7 @@ int32 Player::getMaxTimer(MirrorTimerType timer) const
 
             int32 UnderWaterTime = MINUTE * IN_MILLISECONDS;
 
-            if (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
+            if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
                 UnderWaterTime = 3 * MINUTE * IN_MILLISECONDS;
             }
 
@@ -5169,6 +5169,69 @@ uint32 Player::GetShieldBlockValue() const
 {
     float value = std::max(0.f, (m_auraBaseFlatMod[SHIELD_BLOCK_VALUE] + GetStat(STAT_STRENGTH) * 0.5f - 10) * m_auraBasePctMod[SHIELD_BLOCK_VALUE]);
     return uint32(value);
+}
+
+float Player::GetMeleeCritFromAgility() const
+{
+    float valLevel1 = 0.0f;
+    float valLevel60 = 0.0f;
+    // critical
+    switch (GetClass())
+    {
+    case CLASS_PALADIN:
+    case CLASS_SHAMAN:
+    case CLASS_DRUID:
+        valLevel1 = 4.6f;
+        valLevel60 = 20.0f;
+        break;
+    case CLASS_MAGE:
+        valLevel1 = 12.9f;
+        valLevel60 = 20.0f;
+        break;
+    case CLASS_ROGUE:
+        valLevel1 = 2.2f;
+        valLevel60 = 29.0f;
+        break;
+    case CLASS_HUNTER:
+        valLevel1 = 3.5f;
+        valLevel60 = 53.0f;
+        break;
+    case CLASS_PRIEST:
+        valLevel1 = 11.0f;
+        valLevel60 = 20.0f;
+        break;
+    case CLASS_WARLOCK:
+        valLevel1 = 8.4f;
+        valLevel60 = 20.0f;
+        break;
+    case CLASS_WARRIOR:
+        valLevel1 = 3.9f;
+        valLevel60 = 20.0f;
+        break;
+    default:
+        return 0.0f;
+    }
+
+    float classrate = valLevel1 * float(60.0f - GetLevel()) / 59.0f + valLevel60 * float(GetLevel() - 1.0f) / 59.0f;
+    return GetStat(STAT_AGILITY) / classrate;
+
+
+    static_assert(CURRENT_EXPANSION == EXPANSION_CLASSIC, "not yet implemented for > classic.");
+    // currently using the vmangos implementation until the game table implemention below is working.
+
+    //uint8 level = GetLevel();
+    //uint32 pclass = GetClass();
+
+    //if (level > GT_MAX_LEVEL)
+    //    level = GT_MAX_LEVEL;
+
+    //GtChanceToMeleeCritBaseEntry const* critBase = sGtChanceToMeleeCritBaseStore.LookupEntry(pclass - 1);
+    //GtChanceToMeleeCritEntry     const* critRatio = sGtChanceToMeleeCritStore.LookupEntry((pclass - 1) * GT_MAX_LEVEL + level - 1);
+    //if (critBase == nullptr || critRatio == nullptr)
+    //    return 0.0f;
+
+    //float crit = critBase->Data + GetStat(STAT_AGILITY) * critRatio->Data;
+    //return crit * 100.0f;
 }
 
 void Player::GetDodgeFromAgility(float &/*diminishing*/, float &/*nondiminishing*/) const

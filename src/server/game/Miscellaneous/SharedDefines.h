@@ -138,7 +138,7 @@ enum Classes : uint8
 };
 
 // max+1 for player class
-#define MAX_CLASSES       13
+#define MAX_CLASSES       12
 
 #define CLASSMASK_ALL_PLAYABLE     \
     ((1<<(CLASS_WARRIOR-1))      | \
