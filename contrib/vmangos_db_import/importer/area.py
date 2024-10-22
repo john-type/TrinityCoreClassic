@@ -5,12 +5,8 @@ import database as db
 
 def Import():
     handle_taverns()
-#     handle_teleports()
-#     handle_access_requirements()
-#     handle_areatriggers()
-#     handle_areatrigger_templates()
+    handle_teleports()
     remove_instances()
-    #TODO handle areatrigger_bg_entrance
 
 
 def handle_taverns():
@@ -132,20 +128,7 @@ def handle_teleports():
     for tele in teleports:
         print("{0} {1}".format(tele, teleports[tele]))    
     
-    
-def handle_access_requirements():
-    pass
-    # TODO
-    
-def handle_areatriggers():
-    # these tables are quite small, hard coding for now.
-    db.tri_world.execute_raw('DELETE FROM areatrigger WHERE SpawnId >= 4')
-    db.tri_world.execute_raw('DELETE FROM areatrigger_template_actions WHERE AreaTriggerId >= 4')
-    
-def handle_areatrigger_templates():
-    pass
-    #TODO
-    
+
 def remove_instances():
     db.tri_world.delete(
         db.DeleteQuery("instance_template") \
