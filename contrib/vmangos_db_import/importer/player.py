@@ -3,20 +3,16 @@
 import constants
 import database as db
 
-#TODO 
-
-#TODO import player race stats
-
 classes_str = ','.join(map(str, constants.ClassIds))
 races_str = ','.join(map(str, constants.RaceIds))
 
 def Import():
-    # cleanClassExpansionRequirements()
-    # cleanRaceUnlockRequirements()
-    # cleanPlayerCreateInfo()
-    # handleXpForLevel()
-    # handleExplorationXP()
-    # update_player_create_info()
+    cleanClassExpansionRequirements()
+    cleanRaceUnlockRequirements()
+    cleanPlayerCreateInfo()
+    handleXpForLevel()
+    handleExplorationXP()
+    update_player_create_info()
     update_class_level_stats()
 
 

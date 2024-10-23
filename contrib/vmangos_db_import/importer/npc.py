@@ -3,8 +3,6 @@
 import constants
 import database as db
 
-#TODO
-
 def Import():
     import_npc_text()
     import_vendors()

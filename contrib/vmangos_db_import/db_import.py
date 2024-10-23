@@ -7,6 +7,7 @@ import importer.area
 import importer.battleground
 import importer.broadcast;
 import importer.creature
+import importer.event
 import importer.gameobject
 import importer.graveyard
 import importer.gossip
@@ -29,62 +30,65 @@ print("Starting VMangos -> Trinity DB Import...")
 print("Opening DB...")
 db.OpenAll()
 
-# print("Misc...")
-# importer.misc.Import()
+print("Misc...")
+importer.misc.Import()
 
-# print("Areas...")
-# importer.area.Import()
+print("Events...")
+importer.event.Import()
 
-# print("Battlegrounds...")
-# importer.battleground.Import()
+print("Areas...")
+importer.area.Import()
+
+print("Battlegrounds...")
+importer.battleground.Import()
 
 # print("Broadcast Text...")
 # importer.broadcast.Import()
 
-# print("Creatures...")
-# importer.creature.Import()
+print("Creatures...")
+importer.creature.Import()
 
-# print("GameObjects...")
-# importer.gameobject.Import()
+print("GameObjects...")
+importer.gameobject.Import()
 
-# print("gossips...")
-# importer.gossip.Import()
+print("gossips...")
+importer.gossip.Import()
 
 # print("graveyards...")
 # importer.graveyard.Import()
 
-# print("Items...")
-# importer.item.Import()
+print("Items...")
+importer.item.Import()
 
-# print("Loot...")
-# importer.loot.Import()
+print("Loot...")
+importer.loot.Import()
 
 print("NPCs...")
 importer.npc.Import()
 
-# print("Players...")
-# importer.player.Import()
+print("Players...")
+importer.player.Import()
 
-# print("Pool...")
-# importer.pool.Import()
+print("Pool...")
+importer.pool.Import()
 
-# print("Quests...")
-# importer.quest.Import()
+print("Quests...")
+importer.quest.Import()
 
-# print("Skills...")
-# importer.skill.Import()
+print("Skills...")
+importer.skill.Import()
 
-# print("Spells...")
-# importer.spell.Import()
+print("Spells...")
+importer.spell.Import()
 
-# print("Trainers")
-# importer.trainer.Import()
+print("Trainers")
+importer.trainer.Import()
 
-# print("Transports...")
-# importer.transport.Import()
+print("Transports...")
+importer.transport.Import()
 
-# print("Waypoints...")
-# importer.waypoint.Import()
+print("Waypoints...")
+importer.waypoint.Import()
 
 print("Cleanup...")
 importer.cleanup.Clean()

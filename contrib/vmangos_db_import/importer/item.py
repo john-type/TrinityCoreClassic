@@ -3,7 +3,6 @@
 import constants
 import database as db
 
-#TODO
 
 def Import():
     handle_enchants()

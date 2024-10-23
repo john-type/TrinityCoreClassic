@@ -21,7 +21,7 @@ def Import():
     clean_entries_check_vmangos()
     import_templates_vmangos()
     import_entries_vmangos()
-    remove_duplicate_entries()
+    #remove_duplicate_entries()
     update_instance_info()
 
     
@@ -66,6 +66,10 @@ def _handle_clean_template_row(row):
 
     return 0
 
+def entry_bg_ignorable(entry_id, map_id):
+    # ignore entries in bg's, TC spawns them differently to vm.
+    return (map_id in constants.BgMaps) and (entry_id not in [2413, 112192]) 
+
 def clean_entries_check_vmangos():
     db.tri_world.chunk_raw(
         "SELECT guid, id, map, position_x, position_y, position_z FROM gameobject LIMIT %s OFFSET %s",
@@ -97,8 +101,10 @@ def _handle_clean_entry_row(row):
             )
         )
     )
+    
+    ignorable = entry_bg_ignorable(row[1], row[2])
 
-    if match == None:
+    if match == None or ignorable:
         db.tri_world.execute_many_raw(delete_src_obj_entity_queries, (row[0],))
         return -1
     
@@ -131,6 +137,11 @@ def import_entries_vmangos():
 
 def _handle_import_entry_row(row):
     global imported_entry_guids
+    
+    ignorable = entry_bg_ignorable(row[1], row[2])
+    
+    if ignorable:
+        return 0
     
     exact_match = db.tri_world.get_row_raw("SELECT guid, id FROM gameobject WHERE guid = %s AND id = %s", (row[0], row[1],))
     if exact_match != None:
