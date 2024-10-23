@@ -5,9 +5,50 @@ import database as db
 import csv
 
 def Import():
+    import_broadcast_text_vmangos()
     import_broadcast_text_csv()
 
+def import_broadcast_text_vmangos(): 
+    vm_text = db.vm_world.select_chunked(
+        db.SelectQuery("broadcast_text"),
+        250
+    )
+    
+    for row in vm_text:
+        existing = db.tri_hotfix.select_one(
+            db.SelectQuery("broadcast_text").where("ID", "=", row['entry'])
+        )
+        
+        if existing != None:
+            continue
+        
+        upsert = db.UpsertQuery("broadcast_text").values({
+            'Text': row['male_text'],
+            'Text1': row['female_text'],
+            'ID': row['entry'],
+            'LanguageID': row['language_id'],
+            'ConditionID': 0,
+            'EmotesID': 0,
+            'Flags': 0,
+            'ChatBubbleDurationMs': 0,
+            'VoiceOverPriorityID': 0,
+            'SoundKitID1': row['sound_id'],
+            'SoundKitID2': 0,
+            'EmoteID1': row['emote_id1'],
+            'EmoteID2': row['emote_id2'],
+            'EmoteID3': row['emote_id3'],
+            'EmoteDelay1': row['emote_delay1'],
+            'EmoteDelay2': row['emote_delay2'],
+            'EmoteDelay3': row['emote_delay3'],
+            'VerifiedBuild': constants.TargetBuild
+        })
+        
+        db.tri_hotfix.upsert(upsert)
+        
+        
+
 def import_broadcast_text_csv():
+    # include the CSV file from hermes proxy.
     found_header = False
     with open('BroadcastTexts1.csv') as csvfile:
         reader = csv.reader(csvfile)

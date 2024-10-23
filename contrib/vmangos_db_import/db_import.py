@@ -42,8 +42,8 @@ importer.area.Import()
 print("Battlegrounds...")
 importer.battleground.Import()
 
-# print("Broadcast Text...")
-# importer.broadcast.Import()
+print("Broadcast Text...")
+importer.broadcast.Import()
 
 print("Creatures...")
 importer.creature.Import()

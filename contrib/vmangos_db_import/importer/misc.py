@@ -71,6 +71,8 @@ def import_weather():
         else:
             upsert.where("zone", "=", vm_row['zone'])
             
+        db.tri_world.upsert(upsert)
+            
 def import_points_of_interest():
     vm_rows = db.vm_world.select_all(
         db.SelectQuery("points_of_interest")
