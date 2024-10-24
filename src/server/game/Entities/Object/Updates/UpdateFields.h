@@ -649,7 +649,7 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
     OptionalUpdateField<UF::QuestSession, 98, 103> QuestSession;
     UpdateFieldArray<ObjectGuid, 199, 104, 105> InvSlots;
     UpdateFieldArray<uint32, 2, 304, 305> TrackResourceMask;
-    UpdateFieldArray<uint64, 480, 307, 308> ExploredZones;
+    UpdateFieldArray<uint64, 240, 307, 308> ExploredZones;
     UpdateFieldArray<UF::RestInfo, 2, 788, 789> RestInfo;
     UpdateFieldArray<int32, 7, 791, 792> ModDamageDonePos;
     UpdateFieldArray<int32, 7, 791, 799> ModDamageDoneNeg;
