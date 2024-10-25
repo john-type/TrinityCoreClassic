@@ -5455,38 +5455,116 @@ float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
 
 float Player::OCTRegenHPPerSpirit() const
 {
-    uint8 level = GetLevel();
-    uint32 pclass = GetClass();
+    if constexpr (CURRENT_EXPANSION == EXPANSION_CLASSIC) {
+        float regen = 0.0f;
 
-    float baseRatio = sObjectMgr->GetOCTRegenHP(pclass,level);
-    float moreRatio = sObjectMgr->GetRegenHPPerSpt(pclass, level);
-    if (!baseRatio || !moreRatio)
-        return 0.0f;
+        float Spirit = GetStat(STAT_SPIRIT);
+        uint8 Class = GetClass();
 
-    // Formula from PaperDollFrame script 3.3.5
-    float spirit = GetStat(STAT_SPIRIT);
-    float baseSpirit = spirit;
-    if (baseSpirit > 50)
-        baseSpirit = 50;
-    float moreSpirit = spirit - baseSpirit;
-    float regen = baseSpirit * baseRatio + moreSpirit * moreRatio;
-    return regen;
+        switch (Class)
+        {
+        case CLASS_DRUID:
+            regen = (Spirit * 0.11 + 1);
+            break;
+        case CLASS_HUNTER:
+            regen = (Spirit * 0.43 - 5.5);
+            break;
+        case CLASS_MAGE:
+            regen = (Spirit * 0.11 + 1);
+            break;
+        case CLASS_PALADIN:
+            regen = (Spirit * 0.25);
+            break;
+        case CLASS_PRIEST:
+            regen = (Spirit * 0.15 + 1.4);
+            break;
+        case CLASS_ROGUE:
+            regen = (Spirit * 0.84 - 13);
+            break;
+        case CLASS_SHAMAN:
+            regen = (Spirit * 0.28 - 3.6);
+            break;
+        case CLASS_WARLOCK:
+            regen = (Spirit * 0.12 + 1.5);
+            break;
+        case CLASS_WARRIOR:
+            regen = (Spirit * 1.26 - 22.6);
+            break;
+        }
+
+        return std::max(0.0f, regen);
+    }
+    else {
+        uint8 level = GetLevel();
+        uint32 pclass = GetClass();
+
+        float baseRatio = sObjectMgr->GetOCTRegenHP(pclass, level);
+        float moreRatio = sObjectMgr->GetRegenHPPerSpt(pclass, level);
+        if (!baseRatio || !moreRatio)
+            return 0.0f;
+
+        // Formula from PaperDollFrame script 3.3.5
+        float spirit = GetStat(STAT_SPIRIT);
+        float baseSpirit = spirit;
+        if (baseSpirit > 50)
+            baseSpirit = 50;
+        float moreSpirit = spirit - baseSpirit;
+        float regen = baseSpirit * baseRatio + moreSpirit * moreRatio;
+        return regen;
+    }
 }
 
 float Player::OCTRegenMPPerSpirit() const
 {
-    uint8 level = GetLevel();
-    uint32 pclass = GetClass();
+    if constexpr (CURRENT_EXPANSION == EXPANSION_CLASSIC) {
+        float addvalue = 0.0;
 
-    //    GtOCTRegenMPEntry     const* baseRatio = sGtOCTRegenMPStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
-    float moreRatio = sObjectMgr->GetRegenMPPerSpt(pclass, level);
-    if (!moreRatio)
-        return 0.0f;
+        float Spirit = GetStat(STAT_SPIRIT);
+        uint8 Class = GetClass();
 
-    // Formula get from PaperDollFrame script 3.3.5
-    float spirit = GetStat(STAT_SPIRIT);
-    float regen = spirit * moreRatio;
-    return regen;
+        switch (Class)
+        {
+        case CLASS_DRUID:
+            addvalue = (Spirit / 5 + 15);
+            break;
+        case CLASS_HUNTER:
+            addvalue = (Spirit / 5 + 15);
+            break;
+        case CLASS_MAGE:
+            addvalue = (Spirit / 4 + 12.5);
+            break;
+        case CLASS_PALADIN:
+            addvalue = (Spirit / 5 + 15);
+            break;
+        case CLASS_PRIEST:
+            addvalue = (Spirit / 4 + 12.5);
+            break;
+        case CLASS_SHAMAN:
+            addvalue = (Spirit / 5 + 17);
+            break;
+        case CLASS_WARLOCK:
+            addvalue = (Spirit / 5 + 15);
+            break;
+        }
+
+        addvalue /= 2.0f;   // the above addvalue are given per tick which occurs every 2 seconds, hence this divide by 2
+
+        return addvalue;
+    }
+    else {
+        uint8 level = GetLevel();
+        uint32 pclass = GetClass();
+
+        //    GtOCTRegenMPEntry     const* baseRatio = sGtOCTRegenMPStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
+        float moreRatio = sObjectMgr->GetRegenMPPerSpt(pclass, level);
+        if (!moreRatio)
+            return 0.0f;
+
+        // Formula get from PaperDollFrame script 3.3.5
+        float spirit = GetStat(STAT_SPIRIT);
+        float regen = spirit * moreRatio;
+        return regen;
+    }
 }
 
 void Player::ApplyRatingMod(CombatRating combatRating, int32 value, bool apply)
