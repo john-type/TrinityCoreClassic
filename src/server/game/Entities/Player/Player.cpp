@@ -6794,6 +6794,7 @@ void Player::RewardReputation(Quest const* quest)
             if (QuestFactionRewardEntry const* questFactionRewEntry = sQuestFactionRewardStore.LookupEntry(row))
             {
                 uint32 field = abs(quest->RewardFactionValue[i]);
+                assert(field < std::size(questFactionRewEntry->Difficulty));
                 rep = questFactionRewEntry->Difficulty[field];
             }
         }

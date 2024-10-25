@@ -117,15 +117,10 @@ def _upsert_quest_template(vm_qt, tri_qt = None):
         'POIy': vm_qt['PointY'],
         'POIPriority': vm_qt['PointOpt'],
         'RewardFactionID1': vm_qt['RewRepFaction1'],
-        'RewardFactionValue1': vm_qt['RewRepValue1'],
         'RewardFactionID2': vm_qt['RewRepFaction2'],
-        'RewardFactionValue2': vm_qt['RewRepValue2'],
         'RewardFactionID3': vm_qt['RewRepFaction3'],
-        'RewardFactionValue3': vm_qt['RewRepValue3'],
         'RewardFactionID4': vm_qt['RewRepFaction4'],
-        'RewardFactionValue4': vm_qt['RewRepValue4'],
         'RewardFactionID5': vm_qt['RewRepFaction5'],
-        'RewardFactionValue5': vm_qt['RewRepValue5'],
         'Expansion': 0,
         'LogTitle': vm_qt['Title'],
         'LogDescription': vm_qt['Objectives'],
@@ -133,6 +128,13 @@ def _upsert_quest_template(vm_qt, tri_qt = None):
         'AreaDescription': vm_qt['EndText'],
         'VerifiedBuild': constants.TargetBuild,
     })
+    
+    for i in range(1, 6): # 1...5
+        rew_faction = rep_value_convert(vm_qt['RewRepValue{}'.format(i)])
+        upsert_query.values({
+            'RewardFactionValue{}'.format(i): rew_faction['value'],
+            'RewardFactionOverride{}'.format(i): rew_faction['override']
+        })
     
     if tri_qt == None:
         upsert_query.values({
@@ -278,5 +280,42 @@ def _update_quest_objectives(quest_id, vm_qt):
         
         #TODO delete obsolete objectives.
         
+# convert vmangos value to TC index.
+def rep_value_convert(value):
+    # see questfactionreward.db2
+    conv = {
+        -9: -5,
+        -8: -1,
+        -7: -1000,
+        -6: -750,
+        -5: -500,
+        -4: -375,
+        -3: -250,
+        -2: -125,
+        -1: -50,
+        0: 0,
+        1: 10,
+        2: 25,
+        3: 50, 
+        4: 75,
+        5: 100,
+        6: 150,
+        7: 200,
+        8: 1,
+        9: 5
+    }
     
- 
+    result = {
+        'value': 0,
+        'override': 0
+    }
+    
+    for i, (key, val) in enumerate(conv.items()):
+        if val == value:
+            result['value'] = key
+            break
+    
+    if result['value'] == 0:
+        result['override'] = value * 100
+
+    return result
