@@ -3722,6 +3722,8 @@ void Spell::_cast(bool skipCheck)
         m_launchHandled = true;
     }
 
+    TakeAmmo();
+
     // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
     SendSpellGo();
 
@@ -5239,6 +5241,41 @@ void Spell::TakePower()
         unitCaster->ModifyPower(powerType, -cost.Amount);
     }
 }
+
+void Spell::TakeAmmo()
+{
+    // Only players use ammo
+    Player* player = m_caster->ToPlayer();
+    if (!player)
+        return;
+
+    // only ranged
+    if (m_attackType != RANGED_ATTACK)
+        return;
+
+    // wands don't have ammo
+    Item* item = player->GetWeaponForAttack(RANGED_ATTACK);
+    if (!item || item->IsBroken() || item->GetTemplate()->GetSubClass() == ITEM_SUBCLASS_WEAPON_WAND)
+        return;
+
+    if (item->GetTemplate()->GetInventoryType() == INVTYPE_THROWN)
+    {
+        if (item->GetMaxStackCount() == 1)
+        {
+            // decrease durability for non-stackable throw weapon
+            player->DurabilityPointLossForEquipSlot(EQUIPMENT_SLOT_RANGED);
+        }
+        else
+        {
+            // decrease items amount for stackable throw weapon
+            uint32 count = 1;
+            player->DestroyItemCount(item, count, true);
+        }
+    }
+    else if (uint32 ammo = player->GetUInt32Value(UF::ACTIVE_PLAYER_FIELD_AMMO_ID))
+        player->DestroyItemCount(ammo, 1, true);
+}
+
 
 SpellCastResult Spell::CheckRuneCost() const
 {
