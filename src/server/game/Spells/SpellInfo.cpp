@@ -4087,7 +4087,8 @@ std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(WorldObject const* caster, 
             if (Optional<SpellPowerCost> optionalCost = CalcPowerCost(power, true, caster, schoolMask, spell))
             {
                 SpellPowerCost& cost = getOrCreatePowerCost(optionalCost->Power);
-                int32 remainingPower = caster->ToUnit()->GetPower(optionalCost->Power) - cost.Amount;
+                int32 currentPower = optionalCost->Power == POWER_HEALTH ? caster->ToUnit()->GetHealth() : caster->ToUnit()->GetPower(optionalCost->Power);
+                int32 remainingPower = currentPower - cost.Amount;
                 if (remainingPower > 0)
                     cost.Amount += std::min(optionalCost->Amount, remainingPower);
             }

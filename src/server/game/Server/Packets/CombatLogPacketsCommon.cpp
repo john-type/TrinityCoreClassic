@@ -48,7 +48,8 @@ void SpellCastLogData::Initialize(Spell const* spell)
         bool primaryPowerAdded = false;
         for (SpellPowerCost const& cost : spell->GetPowerCost())
         {
-            PowerData.emplace_back(int32(cost.Power), unitCaster->GetPower(Powers(cost.Power)), int32(cost.Amount));
+            int32 powerVal = cost.Power == POWER_HEALTH ? unitCaster->GetHealth() : unitCaster->GetPower(Powers(cost.Power));
+            PowerData.emplace_back(int32(cost.Power), powerVal, int32(cost.Amount));
             if (cost.Power == primaryPowerType)
                 primaryPowerAdded = true;
         }
