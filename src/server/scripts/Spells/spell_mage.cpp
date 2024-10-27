@@ -50,6 +50,7 @@ enum MageSpells
     SPELL_MAGE_CAUTERIZE_DOT                     = 87023,
     SPELL_MAGE_CAUTERIZED                        = 87024,
     SPELL_MAGE_CHILLED                           = 205708,
+    SPELL_MAGE_COLD_SNAP                         = 12472,
     SPELL_MAGE_COMET_STORM_DAMAGE                = 153596,
     SPELL_MAGE_COMET_STORM_VISUAL                = 228601,
     SPELL_MAGE_CONE_OF_COLD                      = 120,
@@ -444,34 +445,29 @@ class spell_mage_cauterize_AuraScript : public AuraScript
     }
 };
 
-// 235219 - Cold Snap
+// 12472 - Cold Snap
 class spell_mage_cold_snap : public SpellScript
 {
     PrepareSpellScript(spell_mage_cold_snap);
 
-    static uint32 constexpr SpellsToReset[] =
+    bool Load() override
     {
-        SPELL_MAGE_CONE_OF_COLD,
-        SPELL_MAGE_ICE_BARRIER,
-        SPELL_MAGE_ICE_BLOCK,
-    };
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo(SpellsToReset) && ValidateSpellInfo({ SPELL_MAGE_FROST_NOVA });
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        for (uint32 spellId : SpellsToReset)
-            GetCaster()->GetSpellHistory()->ResetCooldown(spellId, true);
-
-        GetCaster()->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(SPELL_MAGE_FROST_NOVA, GetCastDifficulty())->ChargeCategoryId);
+        GetCaster()->GetSpellHistory()->ResetCooldowns([this](SpellHistory::CooldownStorageType::iterator itr) -> bool
+            {
+                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, GetCastDifficulty());
+                return spellInfo->SpellFamilyName == SPELLFAMILY_MAGE && (spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST) &&
+                    spellInfo->Id != SPELL_MAGE_COLD_SNAP && spellInfo->GetRecoveryTime() > 0;
+            }, true);
     }
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_mage_cold_snap::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHit += SpellEffectFn(spell_mage_cold_snap::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 

@@ -314,7 +314,7 @@ enum Spells
     SPELL_DEEP_FREEZE       = 44572,
     SPELL_FROST_NOVA        = 42917,
     SPELL_FROSTBOLT         = 42842,
-    SPELL_COLD_SNAP         = 11958,
+    SPELL_COLD_SNAP         = 12472,
     SPELL_ICE_LANCE         = 42914,
 
     /* Warlock - Generic */
