@@ -69,7 +69,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPMatchSta
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerPVPStat const& pvpStat)
 {
-    data << int32(pvpStat.PvpStatID);
+    //data << int32(pvpStat.PvpStatID);
     data << int32(pvpStat.PvpStatValue);
     return data;
 }
