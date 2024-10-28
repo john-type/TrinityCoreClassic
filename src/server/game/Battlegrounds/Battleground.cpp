@@ -1345,6 +1345,10 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchSta
         pvpLogData.Statistics.push_back(playerData);
     }
 
+    if (GetStatus() == BattlegroundStatus::STATUS_WAIT_LEAVE) {
+        pvpLogData.Winner = GetWinner();
+    }
+
     pvpLogData.PlayerCount[PVP_TEAM_HORDE] = int8(GetPlayersCountByTeam(HORDE));
     pvpLogData.PlayerCount[PVP_TEAM_ALLIANCE] = int8(GetPlayersCountByTeam(ALLIANCE));
 }

@@ -121,11 +121,19 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPMatchSta
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPMatchStatistics const& pvpLogData)
 {
     data.WriteBit(pvpLogData.Ratings.has_value());
+    data.WriteBit(false);   //TODO handle area teams flag.
+    data.WriteBit(pvpLogData.Winner.has_value());
+
+    //TODO arena teams value
+
     data << uint32(pvpLogData.Statistics.size());
     data.append(pvpLogData.PlayerCount.data(), pvpLogData.PlayerCount.size());
 
     if (pvpLogData.Ratings.has_value())
         data << *pvpLogData.Ratings;
+
+    if (pvpLogData.Winner.has_value())
+        data << uint8(*pvpLogData.Winner);
 
     for (WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics const& player : pvpLogData.Statistics)
         data << player;

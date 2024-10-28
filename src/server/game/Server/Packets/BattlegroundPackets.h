@@ -147,6 +147,7 @@ namespace WorldPackets
 
             std::vector<PVPMatchPlayerStatistics> Statistics;
             Optional<RatingData> Ratings;
+            Optional<PvPTeamId> Winner;
             std::array<int8, 2> PlayerCount = { };
         };
 
