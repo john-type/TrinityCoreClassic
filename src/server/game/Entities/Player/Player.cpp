@@ -2476,6 +2476,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     }
 
     // reset before any aura state sources (health set/aura apply)
+    SetUInt32Value(UF::UNIT_FIELD_AURASTATE, 0);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AuraState), 0);
 
     UpdateSkillsForLevel();

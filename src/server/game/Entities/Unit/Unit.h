@@ -1084,12 +1084,15 @@ class TC_GAME_API Unit : public WorldObject
         void SetStandState(UnitStandStateType state, uint32 animKitID = 0);
 
         void SetVisFlag(UnitVisFlags flags) {
+            SetByteFlag(UF::UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_VIS_FLAG, flags);
             SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::VisFlags), flags);
         }
         void RemoveVisFlag(UnitVisFlags flags) {
+            RemoveByteFlag(UF::UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_VIS_FLAG, flags);
             RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::VisFlags), flags);
         }
         void ReplaceAllVisFlags(UnitVisFlags flags) {
+            SetByteValue(UF::UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_VIS_FLAG, flags);
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::VisFlags), flags);
         }
 
