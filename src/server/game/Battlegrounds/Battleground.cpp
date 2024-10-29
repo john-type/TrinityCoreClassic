@@ -745,12 +745,18 @@ void Battleground::EndBattleground(uint32 winner)
     //we must set it this way, because end time is sent in packet!
     SetRemainingTime(TIME_AUTOCLOSE_BATTLEGROUND);
 
-    WorldPackets::Battleground::PVPMatchComplete pvpMatchComplete;
-    pvpMatchComplete.Winner = GetWinner();
-    pvpMatchComplete.Duration = std::chrono::duration_cast<Seconds>(Milliseconds(std::max<int32>(0, (GetElapsedTime() - BG_START_DELAY_2M))));
-    pvpMatchComplete.LogData.emplace();
-    BuildPvPLogDataPacket(*pvpMatchComplete.LogData);
-    pvpMatchComplete.Write();
+    //WorldPackets::Battleground::PVPMatchComplete pvpMatchComplete;
+    //pvpMatchComplete.Winner = GetWinner();
+    //pvpMatchComplete.Duration = std::chrono::duration_cast<Seconds>(Milliseconds(std::max<int32>(0, (GetElapsedTime() - BG_START_DELAY_2M))));
+    //pvpMatchComplete.LogData.emplace();
+    //BuildPvPLogDataPacket(*pvpMatchComplete.LogData);
+    //pvpMatchComplete.Write();
+
+    WorldPackets::Battleground::PVPMatchStatisticsMessage pvpMatchStatistics;
+    BuildPvPLogDataPacket(pvpMatchStatistics.Data);
+    pvpMatchStatistics.Write();
+
+    BattlegroundQueueTypeId bgQueueTypeId = GetQueueId();
 
     for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
@@ -842,7 +848,11 @@ void Battleground::EndBattleground(uint32 winner)
 
         BlockMovement(player);
 
-        player->SendDirectMessage(pvpMatchComplete.GetRawPacket());
+        player->SendDirectMessage(pvpMatchStatistics.GetRawPacket());
+
+        WorldPackets::Battleground::BattlefieldStatusActive battlefieldStatus;
+        sBattlegroundMgr->BuildBattlegroundStatusActive(&battlefieldStatus, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), player->GetBattlegroundQueueJoinTime(bgQueueTypeId), GetArenaType());
+        player->SendDirectMessage(battlefieldStatus.Write());
 
         player->UpdateCriteria(CriteriaType::ParticipateInBattleground, player->GetMapId());
     }
