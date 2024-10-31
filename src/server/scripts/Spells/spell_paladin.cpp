@@ -27,6 +27,7 @@
 #include "Containers.h"
 #include "DB2Stores.h"
 #include "Group.h"
+#include "Item.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Random.h"
@@ -98,7 +99,9 @@ enum PaladinSpells
     SPELL_PALADIN_RIGHTEOUS_VERDICT_AURA         = 267611,
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
     SPELL_PALADIN_TEMPLAR_VERDICT_DAMAGE         = 224266,
-    SPELL_PALADIN_ZEAL_AURA                      = 269571
+    SPELL_PALADIN_ZEAL_AURA                      = 269571,
+    SPELL_PALADIN_HOLY_LIGHT_HEAL                = 19968,
+    SPELL_PALADIN_FLASH_OF_LIGHT_HEAL            = 19993
 };
 
 enum PaladinCovenantSpells
@@ -1520,6 +1523,56 @@ class spell_pal_zeal : public AuraScript
     }
 };
 
+// holy light all ranks
+class spell_pal_holy_light : public SpellScript
+{
+    PrepareSpellScript(spell_pal_holy_light);
+
+    bool Validate(SpellInfo const* /*spellEntry*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_HOLY_LIGHT_HEAL });
+    }
+
+    void HandleHitTarget(SpellEffIndex effIndex)
+    {
+        CastSpellExtraArgs args{ true };
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, GetSpellInfo()->GetEffect(effIndex).BasePoints);
+        args.SetOriginalCaster(GetCaster()->GetGUID());
+        args.SetTriggeringSpell(GetSpell());
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_PALADIN_HOLY_LIGHT_HEAL, args);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pal_holy_light::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// flash of light all ranks
+class spell_pal_flash_of_light : public SpellScript
+{
+    PrepareSpellScript(spell_pal_flash_of_light);
+
+    bool Validate(SpellInfo const* /*spellEntry*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_FLASH_OF_LIGHT_HEAL });
+    }
+
+    void HandleHitTarget(SpellEffIndex effIndex)
+    {
+        CastSpellExtraArgs args{ true };
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, GetSpellInfo()->GetEffect(effIndex).BasePoints);
+        args.SetOriginalCaster(GetCaster()->GetGUID());
+        args.SetTriggeringSpell(GetSpell());
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_PALADIN_FLASH_OF_LIGHT_HEAL, args);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pal_flash_of_light::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
@@ -1562,4 +1615,6 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_t3_6p_bonus);
     RegisterSpellScript(spell_pal_t8_2p_bonus);
     RegisterSpellScript(spell_pal_zeal);
+    RegisterSpellScript(spell_pal_holy_light);
+    RegisterSpellScript(spell_pal_flash_of_light);
 }
