@@ -1330,7 +1330,10 @@ class TC_GAME_API Unit : public WorldObject
 
         bool IsPlayingHoverAnim() const { return _playHoverAnim; }
         void SetPlayHoverAnim(bool enable);
-        void SetHoverHeight(float hoverHeight) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::HoverHeight), hoverHeight); }
+        void SetHoverHeight(float hoverHeight) {
+            SetFloatValue(UF::UNIT_FIELD_HOVERHEIGHT, hoverHeight);
+			SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::HoverHeight), hoverHeight);
+        }
 
         bool IsGravityDisabled() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY); }
         bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING); }
