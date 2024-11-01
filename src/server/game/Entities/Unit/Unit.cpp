@@ -6121,6 +6121,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
         {
             ASSERT(GetCharmedGUID().IsEmpty(),
                 "Player %s is trying to charm unit %u, but it already has a charmed unit %s", GetName().c_str(), charm->GetEntry(), GetCharmedGUID().ToString().c_str());
+            SetGuidValue(UF::UNIT_FIELD_CHARM, charm->GetGUID());
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Charm), charm->GetGUID());
             m_charmed = charm;
 
@@ -6136,6 +6137,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
 
         ASSERT(charm->GetCharmerGUID().IsEmpty(),
             "Unit %u is being charmed, but it already has a charmer %s", charm->GetEntry(), charm->GetCharmerGUID().ToString().c_str());
+        charm->SetGuidValue(UF::UNIT_FIELD_CHARMEDBY, GetGUID());
         charm->SetUpdateFieldValue(charm->m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CharmedBy), GetGUID());
         charm->m_charmer = this;
 
@@ -6153,12 +6155,14 @@ void Unit::SetCharm(Unit* charm, bool apply)
         {
             ASSERT(GetCharmedGUID() == charm->GetGUID(),
                 "Player %s is trying to uncharm unit %u, but it has another charmed unit %s", GetName().c_str(), charm->GetEntry(), GetCharmedGUID().ToString().c_str());
+            RemoveGuidValue(UF::UNIT_FIELD_CHARM, charm->GetGUID());
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Charm), ObjectGuid::Empty);
             m_charmed = nullptr;
         }
 
         ASSERT(charm->GetCharmerGUID() == GetGUID(),
             "Unit %u is being uncharmed, but it has another charmer %s", charm->GetEntry(), charm->GetCharmerGUID().ToString().c_str());
+        charm->RemoveGuidValue(UF::UNIT_FIELD_CHARMEDBY, GetGUID());
         charm->SetUpdateFieldValue(charm->m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CharmedBy), ObjectGuid::Empty);
         charm->m_charmer = nullptr;
 
