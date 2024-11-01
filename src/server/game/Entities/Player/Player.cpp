@@ -26234,6 +26234,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
             return;
         }
 
+        SetGuidValue(UF::ACTIVE_PLAYER_FIELD_FARSIGHT, target->GetGUID());
         SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::FarsightObject), target->GetGUID());
 
         // farsight dynobj or puppet may be very far away
@@ -26253,6 +26254,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
             return;
         }
 
+        RemoveGuidValue(UF::ACTIVE_PLAYER_FIELD_FARSIGHT, target->GetGUID());
         SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::FarsightObject), ObjectGuid::Empty);
 
         if (target->isType(TYPEMASK_UNIT) && target != GetVehicleBase())
