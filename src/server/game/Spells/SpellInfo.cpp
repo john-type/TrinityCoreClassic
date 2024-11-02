@@ -1538,7 +1538,7 @@ bool SpellInfo::IsStackableWithRanks() const
         {
             case SPELLFAMILY_PALADIN:
                 // Paladin aura Spell
-                if (effect.Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID)
+                if (effect.Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID || effect.Effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY)
                     return false;
                 break;
             case SPELLFAMILY_DRUID:
