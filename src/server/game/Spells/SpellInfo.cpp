@@ -1406,6 +1406,21 @@ bool SpellInfo::IsLootCrafting() const
     return /*HasEffect(SPELL_EFFECT_CREATE_RANDOM_ITEM) ||*/ HasEffect(SPELL_EFFECT_CREATE_LOOT);
 }
 
+bool SpellInfo::IsProfessionOrRiding() const
+{
+    for (SpellEffectInfo const& effect : GetEffects())
+    {
+        if (effect.Effect == SPELL_EFFECT_SKILL)
+        {
+            uint32 skill = effect.MiscValue;
+
+            if (IsProfessionOrRidingSkill(skill))
+                return true;
+        }
+    }
+    return false;
+}
+
 bool SpellInfo::IsProfession() const
 {
     for (SpellEffectInfo const& effect : GetEffects())
@@ -1530,6 +1545,16 @@ bool SpellInfo::IsStackableWithRanks() const
 {
     if (IsPassive())
         return false;
+
+    auto itr = std::find_if(PowerCosts.cbegin(), PowerCosts.cend(), [](SpellPowerEntry const* spellPowerEntry) {
+        return spellPowerEntry && spellPowerEntry->PowerType != POWER_MANA && spellPowerEntry->PowerType != POWER_HEALTH;
+    });
+    if (itr == PowerCosts.cend())
+        return false;
+
+    if (IsProfessionOrRiding())
+        return false;
+
 
     // All stance spells. if any better way, change it.
     for (SpellEffectInfo const& effect : GetEffects())
