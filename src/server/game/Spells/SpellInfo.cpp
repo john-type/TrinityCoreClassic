@@ -1863,6 +1863,7 @@ bool SpellInfo::IsAuraExclusiveBySpecificPerCasterWith(SpellInfo const* spellInf
         case SPELL_SPECIFIC_CURSE:
         case SPELL_SPECIFIC_BANE:
         case SPELL_SPECIFIC_ASPECT:
+        case SPELL_SPECIFIC_JUDGEMENT:
         case SPELL_SPECIFIC_WARLOCK_CORRUPTION:
             return spellSpec == spellInfo->GetSpellSpecific();
         default:
@@ -2528,6 +2529,24 @@ void SpellInfo::_LoadSpellSpecific()
         {
             case SPELLFAMILY_GENERIC:
             {
+                if constexpr (CURRENT_EXPANSION < EXPANSION_WRATH_OF_THE_LICH_KING)
+                {
+                    // Pre-Wrath wrong family spells:
+                    switch (Id)
+                    {
+                    case 687:       // Demon Skin, Rank 1
+                    case 696:       // Demon Skin, Rank 2
+                    case 706:       // Demon armour ranks.
+                    case 1086:
+                    case 11733:
+                    case 11734:
+                    case 11735:
+                        return SPELL_SPECIFIC_WARLOCK_ARMOR;
+                    case 13161:     // Aspect of the Beast
+                        return SPELL_SPECIFIC_ASPECT;
+                    }
+                }  
+
                 // Food / Drinks (mostly)
                 if (HasAuraInterruptFlag(SpellAuraInterruptFlags::Standing))
                 {
@@ -2635,32 +2654,38 @@ void SpellInfo::_LoadSpellSpecific()
                 if (Dispel == DISPEL_POISON)
                     return SPELL_SPECIFIC_STING;
 
-                // only hunter aspects have this (but not all aspects in hunter family)
-                if (SpellFamilyFlags & flag128(0x00200000, 0x00000000, 0x00001010, 0x00000000))
-                    return SPELL_SPECIFIC_ASPECT;
+                if constexpr (CURRENT_EXPANSION == EXPANSION_CLASSIC)
+                {
+                    // only hunter aspects have this (except Aspect of the Beast, which is under general)
+                    if (ActiveIconFileDataId == 136116 && Id != 75)
+                        return SPELL_SPECIFIC_ASPECT;
+                }
+                else
+                {
+                    // only hunter aspects have this (but not all aspects in hunter family)
+                    if (SpellFamilyFlags & flag128(0x00200000, 0x00000000, 0x00001010, 0x00000000))
+                        return SPELL_SPECIFIC_ASPECT;
+                }
 
                 break;
             }
             case SPELLFAMILY_PALADIN:
             {
                 // Collection of all the seal family flags. No other paladin spell has any of those.
-                if (SpellFamilyFlags[1] & 0xA2000800)
+                if (SpellFamilyFlags[1] & 0x26000C00
+                    || SpellFamilyFlags[0] & 0x0A000000)
                     return SPELL_SPECIFIC_SEAL;
 
                 if (SpellFamilyFlags[0] & 0x00002190)
                     return SPELL_SPECIFIC_HAND;
 
-                // only paladin auras have this (for palaldin class family)
-                switch (Id)
-                {
-                    case 465:    // Devotion Aura
-                    case 32223:  // Crusader Aura
-                    case 183435: // Retribution Aura
-                    case 317920: // Concentration Aura
-                        return SPELL_SPECIFIC_AURA;
-                    default:
-                        break;
-                }
+                // Judgement of Wisdom, Judgement of Light, Judgement of Justice
+                if (Id == 20184 || Id == 20185 || Id == 20186)
+                    return SPELL_SPECIFIC_JUDGEMENT;
+
+                if (HasEffect(SPELL_EFFECT_APPLY_AREA_AURA_PARTY))
+                    return SPELL_SPECIFIC_AURA;
+                
 
                 break;
             }
