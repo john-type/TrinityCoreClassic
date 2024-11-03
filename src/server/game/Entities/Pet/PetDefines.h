@@ -33,8 +33,8 @@ enum PetType : uint8
     MAX_PET_TYPE            = 4
 };
 
-#define MAX_ACTIVE_PETS         5
-#define MAX_PET_STABLES         200
+#define MAX_ACTIVE_PETS         1
+#define MAX_PET_STABLES         4
 
 // stored in character_pet.slot
 enum PetSaveMode : int16
@@ -154,6 +154,10 @@ public:
             return *unslottedPetIndex < UnslottedPets.size() ? &UnslottedPets[*unslottedPetIndex] : nullptr;
 
         return nullptr;
+    }
+    PetInfo const* GetUnslottedHunterPet() const
+    {
+        return UnslottedPets.size() == 1 && UnslottedPets[0].Type == HUNTER_PET ? &UnslottedPets[0] : nullptr;
     }
 
     Optional<uint32> GetCurrentActivePetIndex() const { return CurrentPetIndex && ((*CurrentPetIndex & UnslottedPetIndexMask) == 0) ? CurrentPetIndex : std::nullopt; }
