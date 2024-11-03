@@ -74,11 +74,6 @@ enum WarriorSpells
     SPELL_WARRIOR_INTERVENE_THREAT = 59667
 };
 
-enum WarriorSpellIcons
-{
-    WARRIOR_ICON_ID_SUDDEN_DEATH = 1989
-};
-
 enum MiscSpells
 {
     SPELL_PALADIN_BLESSING_OF_SANCTUARY = 20911,
