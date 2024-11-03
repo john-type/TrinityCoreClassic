@@ -1645,7 +1645,10 @@ class TC_GAME_API Unit : public WorldObject
             ClearDynamicValue(UF::UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS);
             ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects));
         }
-
+        ObjectGuid GetChannelObjectGuid(uint32 slot) const {
+            assert(slot == 0);
+            return m_unitData->ChannelObjects[slot];
+        }
         void SetCurrentCastSpell(Spell* pSpell);
         void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true);
         void FinishSpell(CurrentSpellTypes spellType, bool ok = true);
