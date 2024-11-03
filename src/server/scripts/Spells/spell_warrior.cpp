@@ -930,13 +930,13 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_sweeping_strikes);
     RegisterSpellScript(spell_warr_t3_prot_8p_bonus);
 
-    if constexpr (CURRENT_EXPANSION <= EXPANSION_THE_BURNING_CRUSADE) {
+    if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE) {
         RegisterSpellScript(spell_warr_extra_proc);
         RegisterSpellScript(spell_warr_intervene);
         RegisterSpellScript(spell_warr_second_wind);
     }
 
-    if constexpr (CURRENT_EXPANSION <= EXPANSION_WRATH_OF_THE_LICH_KING) {
+    if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
         RegisterSpellScript(spell_warr_damage_shield);
         RegisterSpellScript(spell_warr_glyph_of_blocking);
         RegisterSpellScript(spell_warr_glyph_of_sunder_armor);

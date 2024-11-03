@@ -1283,7 +1283,7 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_seduction);
     RegisterSpellScript(spell_warl_shadow_ward);
 
-    if constexpr (CURRENT_EXPANSION <= EXPANSION_THE_BURNING_CRUSADE) {
+    if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE) {
         RegisterSpellScript(spell_warl_nether_protection);
         RegisterSpellScript(spell_warl_seed_of_corruption);
         RegisterSpellScript(spell_warl_seed_of_corruption_dummy);
@@ -1295,7 +1295,7 @@ void AddSC_warlock_spell_scripts()
         RegisterSpellScript(spell_warl_unstable_affliction);
     }
 
-    if constexpr (CURRENT_EXPANSION <= EXPANSION_WRATH_OF_THE_LICH_KING) {
+    if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
         RegisterSpellScript(spell_warl_decimation);
         RegisterSpellScript(spell_warl_demonic_circle_summon);
         RegisterSpellScript(spell_warl_demonic_circle_teleport);
