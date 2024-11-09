@@ -518,7 +518,7 @@ class spell_mage_fire_frost_ward : public spell_mage_incanters_absorbtion_base_A
             float bonus = 0.8068f;
 
             bonus *= caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask());
-            //bonus *= caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());  //TODOFROST
+            bonus *= caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
 
             amount += int32(bonus);
         }

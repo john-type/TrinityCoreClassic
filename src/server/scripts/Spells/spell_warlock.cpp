@@ -1072,7 +1072,7 @@ class spell_warl_shadow_ward : public AuraScript
             float bonus = 0.8068f;
 
             bonus *= caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask());
-            //bonus *= caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());  //TODOFROST
+            bonus *= caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
 
             amount += int32(bonus);
         }

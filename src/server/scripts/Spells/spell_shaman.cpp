@@ -636,7 +636,7 @@ class spell_sha_flametongue_weapon : public AuraScript
         spellPowerBonus += target->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_TAKEN, SPELL_SCHOOL_MASK_FIRE);
 
         // calculate penalty from passive aura as is the one with level
-        float const factorMod = 0; //TODOFROST player->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
+        float const factorMod = player->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
 
         float const spCoeff = 0.03811f;
         spellPowerBonus *= spCoeff * attackSpeed * factorMod;

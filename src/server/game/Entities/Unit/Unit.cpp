@@ -2335,6 +2335,14 @@ uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool add
     return urand(uint32(minDamage), uint32(maxDamage));
 }
 
+float Unit::CalculateSpellpowerCoefficientLevelPenalty(SpellInfo const* spellInfo) const
+{
+    if (!spellInfo->MaxLevel || GetLevel() < spellInfo->MaxLevel)
+        return 1.0f;
+
+    return std::max(0.0f, std::min(1.0f, (22.0f + spellInfo->MaxLevel - GetLevel()) / 20.0f));
+}
+
 void Unit::SendMeleeAttackStart(Unit* victim)
 {
     WorldPackets::Combat::AttackStart packet;
@@ -6543,6 +6551,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     float coeff = spellEffectInfo.BonusCoefficient;
     if (DoneAdvertisedBenefit)
     {
+        float factorMod = CalculateSpellpowerCoefficientLevelPenalty(spellProto) * stack;
         if (Player* modOwner = GetSpellModOwner())
         {
             coeff *= 100.0f;
@@ -6550,7 +6559,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             coeff /= 100.0f;
         }
 
-        DoneTotal += int32(DoneAdvertisedBenefit * coeff * stack);
+        DoneTotal += int32(DoneAdvertisedBenefit * coeff * factorMod);
     }
 
     float tmpDamage = float(int32(pdamage) + DoneTotal) * DoneTotalMod;
@@ -7010,6 +7019,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     // Default calculation
     if (DoneAdvertisedBenefit)
     {
+        float factorMod = CalculateSpellpowerCoefficientLevelPenalty(spellProto) * stack;
         if (Player* modOwner = GetSpellModOwner())
         {
             coeff *= 100.0f;
@@ -7017,7 +7027,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
             coeff /= 100.0f;
         }
 
-        DoneTotal += int32(DoneAdvertisedBenefit * coeff * stack);
+        DoneTotal += int32(DoneAdvertisedBenefit * coeff * factorMod);
     }
 
     for (SpellEffectInfo const& otherSpellEffect : spellProto->GetEffects())

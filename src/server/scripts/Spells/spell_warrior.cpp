@@ -270,11 +270,10 @@ class spell_warr_deep_wounds_aura : public AuraScript
         Unit* actor = eventInfo.GetActor();
         float damage = 0.f;
 
-        //TODOFROST
-        //if (eventInfo.GetDamageInfo()->GetAttackType() == OFF_ATTACK)
-        //    damage = (actor->GetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE) + actor->GetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE)) / 2.f;
-        //else
-        //    damage = (actor->GetFloatValue(UNIT_FIELD_MINDAMAGE) + actor->GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2.f;
+        if (eventInfo.GetDamageInfo()->GetAttackType() == OFF_ATTACK)
+            damage = (actor->m_unitData->MinOffHandDamage + actor->m_unitData->MaxOffHandDamage) / 2.f;
+        else
+            damage = (actor->m_unitData->MinDamage + actor->m_unitData->MaxDamage) / 2.f;
 
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(damage);
@@ -295,7 +294,12 @@ class spell_warr_execute : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARRIOR_EXECUTE, SPELL_WARRIOR_GLYPH_OF_EXECUTION });
+        if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
+            return ValidateSpellInfo({ SPELL_WARRIOR_EXECUTE, SPELL_WARRIOR_GLYPH_OF_EXECUTION });
+        }
+        else {
+            return ValidateSpellInfo({ SPELL_WARRIOR_EXECUTE });
+        }
     }
 
     void HandleEffect(SpellEffIndex /*effIndex*/)
