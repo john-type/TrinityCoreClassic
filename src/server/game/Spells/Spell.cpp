@@ -5042,6 +5042,10 @@ void Spell::SendChannelStart(uint32 duration)
 
     m_timer = duration;
 
+    // hack to force channelled spells to work that otherwise wouldnt get a channel object set.
+    // any spells which do have a valid channel object should be overwriting this below.
+    unitCaster->SetChannelObject(0, ObjectGuid::Empty);
+
     if (!m_targets.HasDst())
     {
         uint32 channelAuraMask = 0;
