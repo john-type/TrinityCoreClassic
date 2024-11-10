@@ -783,7 +783,7 @@ class spell_hun_pet_cower : public AuraScript
 
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
-        //TODOFROST enable
+        static_assert(CURRENT_EXPANSION < EXPANSION_WRATH_OF_THE_LICH_KING); //TODO enable.
         //if (AuraEffect const* improvedCower = GetUnitOwner()->GetDummyAuraEffect(SPELLFAMILY_PET, SPELL_ICON_HUNTER_PET_IMPROVED_COWER, EFFECT_0))
         //    AddPct(amount, improvedCower->GetAmount());
     }

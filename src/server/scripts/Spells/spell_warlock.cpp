@@ -744,18 +744,20 @@ class spell_warl_life_tap : public SpellScript
         //args.AddSpellBP0(mana);
         //caster->CastSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE, args);
 
-        //// Mana Feed
-        //int32 manaFeedVal = 0;
-        //if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_MANA_FEED, 0))
-        //    manaFeedVal = aurEff->GetAmount();
+        if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE) {
+            //// Mana Feed
+            //int32 manaFeedVal = 0;
+            //if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_MANA_FEED, 0))
+            //    manaFeedVal = aurEff->GetAmount();
 
-        //if (manaFeedVal > 0)
-        //{
-        //    ApplyPct(manaFeedVal, mana);
-        //    CastSpellExtraArgs manaFeedArgs(TRIGGERED_FULL_MASK);
-        //    manaFeedArgs.AddSpellBP0(manaFeedVal);
-        //    caster->CastSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2, manaFeedArgs);
-        //}
+            //if (manaFeedVal > 0)
+            //{
+            //    ApplyPct(manaFeedVal, mana);
+            //    CastSpellExtraArgs manaFeedArgs(TRIGGERED_FULL_MASK);
+            //    manaFeedArgs.AddSpellBP0(manaFeedVal);
+            //    caster->CastSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2, manaFeedArgs);
+            //}
+        }
     }
 
     SpellCastResult CheckCast()
