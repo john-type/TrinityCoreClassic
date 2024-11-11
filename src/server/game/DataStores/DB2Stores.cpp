@@ -1451,7 +1451,8 @@ void DB2Manager::LoadHotfixData()
         HotfixRecord::Status status = static_cast<HotfixRecord::Status>(fields[4].GetUInt8());
 
         //TODOFROST
-        if (tableHash != 0x021826BB) {
+        // only currently allowing broadcast text and area_trigger.
+        if (tableHash != 0x021826BB && tableHash != 441483745) {
             continue;
         }
 
