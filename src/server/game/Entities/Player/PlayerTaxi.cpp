@@ -53,16 +53,19 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
     case RACE_DRAENEI:  SetTaximaskNode(94); break;     // Draenei
     }
 
-    // new continent starting masks (It will be accessible only at new map)
-    switch (Player::TeamForRace(race))
-    {
+    if constexpr (CURRENT_EXPANSION > EXPANSION_CLASSIC) {
+        // new continent starting masks (It will be accessible only at new map)
+        switch (Player::TeamForRace(race))
+        {
         case ALLIANCE: SetTaximaskNode(100); break;
         case HORDE:    SetTaximaskNode(99);  break;
-    }
+        }
 
-    // level dependent taxi hubs
-    if (level >= 68)
-        SetTaximaskNode(213);                               //Shattered Sun Staging Area
+
+        // level dependent taxi hubs
+        if (level >= 68)
+            SetTaximaskNode(213);                               //Shattered Sun Staging Area
+    }
 }
 
 bool PlayerTaxi::LoadTaxiMask(std::string const& data)
