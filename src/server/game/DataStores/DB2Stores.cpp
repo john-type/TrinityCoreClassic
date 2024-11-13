@@ -1450,12 +1450,6 @@ void DB2Manager::LoadHotfixData()
         int32 recordId = fields[3].GetInt32();
         HotfixRecord::Status status = static_cast<HotfixRecord::Status>(fields[4].GetUInt8());
 
-        //TODOFROST
-        // only currently allowing broadcast text and area_trigger.
-        if (tableHash != 0x021826BB && tableHash != 441483745) {
-            continue;
-        }
-
         if (status == HotfixRecord::Status::Valid && _stores.find(tableHash) == _stores.end())
         {
             HotfixBlobKey key = std::make_pair(tableHash, recordId);

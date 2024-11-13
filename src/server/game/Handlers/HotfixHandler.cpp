@@ -26,13 +26,6 @@
 
 void WorldSession::HandleDBQueryBulk(WorldPackets::Hotfix::DBQueryBulk& dbQuery)
 {
-
-    //TODOFROST - currently only supporting broadcast text and areatrigger
-    if (dbQuery.TableHash != 0x021826BB && dbQuery.TableHash != 441483745) {
-        return;
-    }
-
-
     DB2StorageBase const* store = sDB2Manager.GetStorage(dbQuery.TableHash);
     for (WorldPackets::Hotfix::DBQueryBulk::DBQueryRecord const& record : dbQuery.Queries)
     {
@@ -81,11 +74,6 @@ void WorldSession::HandleHotfixRequest(WorldPackets::Hotfix::HotfixRequest& hotf
         {
             for (DB2Manager::HotfixRecord const& hotfixRecord : *hotfixRecords)
             {
-                //TODOFROST
-                if (hotfixRecord.TableHash != 0x021826BB && hotfixRecord.TableHash != 441483745) {
-                    continue;
-                }
-
                 hotfixQueryResponse.Hotfixes.emplace_back();
 
                 WorldPackets::Hotfix::HotfixConnect::HotfixData& hotfixData = hotfixQueryResponse.Hotfixes.back();
