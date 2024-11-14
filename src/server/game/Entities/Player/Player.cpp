@@ -2330,7 +2330,7 @@ void Player::GiveLevel(uint8 level)
 
     WorldPackets::Misc::LevelUpInfo packet;
     packet.Level = level;
-    packet.HealthDelta = 0;
+    packet.HealthDelta = int32(info.basehealth) - int32(GetCreateHealth());
 
     packet.PowerDelta[0] = int32(info.basemana) - int32(GetCreateMana());
     if constexpr (MAX_POWERS_PER_CLASS > 1) {
