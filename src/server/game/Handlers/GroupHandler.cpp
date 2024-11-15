@@ -376,8 +376,10 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
     switch (packet.LootMethod)
     {
         case FREE_FOR_ALL:
+        case ROUND_ROBIN:
         case MASTER_LOOT:
         case GROUP_LOOT:
+        case NEED_BEFORE_GREED:
         case PERSONAL_LOOT:
             break;
         default:

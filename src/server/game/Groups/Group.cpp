@@ -1204,6 +1204,153 @@ void Group::GroupLoot(Loot* loot, WorldObject* lootedObject)
     }
 }
 
+void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
+{
+    ItemTemplate const* item;
+    uint8 itemSlot = 0;
+    for (std::vector<LootItem>::iterator i = loot->items.begin(); i != loot->items.end(); ++i, ++itemSlot)
+    {
+        if (i->freeforall)
+            continue;
+
+        item = ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(i->itemid));
+        ASSERT(item);
+
+        //roll for over-threshold item if it's one-player loot
+        if (item->GetQuality() >= uint32(m_lootThreshold))
+        {
+            Roll* r = new Roll(*i);
+
+            for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
+            {
+                Player* playerToRoll = itr->GetSource();
+                if (!playerToRoll || !playerToRoll->GetSession())
+                    continue;
+
+                if (playerToRoll->IsAtGroupRewardDistance(lootedObject))
+                {
+                    r->totalPlayersRolling++;
+                    RollVote vote = playerToRoll->GetPassOnGroupLoot() ? PASS : NOT_EMITED_YET;
+                    if (!CanRollOnItem(*i, playerToRoll))
+                    {
+                        vote = PASS;
+                        r->totalPass++; // Can't broadcast the pass now. need to wait until all rolling players are known
+                    }
+                    r->playerVote[playerToRoll->GetGUID()] = vote;
+                }
+            }
+
+            if (r->totalPlayersRolling > 0)
+            {
+                r->setLoot(loot);
+                r->itemSlot = itemSlot;
+    //            if (item->DisenchantID && m_maxEnchantingLevel >= item->RequiredDisenchantSkill)  //TODOFROST
+    //                r->rollVoteMask |= ROLL_FLAG_TYPE_DISENCHANT;
+
+                if (item->HasFlag(ITEM_FLAG2_CAN_ONLY_ROLL_GREED))
+                    r->rollVoteMask &= ~ROLL_FLAG_TYPE_NEED;
+
+                loot->items[itemSlot].is_blocked = true;
+
+                //Broadcast Pass and Send Rollstart
+                for (Roll::PlayerVote::const_iterator itr = r->playerVote.begin(); itr != r->playerVote.end(); ++itr)
+                {
+                    Player* p = ObjectAccessor::FindConnectedPlayer(itr->first);
+                    if (!p || !p->GetSession())
+                        continue;
+
+                    if (itr->second == PASS)
+                        SendLootRoll(p->GetGUID(), -1, ROLL_PASS, *r, true);
+                    else
+                        SendLootStartRollToPlayer(60000, lootedObject->GetMapId(), p, p->CanRollForItemInLFG(item, lootedObject) == EQUIP_ERR_OK, *r);
+                }
+
+                RollId.push_back(r);
+
+                if (Creature* creature = lootedObject->ToCreature())
+                {
+                    creature->m_groupLootTimer = 60000;
+                    creature->lootingGroupLowGUID = GetGUID();
+                }
+                else if (GameObject* go = lootedObject->ToGameObject())
+                {
+                    go->m_groupLootTimer = 60000;
+                    go->lootingGroupLowGUID = GetGUID();
+                }
+            }
+            else
+                delete r;
+        }
+        else
+            i->is_underthreshold = true;
+    }
+
+    for (std::vector<LootItem>::iterator i = loot->quest_items.begin(); i != loot->quest_items.end(); ++i, ++itemSlot)
+    {
+        if (!i->follow_loot_rules)
+            continue;
+
+        item = sObjectMgr->GetItemTemplate(i->itemid);
+        Roll* r = new Roll(*i);
+
+        for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
+        {
+            Player* playerToRoll = itr->GetSource();
+            if (!playerToRoll || !playerToRoll->GetSession())
+                continue;
+
+            if (playerToRoll->IsAtGroupRewardDistance(lootedObject))
+            {
+                r->totalPlayersRolling++;
+                RollVote vote = NOT_EMITED_YET;
+                if (!CanRollOnItem(*i, playerToRoll))
+                {
+                    vote = PASS;
+                    ++r->totalPass;
+                }
+                r->playerVote[playerToRoll->GetGUID()] = vote;
+            }
+        }
+
+        if (r->totalPlayersRolling > 0)
+        {
+            r->setLoot(loot);
+            r->itemSlot = itemSlot;
+
+            loot->quest_items[itemSlot - loot->items.size()].is_blocked = true;
+
+            //Broadcast Pass and Send Rollstart
+            for (Roll::PlayerVote::const_iterator itr = r->playerVote.begin(); itr != r->playerVote.end(); ++itr)
+            {
+                Player* p = ObjectAccessor::FindConnectedPlayer(itr->first);
+                if (!p || !p->GetSession())
+                    continue;
+
+                if (itr->second == PASS)
+                    SendLootRoll(p->GetGUID(), -1, ROLL_PASS, *r, true);
+                else
+                    SendLootStartRollToPlayer(60000, lootedObject->GetMapId(), p, p->CanRollForItemInLFG(item, lootedObject) == EQUIP_ERR_OK, *r);
+            }
+
+            RollId.push_back(r);
+
+            if (Creature* creature = lootedObject->ToCreature())
+            {
+                creature->m_groupLootTimer = 60000;
+                creature->lootingGroupLowGUID = GetGUID();
+            }
+            else if (GameObject* go = lootedObject->ToGameObject())
+            {
+                go->m_groupLootTimer = 60000;
+                go->lootingGroupLowGUID = GetGUID();
+            }
+        }
+        else
+            delete r;
+    }
+}
+
+
 void Group::MasterLoot(Loot* loot, WorldObject* pLootedObject)
 {
     TC_LOG_DEBUG("network", "Group::MasterLoot (SMSG_MASTER_LOOT_CANDIDATE_LIST)");

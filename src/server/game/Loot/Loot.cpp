@@ -59,7 +59,7 @@ LootItem::LootItem(LootStoreItem const& li)
 }
 
 // Basic checks for player/item compatibility - if false no chance to see the item in the loot
-bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter) const
+bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter, ObjectGuid ownerGuid) const
 {
     // DB conditions check
     if (!sConditionMgr->IsObjectMeetToConditions(const_cast<Player*>(player), conditions))
@@ -110,6 +110,9 @@ bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter
                 return false;
         }
     }
+
+    if (needs_quest && !freeforall && player->GetGroup() && (player->GetGroup()->GetLootMethod() == GROUP_LOOT || player->GetGroup()->GetLootMethod() == ROUND_ROBIN) && !ownerGuid.IsEmpty() && ownerGuid != player->GetGUID())
+        return false;
 
     // check quest requirements
     if (!pProto->HasFlag(ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->GetStartQuest() && player->GetQuestStatus(pProto->GetStartQuest()) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
@@ -560,6 +563,26 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             }
             break;
         }
+        case ROUND_ROBIN_PERMISSION:
+        {
+            for (uint8 i = 0; i < items.size(); ++i)
+            {
+                if (!items[i].is_looted && !items[i].freeforall && items[i].conditions.empty() && items[i].AllowedForPlayer(viewer, false, roundRobinPlayer))
+                {
+                    if (!roundRobinPlayer.IsEmpty() && viewer->GetGUID() != roundRobinPlayer)
+                        // item shall not be displayed.
+                        continue;
+
+                    WorldPackets::Loot::LootItemData lootItem;
+                    lootItem.LootListID = i + 1;
+                    lootItem.UIType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                    lootItem.Quantity = items[i].count;
+                    lootItem.Loot.Initialize(items[i]);
+                    packet.Items.push_back(lootItem);
+                }
+            }
+            break;
+        }
         case ALL_PERMISSION:
         case OWNER_PERMISSION:
         {
@@ -609,6 +632,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                             lootItem.UIType = item.is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
                             break;
                         case GROUP_PERMISSION:
+                        case ROUND_ROBIN_PERMISSION:
                             if (!item.is_blocked)
                                 lootItem.UIType = LOOT_SLOT_TYPE_ALLOW_LOOT;
                             else
@@ -671,6 +695,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                         lootItem.UIType = item.is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
                         break;
                     case GROUP_PERMISSION:
+                    case ROUND_ROBIN_PERMISSION:
                         if (!item.is_blocked)
                             lootItem.UIType = LOOT_SLOT_TYPE_ALLOW_LOOT;
                         else
@@ -748,7 +773,7 @@ NotNormalLootItemList* Loot::FillQuestLoot(Player const* player)
             // increase once if one looter only, looter-times if free for all
             if (item.freeforall || !item.is_blocked)
                 ++unlootedCount;
-            if (!player->GetGroup() || (player->GetGroup()->GetLootMethod() != GROUP_LOOT))
+            if (!player->GetGroup() || (player->GetGroup()->GetLootMethod() != GROUP_LOOT && player->GetGroup()->GetLootMethod() != ROUND_ROBIN))
                 item.is_blocked = true;
 
             if (items.size() + ql->size() == MAX_NR_LOOT_ITEMS)

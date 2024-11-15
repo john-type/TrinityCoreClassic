@@ -398,6 +398,7 @@ class TC_GAME_API Group
         void SendLootRollsComplete(Roll const& roll) const;
         void SendLooter(Creature* creature, Player* pLooter);
         void GroupLoot(Loot* loot, WorldObject* pLootedObject);
+        void NeedBeforeGreed(Loot* loot, WorldObject* pLootedObject);
         void MasterLoot(Loot* loot, WorldObject* pLootedObject);
         Rolls::iterator GetRoll(ObjectGuid lootObjectGuid, uint8 lootListId);
         void CountTheRoll(Rolls::iterator roll, Map* allowedMap);

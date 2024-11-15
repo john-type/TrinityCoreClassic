@@ -9153,6 +9153,9 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
                             // GroupLoot: rolls items over threshold. Items with quality < threshold, round robin
                             group->GroupLoot(loot, go);
                             break;
+                        case NEED_BEFORE_GREED:
+                            group->NeedBeforeGreed(loot, go);
+                            break;
                         case MASTER_LOOT:
                             group->MasterLoot(loot, go);
                             break;
@@ -9176,6 +9179,9 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
                         break;
                     case FREE_FOR_ALL:
                         permission = ALL_PERMISSION;
+                        break;
+                    case ROUND_ROBIN:
+                        permission = ROUND_ROBIN_PERMISSION;
                         break;
                     default:
                         permission = GROUP_PERMISSION;
@@ -9322,6 +9328,9 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
                             // GroupLoot: rolls items over threshold. Items with quality < threshold, round robin
                             group->GroupLoot(loot, creature);
                             break;
+                        case NEED_BEFORE_GREED:
+                            group->NeedBeforeGreed(loot, creature);
+                            break;
                         case MASTER_LOOT:
                             group->MasterLoot(loot, creature);
                             break;
@@ -9361,6 +9370,9 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
                                 break;
                             case FREE_FOR_ALL:
                                 permission = ALL_PERMISSION;
+                                break;
+                            case ROUND_ROBIN:
+                                permission = ROUND_ROBIN_PERMISSION;
                                 break;
                             default:
                                 permission = GROUP_PERMISSION;
@@ -18665,7 +18677,15 @@ bool Player::isAllowedToLoot(const Creature* creature) const
         case MASTER_LOOT:
         case FREE_FOR_ALL:
             return true;
+        case ROUND_ROBIN:
+            // may only loot if the player is the loot roundrobin player
+            // or if there are free/quest/conditional item for the player
+            if (loot->roundRobinPlayer.IsEmpty() || loot->roundRobinPlayer == GetGUID())
+                return true;
+
+            return loot->hasItemFor(this);
         case GROUP_LOOT:
+        case NEED_BEFORE_GREED:
             // may only loot if the player is the loot roundrobin player
             // or item over threshold (so roll(s) can be launched)
             // or if there are free/quest/conditional item for the player
