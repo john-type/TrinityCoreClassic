@@ -20106,12 +20106,13 @@ bool Player::CheckInstanceValidity(bool /*isLogin*/)
     if (!map || !map->IsDungeon())
         return true;
 
+    Group* group = GetGroup();
     // raid instances require the player to be in a raid group to be valid
-    if (map->IsRaid() && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID) && (map->GetEntry()->Expansion() >= sWorld->getIntConfig(CONFIG_EXPANSION)))
-        if (!GetGroup() || !GetGroup()->isRaidGroup())
+    if (map->IsRaid() && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))
+        if (!group || !group->isRaidGroup())
             return false;
 
-    if (Group* group = GetGroup())
+    if (group)
     {
         // check if player's group is bound to this instance
         InstanceGroupBind* bind = group->GetBoundInstance(map->GetDifficultyID(), map->GetId());
