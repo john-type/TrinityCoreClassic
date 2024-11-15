@@ -48,7 +48,7 @@ namespace WorldPackets
     }
 }
 
-uint32 constexpr MIN_AUCTION_TIME = 12 * HOUR;
+uint32 constexpr MIN_AUCTION_TIME = 2 * HOUR;
 
 enum class AuctionResult : int8
 {
@@ -219,6 +219,7 @@ struct AuctionsBucketData
     std::vector<AuctionPosting*> Auctions;
 
     void BuildBucketInfo(WorldPackets::AuctionHouse::BucketInfo* bucketInfo, Player* player) const;
+    void BuildAuctionInfo(WorldPackets::AuctionHouse::AuctionItem* auctionItem, Player* player) const;
 
     class Sorter;
 };
@@ -319,6 +320,10 @@ public:
         uint32 offset, WorldPackets::AuctionHouse::AuctionSortDef const* sorts, std::size_t sortCount) const;
     void BuildListOwnedItems(WorldPackets::AuctionHouse::AuctionListOwnedItemsResult& listOwnedItemsResult, Player* player,
         uint32 offset, WorldPackets::AuctionHouse::AuctionSortDef const* sorts, std::size_t sortCount);
+    void BuildListAuctionItems(WorldPackets::AuctionHouse::AuctionListItemsResult& packet, Player* player,
+        std::wstring const& searchedname, uint8 levelmin, uint8 levelmax, EnumFlag<AuctionHouseFilterMask> filters,
+        Optional<AuctionSearchClassFilters> const& classFilters, uint32 offset,
+        WorldPackets::AuctionHouse::AuctionSortDef const* sorts, std::size_t sortCount) const;
     void BuildReplicate(WorldPackets::AuctionHouse::AuctionReplicateResponse& replicateResponse, Player* player,
         uint32 global, uint32 cursor, uint32 tombstone, uint32 count);
 

@@ -151,6 +151,16 @@ void AuctionsBucketData::BuildBucketInfo(WorldPackets::AuctionHouse::BucketInfo*
     }
 }
 
+void AuctionsBucketData::BuildAuctionInfo(WorldPackets::AuctionHouse::AuctionItem* auctionItem, Player* player) const
+{
+    for (AuctionPosting const* auction : Auctions)
+    {
+        auction->BuildAuctionItem(auctionItem, false, false, true, false);
+        //TODOFROST handle properly.
+        break;
+    }
+}
+
 bool AuctionPosting::IsCommodity() const
 {
     return Items.size() > 1 || Items[0]->GetTemplate()->GetMaxStackSize() > 1;
@@ -1365,6 +1375,7 @@ void AuctionHouseObject::BuildListBiddedItems(WorldPackets::AuctionHouse::Auctio
     }
 
     listBiddedItemsResult.HasMoreResults = false;
+    listBiddedItemsResult.TotalCount = auctions.size();
 }
 
 void AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::AuctionListItemsResult& listItemsResult, Player* player, AuctionsBucketKey const& bucketKey,
@@ -1444,78 +1455,85 @@ void AuctionHouseObject::BuildListOwnedItems(WorldPackets::AuctionHouse::Auction
     }
 
     listOwnedItemsResult.HasMoreResults = false;
+    listOwnedItemsResult.TotalCount = auctions.size();
 }
 
-/*
+
 void AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::AuctionListItemsResult& packet, Player* player,
-    std::wstring const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, EnumClassFlag<AuctionHouseFilterMask> filters,
-    Optional<AuctionSearchClassFilters> const& classFilters)
+    std::wstring const& searchedname, uint8 levelmin, uint8 levelmax, EnumFlag<AuctionHouseFilterMask> filters,
+    Optional<AuctionSearchClassFilters> const& classFilters, uint32 offset,
+    WorldPackets::AuctionHouse::AuctionSortDef const* sorts, std::size_t sortCount) const
 {
     time_t curTime = GameTime::GetGameTime();
 
-    for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
+    AuctionsResultBuilder<AuctionsBucketData> builder(offset, player->GetSession()->GetSessionDbcLocale(), sorts, sortCount, AuctionHouseResultLimits::Items);
+
+    for (std::pair<AuctionsBucketKey const, AuctionsBucketData> const& bucket : _buckets)
     {
-        AuctionEntry* Aentry = itr->second;
-        // Skip expired auctions
-        if (Aentry->expire_time < curTime)
+        AuctionsBucketData const* bucketData = &bucket.second;
+        if (!searchedname.empty())
+        {
+            if (filters.HasFlag(AuctionHouseFilterMask::ExactMatch))
+            {
+                if (bucketData->FullName[player->GetSession()->GetSessionDbcLocale()] != searchedname)
+                    continue;
+            }
+            else
+                if (bucketData->FullName[player->GetSession()->GetSessionDbcLocale()].find(searchedname) == std::wstring::npos)
+                    continue;
+        }
+
+        if (levelmin && bucketData->RequiredLevel < levelmin)
             continue;
 
-        Item* item = sAuctionMgr->GetAItem(Aentry->itemGUIDLow);
-        if (!item)
+        if (levelmax && bucketData->RequiredLevel > levelmax)
             continue;
 
-        ItemTemplate const* proto = item->GetTemplate();
+        if (!filters.HasFlag(bucketData->QualityMask))
+            continue;
+
         if (classFilters)
         {
             // if we dont want any class filters, Optional is not initialized
             // if we dont want this class included, SubclassMask is set to FILTER_SKIP_CLASS
             // if we want this class and did not specify and subclasses, its set to FILTER_SKIP_SUBCLASS
             // otherwise full restrictions apply
-            if (classFilters->Classes[proto->GetClass()].SubclassMask == AuctionSearchClassFilters::FILTER_SKIP_CLASS)
+            if (classFilters->Classes[bucketData->ItemClass].SubclassMask == AuctionSearchClassFilters::FILTER_SKIP_CLASS)
                 continue;
 
-            if (classFilters->Classes[proto->GetClass()].SubclassMask != AuctionSearchClassFilters::FILTER_SKIP_SUBCLASS)
+            if (classFilters->Classes[bucketData->ItemClass].SubclassMask != AuctionSearchClassFilters::FILTER_SKIP_SUBCLASS)
             {
-                if (!(classFilters->Classes[proto->GetClass()].SubclassMask & (1 << proto->GetSubClass())))
+                if (!(classFilters->Classes[bucketData->ItemClass].SubclassMask & (1 << bucketData->ItemSubClass)))
                     continue;
 
-                if (!(classFilters->Classes[proto->GetClass()].InvTypes[proto->GetSubClass()] & (1 << proto->GetInventoryType())))
+                if (!(classFilters->Classes[bucketData->ItemClass].InvTypes[bucketData->ItemSubClass] & (1 << bucketData->InventoryType)))
                     continue;
             }
         }
 
-        if (!filters.HasFlag(static_cast<AuctionHouseFilterMask>(1 << (proto->GetQuality() + 4))))
-            continue;
-
-        if (levelmin != 0 && (item->GetRequiredLevel() < levelmin || (levelmax != 0 && item->GetRequiredLevel() > levelmax)))
-            continue;
-
-        if (filters.HasFlag(AuctionHouseFilterMask::UsableOnly) && player->CanUseItem(item) != EQUIP_ERR_OK)
-            continue;
-
-        // Allow search by suffix (ie: of the Monkey) or partial name (ie: Monkey)
-        // No need to do any of this if no search term was entered
-        if (!searchedname.empty())
+        if (filters.HasFlag(AuctionHouseFilterMask::UsableOnly))
         {
-            std::string name = proto->GetName(player->GetSession()->GetSessionDbcLocale());
-            if (name.empty())
+            if (bucketData->RequiredLevel && player->GetLevel() < bucketData->RequiredLevel)
                 continue;
 
-            // TODO: Generate name using ItemNameDescription
-
-            // Perform the search (with or without suffix)
-            if (!Utf8FitTo(name, searchedname))
+            if (player->CanUseItem(sObjectMgr->GetItemTemplate(bucket.first.ItemId), true) != EQUIP_ERR_OK)
                 continue;
         }
 
-        // Add the item if no search term or if entered search term was found
-        if (packet.Items.size() < 50 && packet.TotalCount >= listfrom)
-            Aentry->BuildAuctionInfo(packet.Items, true, item);
-
-        ++packet.TotalCount;
+        builder.AddItem(bucketData);
     }
+
+    for (AuctionsBucketData const* resultBucket : builder.GetResultRange())
+    {
+        packet.Items.emplace_back();
+        WorldPackets::AuctionHouse::AuctionItem& auctionItem = packet.Items.back();
+        resultBucket->BuildAuctionInfo(&auctionItem, player);
+        packet.TotalCount++;
+    }
+
+    packet.TotalCount += (offset);
 }
-*/
+
 void AuctionHouseObject::BuildReplicate(WorldPackets::AuctionHouse::AuctionReplicateResponse& replicateResponse, Player* player,
     uint32 global, uint32 cursor, uint32 tombstone, uint32 count)
 {

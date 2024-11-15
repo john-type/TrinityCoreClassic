@@ -130,6 +130,7 @@ namespace WorldPackets
         class AuctionPlaceBid;
         class AuctionRemoveItem;
         class AuctionReplicateItems;
+        class AuctionListPendingSales;
         class AuctionRequestFavoriteList;
         class AuctionSellCommodity;
         class AuctionSellItem;
@@ -1405,6 +1406,7 @@ class TC_GAME_API WorldSession
         void HandleAuctionListOwnedItems(WorldPackets::AuctionHouse::AuctionListOwnedItems& listOwnedItems);
         void HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlaceBid& placeBid);
         void HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRemoveItem& removeItem);
+        void HandleAuctionListPendingSales(WorldPackets::AuctionHouse::AuctionListPendingSales& packet);
         void HandleAuctionReplicateItems(WorldPackets::AuctionHouse::AuctionReplicateItems& replicateItems);
         void HandleAuctionRequestFavoriteList(WorldPackets::AuctionHouse::AuctionRequestFavoriteList& requestFavoriteList);
         void HandleAuctionSellCommodity(WorldPackets::AuctionHouse::AuctionSellCommodity& sellCommodity);
