@@ -74,6 +74,11 @@ enum WarriorSpells
     SPELL_WARRIOR_INTERVENE_THREAT = 59667
 };
 
+enum WarriorSpellIcons
+{
+    WARRIOR_ICON_ID_SUDDEN_DEATH = 132346
+};
+
 enum MiscSpells
 {
     SPELL_PALADIN_BLESSING_OF_SANCTUARY = 20911,
@@ -314,13 +319,12 @@ class spell_warr_execute : public SpellScript
                 int32 newRage = std::max<int32>(0, caster->GetPower(POWER_RAGE) - rageUsed);
 
                 if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE) {
-                    static_assert(CURRENT_EXPANSION == EXPANSION_CLASSIC); //TODO enable.
-                    //// Sudden Death rage save
-                    //if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_GENERIC, WARRIOR_ICON_ID_SUDDEN_DEATH, EFFECT_0))
-                    //{
-                    //    int32 ragesave = aurEff->GetSpellInfo()->GetEffect(EFFECT_1).CalcValue() * 10;
-                    //    newRage = std::max(newRage, ragesave);
-                    //}
+                    // Sudden Death rage save
+                    if (AuraEffect* aurEff = caster->GetAuraEffectWithIcon(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_GENERIC, WARRIOR_ICON_ID_SUDDEN_DEATH, EFFECT_0))
+                    {
+                        int32 ragesave = aurEff->GetSpellInfo()->GetEffect(EFFECT_1).CalcValue() * 10;
+                        newRage = std::max(newRage, ragesave);
+                    }
                 }
 
                 caster->SetPower(POWER_RAGE, uint32(newRage));

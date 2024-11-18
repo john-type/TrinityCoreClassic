@@ -98,6 +98,14 @@ enum ShamanSpells
     SPELL_SHAMAN_BLESSING_OF_THE_ETERNALS_R1 = 51554,
 };
 
+enum ShamanSpellIcons
+{
+    SHAMAN_ICON_ID_RESTORATIVE_TOTEMS = 136053,
+    SHAMAN_ICON_ID_SHAMAN_LAVA_FLOW = 237583,
+    SHAMAN_ICON_ID_TOTEM_OF_WRATH = 135829,
+    SHAMAN_ICON_ID_EARTH_TOTEM = 136024
+};
+
 // -51556 - Ancestral Awakening
 class spell_sha_ancestral_awakening : public AuraScript
 {
@@ -404,11 +412,11 @@ class spell_sha_earthbind_totem : public AuraScript
     {
         if (!GetCaster())
             return;
-        //TODOFROST
-        //if (Player* owner = GetCaster()->GetCharmerOrOwnerPlayerOrPlayerItself())
-        //    if (AuraEffect* aur = owner->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2289, 0))
-        //        if (roll_chance_i(aur->GetBaseAmount()))
-        //            GetTarget()->CastSpell(nullptr, SPELL_SHAMAN_TOTEM_EARTHEN_POWER, true);
+
+        if (Player* owner = GetCaster()->GetCharmerOrOwnerPlayerOrPlayerItself())
+            if (AuraEffect* aur = owner->GetAuraEffectWithIcon(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_EARTH_TOTEM, 0))
+                if (roll_chance_i(aur->GetBaseAmount()))
+                    GetTarget()->CastSpell(nullptr, SPELL_SHAMAN_TOTEM_EARTHEN_POWER, true);
     }
 
     void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -557,18 +565,17 @@ class spell_sha_flame_shock : public AuraScript
 
     void HandleDispel(DispelInfo* /*dispelInfo*/)
     {
-        //TODOFROST
-        //if (Unit* caster = GetCaster())
-        //    // Lava Flows
-        //    if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_SHAMAN_LAVA_FLOW, EFFECT_0))
-        //    {
-        //        if (SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LAVA_FLOWS_R1, GetCastDifficulty()))
-        //            if (!aurEff->GetSpellInfo()->IsRankOf(firstRankSpellInfo))
-        //                return;
+        if (Unit* caster = GetCaster())
+            // Lava Flows
+            if (AuraEffect const* aurEff = caster->GetAuraEffectWithIcon(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_SHAMAN_LAVA_FLOW, EFFECT_0))
+            {
+                if (SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LAVA_FLOWS_R1, GetCastDifficulty()))
+                    if (!aurEff->GetSpellInfo()->IsRankOf(firstRankSpellInfo))
+                        return;
 
-        //        uint8 rank = aurEff->GetSpellInfo()->GetRank();
-        //        caster->CastSpell(caster, sSpellMgr->GetSpellWithRank(SPELL_SHAMAN_LAVA_FLOWS_TRIGGERED_R1, rank), true);
-        //    }
+                uint8 rank = aurEff->GetSpellInfo()->GetRank();
+                caster->CastSpell(caster, sSpellMgr->GetSpellWithRank(SPELL_SHAMAN_LAVA_FLOWS_TRIGGERED_R1, rank), true);
+            }
     }
 
     void Register() override
@@ -762,14 +769,13 @@ class spell_sha_glyph_of_totem_of_wrath : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        static_assert(CURRENT_EXPANSION < EXPANSION_WRATH_OF_THE_LICH_KING); //TODO enable
-        //// Totem of Wrath shares family flags with other totems
-        //// filter by spellIcon instead
-        //SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
-        //if (!spellInfo || spellInfo->SpellIconID != SHAMAN_ICON_ID_TOTEM_OF_WRATH)
-        //    return false;
+        // Totem of Wrath shares family flags with other totems
+        // filter by spellIcon instead
+        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+        if (!spellInfo || spellInfo->IconFileDataId != SHAMAN_ICON_ID_TOTEM_OF_WRATH)
+            return false;
 
-        //return true;
+        return true;
     }
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
@@ -814,30 +820,30 @@ class spell_sha_healing_stream_totem : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        static_assert(CURRENT_EXPANSION < EXPANSION_WRATH_OF_THE_LICH_KING); //TODO enable
-        //int32 damage = GetEffectValue();
-        //if (Unit* target = GetHitUnit())
-        //{
-        //    Unit* caster = GetCaster();
-        //    ObjectGuid originalCasterGuid = caster->GetGUID();
+        int32 damage = GetEffectValue();
+        if (Unit* target = GetHitUnit())
+        {
+            Unit* caster = GetCaster();
+            ObjectGuid originalCasterGuid = caster->GetGUID();
 
-        //    if (Player* player = caster->GetAffectingPlayer())
-        //    {
-        //        originalCasterGuid = player->GetGUID();
+            if (Player* player = caster->GetAffectingPlayer())
+            {
+                originalCasterGuid = player->GetGUID();
 
-        //        // Restorative Totems
-        //        if (AuraEffect const* aurEff = player->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_RESTORATIVE_TOTEMS, EFFECT_1))
-        //            AddPct(damage, aurEff->GetAmount());
+                // Restorative Totems
+                if (AuraEffect const* aurEff = player->GetAuraEffectWithIcon(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_RESTORATIVE_TOTEMS, EFFECT_1))
+                    AddPct(damage, aurEff->GetAmount());
 
-        //        // Glyph of Healing Stream Totem
-        //        if (AuraEffect const* aurEff = player->GetAuraEffect(SPELL_SHAMAN_GLYPH_OF_HEALING_STREAM_TOTEM, EFFECT_0))
-        //            AddPct(damage, aurEff->GetAmount());
-        //    }
+                // Glyph of Healing Stream Totem
+                if (AuraEffect const* aurEff = player->GetAuraEffect(SPELL_SHAMAN_GLYPH_OF_HEALING_STREAM_TOTEM, EFFECT_0))
+                    AddPct(damage, aurEff->GetAmount());
+            }
 
-        //    CastSpellExtraArgs args(originalCasterGuid);
-        //    args.AddSpellBP0(damage);
-        //    caster->CastSpell(target, SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL, args);
-        //}
+            CastSpellExtraArgs args;
+            args.SetOriginalCaster(originalCasterGuid);
+            args.AddSpellBP0(damage);
+            caster->CastSpell(target, SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL, args);
+        }
     }
 
     void Register() override

@@ -138,6 +138,12 @@ enum PaladinSpells
     SPELL_PALADIN_FLASH_OF_LIGHT_HEAL = 19993
 };
 
+enum PaladinSpellIcons
+{
+    PALADIN_ICON_ID_RETRIBUTION_AURA = 135873,
+    PALADIN_ICON_ID_HAMMER_OF_THE_RIGHTEOUS = 236253
+};
+
 // -31850 - Ardent Defender
 class spell_pal_ardent_defender : public AuraScript
 {
@@ -1741,10 +1747,9 @@ public:
             if (!(eventInfo.GetTypeMask() & PROC_FLAG_DEAL_MELEE_SWING))
             {
                 // Patch 3.2.0 Notes: Only auto-attacks and Hammer of the Righteous can place the debuff on the paladin's current target(s).
-                //TODOFROST
-                //SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
-                //if (!spellInfo || spellInfo->SpellIconID != PALADIN_ICON_ID_HAMMER_OF_THE_RIGHTEOUS)
-                //    return;
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo || spellInfo->IconFileDataId != PALADIN_ICON_ID_HAMMER_OF_THE_RIGHTEOUS) 
+                    return;
             }
 
             // don't cast triggered, spell already has SPELL_ATTR4_CAN_CAST_WHILE_CASTING attr

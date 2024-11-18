@@ -81,6 +81,14 @@ enum PriestSpells
     SPELL_PRIEST_DIVINE_PROVIDENCE_R1 = 47562
 };
 
+enum PriestSpellIcons
+{
+    PRIEST_ICON_ID_FOCUSED_POWER = 136158,
+    PRIEST_ICON_ID_BORROWED_TIME = 237538,
+    PRIEST_ICON_ID_EMPOWERED_RENEW_TALENT = 236254,
+    PRIEST_ICON_ID_PAIN_AND_SUFFERING = 237567,
+};
+
 enum PriestMisc
 {
     PRIEST_LIGHTWELL_NPC_1 = 31897,
@@ -878,40 +886,38 @@ class spell_pri_power_word_shield_aura : public AuraScript
         canBeRecalculated = false;
         if (Unit* caster = GetCaster())
         {
-            //TODOFROST
-            assert(false);
+            // +80.68% from sp bonus
+            float bonus = 0.8068f;
 
-            //// +80.68% from sp bonus
-            //float bonus = 0.8068f;
+            // Borrowed Time
+            if (AuraEffect const* borrowedTime = caster->GetAuraEffectWithIcon(SPELL_AURA_DUMMY, SPELLFAMILY_PRIEST, PRIEST_ICON_ID_BORROWED_TIME, EFFECT_1))
+                bonus += CalculatePct(1.0f, borrowedTime->GetAmount());
 
-            //// Borrowed Time
-            //if (AuraEffect const* borrowedTime = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_BORROWED_TIME, EFFECT_1))
-            //    bonus += CalculatePct(1.0f, borrowedTime->GetAmount());
+            bonus *= caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask());
 
-            //bonus *= caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask());
+            // Improved PW: Shield: its weird having a SPELLMOD_ALL_EFFECTS here but its blizzards doing :)
+            // Improved PW: Shield is only applied at the spell healing bonus because it was already applied to the base value in CalculateSpellDamage
+            bonus = caster->ApplyEffectModifiers(GetSpellInfo(), aurEff->GetEffIndex(), bonus);
+            bonus *= caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
 
-            //// Improved PW: Shield: its weird having a SPELLMOD_ALL_EFFECTS here but its blizzards doing :)
-            //// Improved PW: Shield is only applied at the spell healing bonus because it was already applied to the base value in CalculateSpellDamage
-            //bonus = caster->ApplyEffectModifiers(GetSpellInfo(), aurEff->GetEffIndex(), bonus);
-            //bonus *= caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
+            amount += int32(bonus);
 
-            //amount += int32(bonus);
+            // Twin Disciplines
+            if (AuraEffect const* twinDisciplines = caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_PRIEST, { 0x400000, 0, 0 }, GetCasterGUID()))
+                AddPct(amount, twinDisciplines->GetAmount());
 
-            //// Twin Disciplines
-            //if (AuraEffect const* twinDisciplines = caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_PRIEST, { 0x400000, 0, 0 }, GetCasterGUID()))
-            //    AddPct(amount, twinDisciplines->GetAmount());
+            // Focused Power
+            if (AuraEffect const* focusedPower = caster->GetAuraEffectWithIcon(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_PRIEST, PRIEST_ICON_ID_FOCUSED_POWER, EFFECT_2))
+                AddPct(amount, focusedPower->GetAmount());
 
-            //// Focused Power
-            //if (AuraEffect const* focusedPower = caster->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_PRIEST, PRIEST_ICON_ID_FOCUSED_POWER, EFFECT_2))
-            //    AddPct(amount, focusedPower->GetAmount());
+            // Arena - Dampening
+            if (AuraEffect const* auraEffArenaDampening = caster->GetAuraEffect(SPELL_GENERIC_ARENA_DAMPENING, EFFECT_0))
+                AddPct(amount, auraEffArenaDampening->GetAmount());
+            // Battleground - Dampening
+            else if (AuraEffect const* auraEffBattlegroudDampening = caster->GetAuraEffect(SPELL_GENERIC_BATTLEGROUND_DAMPENING, EFFECT_0))
+                AddPct(amount, auraEffBattlegroudDampening->GetAmount());
 
-            //// Arena - Dampening
-            //if (AuraEffect const* auraEffArenaDampening = caster->GetAuraEffect(SPELL_GENERIC_ARENA_DAMPENING, EFFECT_0))
-            //    AddPct(amount, auraEffArenaDampening->GetAmount());
-            //// Battleground - Dampening
-            //else if (AuraEffect const* auraEffBattlegroudDampening = caster->GetAuraEffect(SPELL_GENERIC_BATTLEGROUND_DAMPENING, EFFECT_0))
-            //    AddPct(amount, auraEffBattlegroudDampening->GetAmount());
-
+            static_assert(CURRENT_EXPANSION < EXPANSION_WRATH_OF_THE_LICH_KING); //TODO enable
             //// ICC buff
             //if (AuraEffect const* auraStrengthOfWrynn = caster->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_GENERIC, SPELL_ICON_ID_STRENGTH_OF_WRYNN, EFFECT_2))
             //    AddPct(amount, auraStrengthOfWrynn->GetAmount());
@@ -1014,17 +1020,16 @@ class spell_pri_renew : public AuraScript
             return;
 
         if constexpr (CURRENT_EXPANSION == EXPANSION_WRATH_OF_THE_LICH_KING) {
-            static_assert(CURRENT_EXPANSION < EXPANSION_WRATH_OF_THE_LICH_KING); //TODO enable.
-            //// Empowered Renew
-            //if (AuraEffect const* empoweredRenewAurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_EMPOWERED_RENEW_TALENT, EFFECT_1))
-            //{
-            //    int32 heal = aurEff->GetAmount();
-            //    heal *= aurEff->GetTotalTicks();
+            // Empowered Renew
+            if (AuraEffect const* empoweredRenewAurEff = caster->GetAuraEffectWithIcon(SPELL_AURA_DUMMY, SPELLFAMILY_PRIEST, PRIEST_ICON_ID_EMPOWERED_RENEW_TALENT, EFFECT_1))
+            {
+                int32 heal = aurEff->GetAmount();
+                heal *= aurEff->GetTotalTicks();
 
-            //    CastSpellExtraArgs args(aurEff);
-            //    args.AddSpellBP0(CalculatePct(heal, empoweredRenewAurEff->GetAmount()));
-            //    caster->CastSpell(GetTarget(), SPELL_PRIEST_EMPOWERED_RENEW, args);
-            //}
+                CastSpellExtraArgs args(aurEff);
+                args.AddSpellBP0(CalculatePct(heal, empoweredRenewAurEff->GetAmount()));
+                caster->CastSpell(GetTarget(), SPELL_PRIEST_EMPOWERED_RENEW, args);
+            }
         }
     }
 
@@ -1078,16 +1083,15 @@ class spell_pri_shadow_word_death : public SpellScript
 
     void HandleDamage()
     {
-        static_assert(CURRENT_EXPANSION < EXPANSION_THE_BURNING_CRUSADE); //TODO enable.
-        //int32 damage = GetHitDamage();
+        int32 damage = GetHitDamage();
 
-        //// Pain and Suffering reduces damage
-        //if (AuraEffect* aurEff = GetCaster()->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_PAIN_AND_SUFFERING, EFFECT_1))
-        //    AddPct(damage, aurEff->GetAmount());
+        // Pain and Suffering reduces damage
+        if (AuraEffect* aurEff = GetCaster()->GetAuraEffectWithIcon(SPELL_AURA_DUMMY, SPELLFAMILY_PRIEST, PRIEST_ICON_ID_PAIN_AND_SUFFERING, EFFECT_1))
+            AddPct(damage, aurEff->GetAmount());
 
-        //CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-        //args.AddSpellBP0(damage);
-        //GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_SHADOW_WORD_DEATH, args);
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.AddSpellBP0(damage);
+        GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_SHADOW_WORD_DEATH, args);
     }
 
     void Register() override

@@ -4407,6 +4407,20 @@ AuraEffect* Unit::GetAuraEffect(AuraType type, SpellFamilyNames family, flag128 
     return nullptr;
 }
 
+AuraEffect* Unit::GetAuraEffectWithIcon(AuraType type, SpellFamilyNames family, uint32 iconFileDataId, uint8 effIndex) const
+{
+    AuraEffectList const& auras = GetAuraEffectsByType(type);
+    for (Unit::AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+    {
+        if (effIndex != (*itr)->GetEffIndex())
+            continue;
+        SpellInfo const* spell = (*itr)->GetSpellInfo();
+        if (spell->IconFileDataId == iconFileDataId && spell->SpellFamilyName == uint32(family) && !spell->SpellFamilyFlags)
+            return *itr;
+    }
+    return nullptr;
+}
+
 AuraApplication * Unit::GetAuraApplication(uint32 spellId, ObjectGuid casterGUID, ObjectGuid itemCasterGUID, uint32 reqEffMask, AuraApplication * except) const
 {
     return GetAuraApplication(spellId, [&](AuraApplication const* app)

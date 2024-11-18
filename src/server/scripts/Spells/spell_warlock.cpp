@@ -91,9 +91,10 @@ enum WarlockSpells
 
 enum WarlockSpellIcons
 {
-    WARLOCK_ICON_ID_IMPROVED_LIFE_TAP = 208,
-    WARLOCK_ICON_ID_MANA_FEED = 1982,
-    WARLOCK_ICON_ID_DEMONIC_PACT = 3220
+    WARLOCK_ICON_ID_IMPROVED_LIFE_TAP = 136126,
+    WARLOCK_ICON_ID_MANA_FEED = 136171,
+    WARLOCK_ICON_ID_DEMONIC_PACT = 237562,
+    WARLOCK_ICON_ID_HELATHSTONE = 135230
 };
 
 // -980 - Curse of Agony
@@ -201,23 +202,22 @@ public:
             if (Unit* unitTarget = GetHitUnit())
             {
                 uint32 rank = 0;
-                //TODOFROST
-                //// Improved Healthstone
-                //if (AuraEffect const* aurEff = unitTarget->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, 284, 0))
-                //{
-                //    switch (aurEff->GetId())
-                //    {
-                //    case SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R1:
-                //        rank = 1;
-                //        break;
-                //    case SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R2:
-                //        rank = 2;
-                //        break;
-                //    default:
-                //        TC_LOG_ERROR("spells", "Unknown rank of Improved Healthstone id: {}", aurEff->GetId());
-                //        break;
-                //    }
-                //}
+                // Improved Healthstone
+                if (AuraEffect const* aurEff = unitTarget->GetAuraEffectWithIcon(SPELL_AURA_DUMMY, SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_HELATHSTONE, 0))
+                {
+                    switch (aurEff->GetId())
+                    {
+                    case SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R1:
+                        rank = 1;
+                        break;
+                    case SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R2:
+                        rank = 2;
+                        break;
+                    default:
+                        TC_LOG_ERROR("spells", "Unknown rank of Improved Healthstone id: {}", aurEff->GetId());
+                        break;
+                    }
+                }
                 uint8 spellRank = GetSpellInfo()->GetRank();
                 if (spellRank > 0 && spellRank <= 8)
                     CreateItem(iTypes[spellRank - 1][rank], ItemContext::NONE);
@@ -275,7 +275,7 @@ class spell_warl_curse_of_doom : public AuraScript
         if (GetCaster()->ToPlayer()->isHonorOrXPTarget(GetTarget()))
             GetCaster()->CastSpell(GetTarget(), SPELL_WARLOCK_CURSE_OF_DOOM_EFFECT, aurEff);
     }
-
+    //
     void Register() override
     {
         AfterEffectRemove += AuraEffectRemoveFn(spell_warl_curse_of_doom::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
@@ -728,35 +728,39 @@ class spell_warl_life_tap : public SpellScript
         Unit* caster = GetCaster();
         int32 base = GetEffectInfo(effIndex).CalcValue();
 
-        //TODOFROST
-        //float penalty = caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
-        //float fmana = (float)base + caster->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + AsUnderlyingType(SPELL_SCHOOL_SHADOW)) * 0.5f * penalty;
+        float penalty = caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
+        int32 shadowMod = 0;
+        if (Player* player = GetCaster()->ToPlayer())
+        {
+            shadowMod += player->m_activePlayerData->ModDamageDonePos[AsUnderlyingType(SPELL_SCHOOL_SHADOW)];
+        }
+        float fmana = (float)base + shadowMod * 0.5f * penalty;
 
-        //// Improved Life Tap mod
-        //if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_IMPROVED_LIFE_TAP, 0))
-        //    AddPct(fmana, aurEff->GetAmount());
-        //int32 mana = round(fmana);
+        // Improved Life Tap mod
+        if (AuraEffect const* aurEff = caster->GetAuraEffectWithIcon(SPELL_AURA_DUMMY, SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_IMPROVED_LIFE_TAP, 0))
+            AddPct(fmana, aurEff->GetAmount());
+        int32 mana = round(fmana);
 
-        //// Shouldn't Appear in Combat Log
-        //caster->ModifyHealth(-base);
+        // Shouldn't Appear in Combat Log
+        caster->ModifyHealth(-base);
 
-        //CastSpellExtraArgs args;
-        //args.AddSpellBP0(mana);
-        //caster->CastSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE, args);
+        CastSpellExtraArgs args;
+        args.AddSpellBP0(mana);
+        caster->CastSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE, args);
 
         if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE) {
-            //// Mana Feed
-            //int32 manaFeedVal = 0;
-            //if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_MANA_FEED, 0))
-            //    manaFeedVal = aurEff->GetAmount();
+            // Mana Feed
+            int32 manaFeedVal = 0;
+            if (AuraEffect const* aurEff = caster->GetAuraEffectWithIcon(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_MANA_FEED, 0))
+                manaFeedVal = aurEff->GetAmount();
 
-            //if (manaFeedVal > 0)
-            //{
-            //    ApplyPct(manaFeedVal, mana);
-            //    CastSpellExtraArgs manaFeedArgs(TRIGGERED_FULL_MASK);
-            //    manaFeedArgs.AddSpellBP0(manaFeedVal);
-            //    caster->CastSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2, manaFeedArgs);
-            //}
+            if (manaFeedVal > 0)
+            {
+                ApplyPct(manaFeedVal, mana);
+                CastSpellExtraArgs manaFeedArgs(TRIGGERED_FULL_MASK);
+                manaFeedArgs.AddSpellBP0(manaFeedVal);
+                caster->CastSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2, manaFeedArgs);
+            }
         }
     }
 
@@ -870,20 +874,19 @@ class spell_warl_demonic_pact : public AuraScript
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
-        static_assert(CURRENT_EXPANSION < EXPANSION_WRATH_OF_THE_LICH_KING); //TODO enable.
-        //PreventDefaultAction();
+        PreventDefaultAction();
 
-        //if (Unit* owner = eventInfo.GetActor()->GetOwner())
-        //{
-        //    if (AuraEffect* aurEff = owner->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_DEMONIC_PACT, EFFECT_0))
-        //    {
-        //        int32 bp = static_cast<int32>((aurEff->GetAmount() * owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC) + 100.0f) / 100.0f);
-        //        CastSpellExtraArgs args(aurEff);
-        //        args.AddSpellBP0(bp);
-        //        args.AddSpellMod(SPELLVALUE_BASE_POINT1, bp);
-        //        owner->CastSpell(nullptr, SPELL_WARLOCK_DEMONIC_PACT_PROC, args);
-        //    }
-        //}
+        if (Unit* owner = eventInfo.GetActor()->GetOwner())
+        {
+            if (AuraEffect* aurEff = owner->GetAuraEffectWithIcon(SPELL_AURA_DUMMY, SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_DEMONIC_PACT, EFFECT_0))
+            {
+                int32 bp = static_cast<int32>((aurEff->GetAmount() * owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC) + 100.0f) / 100.0f);
+                CastSpellExtraArgs args(aurEff);
+                args.AddSpellBP0(bp);
+                args.AddSpellMod(SPELLVALUE_BASE_POINT1, bp);
+                owner->CastSpell(nullptr, SPELL_WARLOCK_DEMONIC_PACT_PROC, args);
+            }
+        }
     }
 
     void Register() override

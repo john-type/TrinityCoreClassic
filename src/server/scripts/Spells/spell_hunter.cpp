@@ -79,6 +79,12 @@ enum HunterSpells
     SPELL_HUNTER_WYVERN_STING_DOT_R6 = 49010
 };
 
+enum HunterSpellIcons
+{
+    SPELL_ICON_HUNTER_PET_IMPROVED_COWER = 132118,
+    SPELL_ICON_HUNTER_INVIGERATION       = 236184
+};
+
 // 13161 - Aspect of the Beast
 class spell_hun_aspect_of_the_beast : public AuraScript
 {
@@ -534,11 +540,10 @@ class spell_hun_invigoration : public SpellScript
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        static_assert(CURRENT_EXPANSION < EXPANSION_THE_BURNING_CRUSADE); //TODO enable.
-        //if (Unit* unitTarget = GetHitUnit())
-        //    if (AuraEffect* aurEff = unitTarget->GetDummyAuraEffect(SPELLFAMILY_HUNTER, 3487, 0))
-        //        if (roll_chance_i(aurEff->GetAmount()))
-        //            unitTarget->CastSpell(unitTarget, SPELL_HUNTER_INVIGORATION_TRIGGERED, true);
+        if (Unit* unitTarget = GetHitUnit())
+            if (AuraEffect* aurEff = unitTarget->GetAuraEffectWithIcon(SPELL_AURA_DUMMY, SPELLFAMILY_HUNTER, SPELL_ICON_HUNTER_INVIGERATION, 0))
+                if (roll_chance_i(aurEff->GetAmount()))
+                    unitTarget->CastSpell(unitTarget, SPELL_HUNTER_INVIGORATION_TRIGGERED, true);
     }
 
     void Register() override
@@ -783,9 +788,8 @@ class spell_hun_pet_cower : public AuraScript
 
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
-        static_assert(CURRENT_EXPANSION < EXPANSION_WRATH_OF_THE_LICH_KING); //TODO enable.
-        //if (AuraEffect const* improvedCower = GetUnitOwner()->GetDummyAuraEffect(SPELLFAMILY_PET, SPELL_ICON_HUNTER_PET_IMPROVED_COWER, EFFECT_0))
-        //    AddPct(amount, improvedCower->GetAmount());
+        if (AuraEffect const* improvedCower = GetUnitOwner()->GetAuraEffectWithIcon(SPELL_AURA_DUMMY, SPELLFAMILY_PET, SPELL_ICON_HUNTER_PET_IMPROVED_COWER, EFFECT_0))
+            AddPct(amount, improvedCower->GetAmount());
     }
 
     void Register() override

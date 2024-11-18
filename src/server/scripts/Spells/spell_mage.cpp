@@ -76,6 +76,14 @@ enum MageSpells
     SPELL_MAGE_ARCANE_MISSILES_R1 = 5143
 };
 
+enum MageSpellIcons
+{
+    SPELL_ICON_MAGE_SHATTERED_BARRIER = 236224,
+    SPELL_ICON_MAGE_PRESENCE_OF_MIND = 136031,
+    SPELL_ICON_MAGE_CLEARCASTING = 136170,
+    SPELL_ICON_MAGE_LIVING_BOMB = 236220
+};
+
 
 // Incanter's Absorbtion
 class spell_mage_incanters_absorbtion_base_AuraScript : public AuraScript
@@ -153,12 +161,9 @@ class spell_mage_arcane_potency : public AuraScript
     bool CheckProc(ProcEventInfo& eventInfo)
     {
         // due to family mask sharing with brain freeze/missile barrage proc, we need to filter out by icon id
-
-        //TODO enable
-        static_assert(CURRENT_EXPANSION == EXPANSION_CLASSIC);
-        //SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
-        //if (!spellInfo || (spellInfo->SpellIconID != SPELL_ICON_MAGE_CLEARCASTING && spellInfo->SpellIconID != SPELL_ICON_MAGE_PRESENCE_OF_MIND))
-        //    return false;
+        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+        if (!spellInfo || (spellInfo->IconFileDataId != SPELL_ICON_MAGE_CLEARCASTING && spellInfo->IconFileDataId != SPELL_ICON_MAGE_PRESENCE_OF_MIND))
+            return false;
 
         return true;
     }
@@ -369,11 +374,10 @@ class spell_mage_dragon_breath : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        // Dont proc with Living Bomb explosion
-        static_assert(CURRENT_EXPANSION == EXPANSION_CLASSIC); //TODO enable
-        //SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
-        //if (spellInfo && spellInfo->SpellIconID == SPELL_ICON_MAGE_LIVING_BOMB && spellInfo->SpellFamilyName == SPELLFAMILY_MAGE)
-        //    return false;
+        // Dont proc with Living Bomb explosione
+        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+        if (spellInfo && spellInfo->IconFileDataId == SPELL_ICON_MAGE_LIVING_BOMB && spellInfo->SpellFamilyName == SPELLFAMILY_MAGE)
+            return false;
         return true;
     }
 
@@ -799,12 +803,11 @@ class spell_mage_ice_barrier : public spell_mage_incanters_absorbtion_base_AuraS
         {
             // Shattered Barrier
             // Procs only if removed by damage.
-            // //TODO enable.
-            //if (aurEff->GetAmount() <= 0)
-            //    if (Unit* caster = GetCaster())
-            //        if (AuraEffect* dummy = caster->GetDummyAuraEffect(SPELLFAMILY_MAGE, SPELL_ICON_MAGE_SHATTERED_BARRIER, EFFECT_0))
-            //            if (roll_chance_i(dummy->GetSpellInfo()->ProcChance))
-            //                caster->CastSpell(GetTarget(), SPELL_MAGE_SHATTERED_BARRIER, aurEff);
+            if (aurEff->GetAmount() <= 0)
+                if (Unit* caster = GetCaster())
+                    if (AuraEffect* dummy = caster->GetAuraEffectWithIcon(SPELL_AURA_DUMMY, SPELLFAMILY_MAGE, SPELL_ICON_MAGE_SHATTERED_BARRIER, EFFECT_0))
+                        if (roll_chance_i(dummy->GetSpellInfo()->ProcChance))
+                            caster->CastSpell(GetTarget(), SPELL_MAGE_SHATTERED_BARRIER, aurEff);
         }
     }
 
