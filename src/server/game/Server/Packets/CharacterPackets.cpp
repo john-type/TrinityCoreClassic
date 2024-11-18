@@ -503,8 +503,6 @@ void GetAccountCharacterList::Read()
 
 WorldPacket const* GetAccountCharacterListResult::Write()
 {
-
-    //TODOFROST RESERVE PACKET SIZE.
     _worldPacket << Token;
     _worldPacket << uint32(Characters.size());
     _worldPacket.ResetBitPos();

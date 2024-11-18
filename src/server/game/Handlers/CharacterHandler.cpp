@@ -1131,12 +1131,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
 
     if (!pCurrChar->GetMap()->AddPlayerToMap(pCurrChar))
     {
-    //TODOFROST
-    //    AreaTriggerStruct const* at = sObjectMgr->GetGoBackTrigger(pCurrChar->GetMapId());
-    //    if (at)
-    //        pCurrChar->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, pCurrChar->GetOrientation());
-    //    else
-    //        pCurrChar->TeleportTo(pCurrChar->m_homebind);
+        AreaTriggerStruct const* at = sObjectMgr->GetGoBackTrigger(pCurrChar->GetMapId());
+        if (at)
+            pCurrChar->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, pCurrChar->GetOrientation());
+        else
+            pCurrChar->TeleportTo(pCurrChar->m_homebind);
     }
 
     ObjectAccessor::AddObject(pCurrChar);

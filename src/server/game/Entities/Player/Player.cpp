@@ -6635,7 +6635,7 @@ void Player::CheckAreaExploreAndOutdoor()
 
     if (!(currFields & val))
     {
-        AddExploredZones(offset, val);//TODOFROST CHECK!
+        AddExploredZones(offset, val);
         SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ExploredZones, offset), val);
 
         UpdateCriteria(CriteriaType::RevealWorldMapOverlay, GetAreaId());
@@ -8926,9 +8926,8 @@ void Player::_ApplyAmmoBonuses()
     if (!ammo_proto || ammo_proto->GetClass() != ITEM_CLASS_PROJECTILE || !CheckAmmoCompatibility(ammo_proto))
         currentAmmoDPS = 0.0f;
     else {
-        uint32 itemLevel = 1; //TODOFROST - real item level.
         float minDamage, maxDamage;
-        ammo_proto->GetDamage(itemLevel, minDamage, maxDamage);
+        ammo_proto->GetDamage(ammo_proto->GetItemLevel(), minDamage, maxDamage);
         currentAmmoDPS = (minDamage + maxDamage) / 2;
     }
 
@@ -9916,9 +9915,8 @@ Item* Player::GetWeaponForAttack(WeaponAttackType attackType, bool useable /*= f
     if (!item || item->GetTemplate()->GetClass() != ITEM_CLASS_WEAPON)
         return nullptr;
 
-    //TODOFROST - check, trinity had this, vmangos doesnt.
-    //if ((attackType == RANGED_ATTACK) != item->GetTemplate()->IsRangedWeapon())
-    //    return nullptr;
+    if ((attackType == RANGED_ATTACK) != item->GetTemplate()->IsRangedWeapon())
+        return nullptr;
 
     if (useable && !CanUseEquippedWeapon(attackType))
         return nullptr;
