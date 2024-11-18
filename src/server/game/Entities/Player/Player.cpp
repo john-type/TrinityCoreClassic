@@ -2808,7 +2808,7 @@ bool Player::AddTalent(TalentEntry const* talent, uint8 rank, uint8 talentGroupI
     }
     else
         talentMap[talent->ID] = {
-            PLAYERSPELL_UNCHANGED,
+            learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED,
             rank
         };
 
@@ -2828,24 +2828,35 @@ bool Player::AddTalent(TalentEntry const* talent, uint8 rank, uint8 talentGroupI
 
 void Player::RemoveTalent(TalentEntry const* talent)
 {
+    auto removeSpell = [&](uint32 spellId) {
+        if (spellId) {
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
+            if (!spellInfo)
+                return;
+
+            RemoveSpell(spellId, true);
+
+            // search for spells that the talent teaches and unlearn them
+            for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
+                if (spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL) && spellEffectInfo.TriggerSpell > 0)
+                    RemoveSpell(spellEffectInfo.TriggerSpell, true);
+        }
+    };
+
+    removeSpell(talent->SpellID);
+
+    if (talent->OverridesSpellID)
+        RemoveOverrideSpell(talent->OverridesSpellID, talent->SpellID);
+
+    for (const auto& rankedSpellId : talent->SpellRank) {
+        removeSpell(rankedSpellId);
+    }
+
+    // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
     PlayerTalentMap& talentMap = GetPlayerTalentMap(GetActiveTalentGroup());
     auto itr = talentMap.find(talent->ID);
     if (itr == talentMap.end())
         return;
-
-    uint32 spellId = talent->SpellRank[itr->second.Rank];
-    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
-    {
-        RemoveSpell(spellId, true);
-
-        // search for spells that the talent teaches and unlearn them
-        for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
-            if (spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL) && spellEffectInfo.TriggerSpell > 0)
-                RemoveSpell(spellEffectInfo.TriggerSpell, true);
-    }
-
-    if (talent->OverridesSpellID)
-        RemoveOverrideSpell(talent->OverridesSpellID, talent->SpellID);
 
     // Mark the talent as deleted to it will be deleted upon the next save cycle
     itr->second.State = PLAYERSPELL_REMOVED;
@@ -3591,25 +3602,27 @@ bool Player::ResetTalents(bool noCost)
 
     RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT, true);
 
-    PlayerTalentMap const& talentMap = GetPlayerTalentMap(GetActiveTalentGroup());
-    for (auto const& pair : talentMap)
+    for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
     {
-        TalentEntry const* talentEntry = sTalentStore.LookupEntry(pair.first);
-        if (!talentEntry)
+        TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
+        if (!talentInfo)
             continue;
 
-        /*
         TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
+
         if (!talentTabInfo)
             continue;
+
         // unlearn only talents for character class
         // some spell learned by one class as normal spells or know at creation but another class learn it as talent,
         // to prevent unexpected lost normal learned spell skip another class talents
-        if ((GetClassMask() & talentTabInfo->ClassMask) == 0)
+        if (talentInfo->ClassID != 0 && talentInfo->ClassID != GetClass())
             continue;
-        */
 
-        RemoveTalent(talentEntry);
+        if((GetClassMask() & talentTabInfo->ClassMask) == 0 || (GetRaceMask() & talentTabInfo->RaceMask) == 0)
+            continue;
+
+        RemoveTalent(talentInfo);
     }
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
@@ -27291,9 +27304,7 @@ bool Player::CanSeeSpellClickOn(Creature const* c) const
 
 void Player::SendTalentsInfoData(bool /*pet*/)
 {
-    return;
-    //TODOFROST
-
+    // appears this packet isnt used for classic, or atleast, its always contains zeros.
 
     //uint8 activeGroup = GetActiveTalentGroup();
     //WorldPackets::Talent::UpdateTalentData packet;
