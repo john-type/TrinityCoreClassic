@@ -382,7 +382,7 @@ std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplic
 } };
 
 SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo): _spellInfo(spellInfo), EffectIndex(EFFECT_0), Effect(SPELL_EFFECT_NONE), ApplyAuraName(AuraType(0)), ApplyAuraPeriod(0),
-    BasePoints(0), RealPointsPerLevel(0), PointsPerResource(0), Amplitude(0), ChainAmplitude(0),
+    BasePoints(0), DieSides(0), RealPointsPerLevel(0), PointsPerResource(0), Amplitude(0), ChainAmplitude(0),
     BonusCoefficient(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), PositionFacing(0),
     RadiusEntry(nullptr), MaxRadiusEntry(nullptr), ChainTargets(0), ItemType(0), TriggerSpell(0),
     BonusCoefficientFromAP(0.0f), ImplicitTargetConditions(nullptr),
@@ -401,6 +401,7 @@ SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry co
     ApplyAuraName = AuraType(_effect.EffectAura);
     ApplyAuraPeriod = _effect.EffectAuraPeriod;
     BasePoints = _effect.EffectBasePoints;
+    DieSides = _effect.EffectDieSides;
     RealPointsPerLevel = _effect.EffectRealPointsPerLevel;
     PointsPerResource = _effect.EffectPointsPerResource;
     Amplitude = _effect.EffectAmplitude;
@@ -481,6 +482,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
     float basePointsPerLevel = RealPointsPerLevel;
     // TODO: this needs to be a float, not rounded
     int32 basePoints = CalcBaseValue(caster, target, castItemId, itemLevel);
+    int32 randomPoints = int32(DieSides);
     float value = bp ? *bp : basePoints;
     float comboDamage = PointsPerResource;
 
@@ -518,6 +520,21 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
                 level = 0;
             value += level * basePointsPerLevel;
         }
+    }
+
+    // roll in a range <1;EffectDieSides> as of patch 3.3.3
+    switch (randomPoints)
+    {
+    case 0: break;
+    case 1: value += 1; break;                     // range 1..1
+    default:
+        // range can have positive (1..rand) and negative (rand..1) values, so order its for irand
+        int32 randvalue = (randomPoints >= 1)
+            ? irand(1, randomPoints)
+            : irand(randomPoints, 1);
+
+        value += randvalue;
+        break;
     }
 
     // random damage

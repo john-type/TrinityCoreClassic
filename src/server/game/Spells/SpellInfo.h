@@ -241,6 +241,7 @@ public:
     AuraType  ApplyAuraName;
     uint32    ApplyAuraPeriod;
     int32     BasePoints;
+    int32     DieSides;
     float     RealPointsPerLevel;
     float     PointsPerResource;
     float     Amplitude;

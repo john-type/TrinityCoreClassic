@@ -429,7 +429,7 @@ class spell_warl_demonic_empowerment : public SpellScript
     }
 };
 
-// -1120 - Drain Soul
+// -1120 - Drain Soul (WOTLK+)
 class spell_warl_drain_soul : public AuraScript
 {
     PrepareAuraScript(spell_warl_drain_soul);
@@ -720,7 +720,12 @@ class spell_warl_life_tap : public SpellScript
 
     bool Validate(SpellInfo const* /*spell*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARLOCK_LIFE_TAP_ENERGIZE, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2 });
+        if constexpr (CURRENT_EXPANSION == EXPANSION_CLASSIC) {
+            return ValidateSpellInfo({ SPELL_WARLOCK_LIFE_TAP_ENERGIZE });
+        }
+        else {
+            return ValidateSpellInfo({ SPELL_WARLOCK_LIFE_TAP_ENERGIZE, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2 });
+        }
     }
 
     void HandleDummy(SpellEffIndex effIndex)
@@ -1281,7 +1286,6 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_banish);
     new spell_warl_create_healthstone();
     RegisterSpellScript(spell_warl_curse_of_doom);
-    RegisterSpellScript(spell_warl_drain_soul);
     RegisterSpellScript(spell_warl_health_funnel);
     RegisterSpellScript(spell_warl_life_tap);
     RegisterSpellScript(spell_warl_ritual_of_doom_effect);
@@ -1301,6 +1305,7 @@ void AddSC_warlock_spell_scripts()
     }
 
     if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
+        RegisterSpellScript(spell_warl_drain_soul);
         RegisterSpellScript(spell_warl_decimation);
         RegisterSpellScript(spell_warl_demonic_circle_summon);
         RegisterSpellScript(spell_warl_demonic_circle_teleport);
