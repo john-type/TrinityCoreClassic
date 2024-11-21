@@ -297,6 +297,7 @@ class TC_GAME_API Spell
         void EffectSummonObjectWild();
         void EffectScriptEffect();
         void EffectSanctuary();
+        void EffectAddComboPoints();
         void EffectDuel();
         void EffectStuck();
         void EffectSummonPlayer();
@@ -574,10 +575,13 @@ class TC_GAME_API Spell
         } m_misc;
         SpellCastVisual m_SpellVisual;
         SpellCastTargets m_targets;
+        Unit* m_comboTarget;
         int8 m_comboPointGain;
         SpellCustomErrors m_customError;
 
         UsedSpellMods m_appliedMods;
+
+        void AddComboPointGain(Unit* target, int8 amount);
 
         int32 GetCastTime() const { return m_casttime; }
         bool IsAutoRepeat() const { return m_autoRepeat; }

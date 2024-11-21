@@ -160,7 +160,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectScriptEffect,                             // 77 SPELL_EFFECT_SCRIPT_EFFECT
     &Spell::EffectUnused,                                   // 78 SPELL_EFFECT_ATTACK
     &Spell::EffectSanctuary,                                // 79 SPELL_EFFECT_SANCTUARY
-    &Spell::EffectNULL,                                     // 80 SPELL_EFFECT_MODIFY_FOLLOWER_ITEM_LEVEL
+    &Spell::EffectAddComboPoints,                           // 80 SPELL_EFFECT_ADD_COMBO_POINTS
     &Spell::EffectNULL,                                     // 81 SPELL_EFFECT_PUSH_ABILITY_TO_ACTION_BAR
     &Spell::EffectNULL,                                     // 82 SPELL_EFFECT_BIND_SIGHT
     &Spell::EffectDuel,                                     // 83 SPELL_EFFECT_DUEL
@@ -3162,6 +3162,20 @@ void Spell::EffectSanctuary()
 
     // makes spells cast before this time fizzle
     unitTarget->m_lastSanctuaryTime = GameTime::GetGameTimeMS();
+}
+
+void Spell::EffectAddComboPoints()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget)
+        return;
+
+    if (damage <= 0)
+        return;
+
+    AddComboPointGain(unitTarget, damage);
 }
 
 void Spell::EffectDuel()

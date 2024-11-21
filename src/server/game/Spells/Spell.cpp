@@ -501,6 +501,7 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     m_referencedFromCurrentSpell = false;
     m_executedCurrently = false;
     m_needComboPoints = m_spellInfo->NeedsComboPoints();
+    m_comboTarget = nullptr;
     m_comboPointGain = 0;
     m_delayStart = 0;
     m_delayAtDamageCount = 0;
@@ -4054,8 +4055,8 @@ void Spell::_handle_finish_phase()
             unitCaster->ClearComboPoints();
 
         // Real add combo points from effects
-        if (m_comboPointGain)
-            unitCaster->AddComboPoints(m_comboPointGain);
+        if (m_comboTarget && m_comboPointGain)
+            unitCaster->AddComboPoints(m_comboTarget, m_comboPointGain);
 
         if (m_spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
             unitCaster->SetLastExtraAttackSpell(m_spellInfo->Id);
@@ -7934,6 +7935,17 @@ bool Spell::CheckEffectTarget(GameObject const* target, SpellEffectInfo const& s
 bool Spell::CheckEffectTarget(Item const* /*target*/, SpellEffectInfo const& /*spellEffectInfo*/) const
 {
     return true;
+}
+
+void Spell::AddComboPointGain(Unit* target, int8 amount)
+{
+    if (target != m_comboTarget)
+    {
+        m_comboTarget = target;
+        m_comboPointGain = amount;
+    }
+    else
+        m_comboPointGain += amount;
 }
 
 bool Spell::IsTriggered() const

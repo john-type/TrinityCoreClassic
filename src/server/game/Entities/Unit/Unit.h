@@ -1933,8 +1933,8 @@ class TC_GAME_API Unit : public WorldObject
 
         ///-----------Combo point system-------------------
         uint32 GetComboPoints() const { return uint32(GetPower(POWER_COMBO_POINTS)); }
-        void AddComboPoints(int8 count, Spell* spell = nullptr);
-        void GainSpellComboPoints(int8 count);
+        void AddComboPoints(Unit* target, int8 count, Spell* spell = nullptr);
+        void GainSpellComboPoints(Unit* target, int8 count);
         void ClearComboPoints();
 
         ///----------Pet responses methods-----------------

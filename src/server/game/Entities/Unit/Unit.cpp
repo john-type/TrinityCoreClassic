@@ -10263,7 +10263,7 @@ void Unit::RestoreDisplayId(bool ignorePositiveAurasPreventingMounting /*= false
     SetDisplayId(GetNativeDisplayId());
 }
 
-void Unit::AddComboPoints(int8 count, Spell* spell)
+void Unit::AddComboPoints(Unit* target, int8 count, Spell* spell)
 {
     if (!count)
         return;
@@ -10278,12 +10278,17 @@ void Unit::AddComboPoints(int8 count, Spell* spell)
         comboPoints = 0;
 
     if (!spell)
+    {
         SetPower(POWER_COMBO_POINTS, comboPoints);
+        if (IsPlayer()) {
+            SetGuidValue(UF::ACTIVE_PLAYER_FIELD_COMBO_TARGET, target->GetGUID());
+        }
+    }
     else
         spell->m_comboPointGain = comboPoints;
 }
 
-void Unit::GainSpellComboPoints(int8 count)
+void Unit::GainSpellComboPoints(Unit* target, int8 count)
 {
     if (!count)
         return;
@@ -10295,11 +10300,17 @@ void Unit::GainSpellComboPoints(int8 count)
     else if (cp < 0) cp = 0;
 
     SetPower(POWER_COMBO_POINTS, cp);
+    if (IsPlayer()) {
+        SetGuidValue(UF::ACTIVE_PLAYER_FIELD_COMBO_TARGET, target->GetGUID());
+    }
 }
 
 void Unit::ClearComboPoints()
 {
     SetPower(POWER_COMBO_POINTS, 0);
+    if (IsPlayer()) {
+        SetGuidValue(UF::ACTIVE_PLAYER_FIELD_COMBO_TARGET, ObjectGuid::Empty);
+    }
 }
 
 void Unit::ClearAllReactives()

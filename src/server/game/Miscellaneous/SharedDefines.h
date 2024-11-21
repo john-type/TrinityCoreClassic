@@ -1183,7 +1183,7 @@ enum SpellEffectName
     SPELL_EFFECT_SCRIPT_EFFECT                      = 77,
     SPELL_EFFECT_ATTACK                             = 78,
     SPELL_EFFECT_SANCTUARY                          = 79,
-    SPELL_EFFECT_MODIFY_FOLLOWER_ITEM_LEVEL         = 80,
+    SPELL_EFFECT_ADD_COMBO_POINTS                   = 80,
     SPELL_EFFECT_PUSH_ABILITY_TO_ACTION_BAR         = 81,
     SPELL_EFFECT_BIND_SIGHT                         = 82,
     SPELL_EFFECT_DUEL                               = 83,
