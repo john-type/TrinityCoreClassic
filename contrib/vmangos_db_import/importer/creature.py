@@ -258,8 +258,8 @@ def _upsert_creature_template(vm_row, tri_row = None) :
         'dmgschool': vm_row['damage_school'],
         'BaseAttackTime': vm_row['base_attack_time'],
         'RangeAttackTime': vm_row['ranged_attack_time'],
-        'BaseVariance': vm_row['damage_variance'],
-        'RangeVariance': vm_row['damage_variance'],
+        'BaseVariance': 1.0, #vm_row['damage_variance'],    // TC and VM variance works slightly differently, existing TC looks to always be 1.0f, use that for now.
+        'RangeVariance': 1.0, #vm_row['damage_variance'],
         'unit_class': vm_row['unit_class'],
         #'unit_flags'
         #'unit_flags2'
