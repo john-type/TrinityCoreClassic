@@ -5,6 +5,9 @@ This project is a fork of [TrinityCore](https://github.com/TrinityCore/TrinityCo
 Development branch: **vanilla_classic**
 Supported client: **classic 1.14.0.40618**
 
+**TCC Discord:**
+https://discord.gg/berq85VDGF
+
 Notable references:
 
 Link | Note
