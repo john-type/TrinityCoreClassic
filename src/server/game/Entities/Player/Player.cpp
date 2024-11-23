@@ -1785,9 +1785,16 @@ void Player::Regenerate(Powers power)
     if (!powerType)
         return;
 
+    bool interrupted = HasAuraType(SPELL_AURA_INTERRUPT_REGEN) ||
+        (power == POWER_MANA && IsUnderLastManaUseEffect()) ||
+        (power != POWER_MANA && IsInCombat());
+
     float addvalue = 0.0f;
-    if (!IsInCombat())
-    {
+
+    if (interrupted) {
+        addvalue = (powerType->RegenCombat + m_unitData->PowerRegenInterruptedFlatModifier[powerIndex]) * 0.001f * m_regenTimer;
+    }
+    else {
         if (powerType->RegenInterruptTimeMS && GetMSTimeDiffToNow(m_combatExitTime) < uint32(powerType->RegenInterruptTimeMS))
             return;
 
