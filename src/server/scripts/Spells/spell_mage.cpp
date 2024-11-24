@@ -1192,7 +1192,6 @@ class spell_mage_summon_water_elemental : public SpellScript
 
 void AddSC_mage_spell_scripts()
 {
-    RegisterSpellScript(spell_mage_arcane_missiles);
     RegisterSpellScript(spell_mage_blast_wave);
     RegisterSpellScript(spell_mage_cold_snap);
     RegisterSpellScript(spell_mage_combustion);
@@ -1217,6 +1216,7 @@ void AddSC_mage_spell_scripts()
     }
 
     if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
+        RegisterSpellScript(spell_mage_arcane_missiles);
         RegisterSpellScript(spell_mage_burning_determination);
         RegisterSpellScript(spell_mage_burnout);
         RegisterSpellScript(spell_mage_fingers_of_frost);
