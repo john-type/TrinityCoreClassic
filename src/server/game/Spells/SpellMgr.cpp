@@ -4531,38 +4531,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
     });
 
-    //
-    // STONECORE SPELLS
-    //
-    ApplySpellFix({
-        95284, // Teleport (from entrance to Slabhide)
-        95285  // Teleport (from Slabhide to entrance)
-    }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->TargetB = SpellImplicitTargetInfo(TARGET_DEST_DB);
-        });
-    });
-    // ENDOF STONECORE SPELLS
-
-    //
-    // HALLS OF ORIGINATION SPELLS
-    //
-    ApplySpellFix({
-        76606, // Disable Beacon Beams L
-        76608  // Disable Beacon Beams R
-    }, [](SpellInfo* spellInfo)
-    {
-        // Little hack, Increase the radius so it can hit the Cave In Stalkers in the platform.
-        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_45_YARDS);
-        });
-    });
-
-    // ENDOF HALLS OF ORIGINATION SPELLS
-
     // Threatening Gaze
     ApplySpellFix({ 24314 }, [](SpellInfo* spellInfo)
     {
@@ -4579,27 +4547,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 5420 }, [](SpellInfo* spellInfo)
     {
         spellInfo->Stances = UI64LIT(1) << (FORM_TREE_OF_LIFE - 1);
-    });
-
-    // Gaze of Occu'thar
-    ApplySpellFix({ 96942 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELLED;
-    });
-
-    // Evolution
-    ApplySpellFix({ 75610 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->MaxAffectedTargets = 1;
-    });
-
-    // Evolution
-    ApplySpellFix({ 75697 }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENTRY);
-        });
     });
 
     //
@@ -4654,57 +4601,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
-    //
-    // FIRELANDS SPELLS
-    //
-    // Torment Searcher
-    ApplySpellFix({ 99253 }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_15_YARDS);
-        });
-    });
-
-    // Torment Damage
-    ApplySpellFix({ 99256 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
-    });
-
-    // Blaze of Glory
-    ApplySpellFix({ 99252 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AuraInterruptFlags |= SpellAuraInterruptFlags::LeaveWorld;
-    });
-    // ENDOF FIRELANDS SPELLS
-
-    //
-    // ANTORUS THE BURNING THRONE SPELLS
-    //
-
-    // Decimation
-    ApplySpellFix({ 244449 }, [](SpellInfo* spellInfo)
-    {
-        // For some reason there is a instakill effect that serves absolutely no purpose.
-        // Until we figure out what it's actually used for we disable it.
-        ApplySpellEffectFix(spellInfo, EFFECT_2, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->Effect = SPELL_EFFECT_NONE;
-        });
-    });
-
-    // ENDOF ANTORUS THE BURNING THRONE SPELLS
-
-    // Summon Master Li Fei
-    ApplySpellFix({ 102445 }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
-        });
-    });
-
     // Earthquake
     ApplySpellFix({ 61882 }, [](SpellInfo* spellInfo)
     {
@@ -4717,29 +4613,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 42401, 43105, 42428 }, [](SpellInfo* spellInfo)
     {
         spellInfo->Attributes |= SPELL_ATTR0_NO_IMMUNITIES;
-    });
-
-    // Horde / Alliance switch (BG mercenary system)
-    ApplySpellFix({ 195838, 195843 }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->Effect = SPELL_EFFECT_APPLY_AURA;
-        });
-        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->Effect = SPELL_EFFECT_APPLY_AURA;
-        });
-        ApplySpellEffectFix(spellInfo, EFFECT_2, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->Effect = SPELL_EFFECT_APPLY_AURA;
-        });
-    });
-
-    // Ray of Frost (Fingers of Frost charges)
-    ApplySpellFix({ 269748 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELLED;
     });
 
     for (SpellInfo const& s : mSpellInfoMap)
