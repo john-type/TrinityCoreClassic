@@ -183,49 +183,49 @@ public:
 
     static bool HandleLearnAllTalentsCommand(ChatHandler* handler)
     {
-        //TODOFROST
-        //Player* player = handler->GetSession()->GetPlayer();
-        //uint32 classMask = player->GetClassMask();
+        Player* player = handler->GetSession()->GetPlayer();
+        uint32 classMask = player->GetClassMask();
 
-        //for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
-        //{
-        //    TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
-        //    if (!talentInfo)
-        //        continue;
+        for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
+        {
+            TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
+            if (!talentInfo)
+                continue;
 
-        //    TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
-        //    if (!talentTabInfo)
-        //        continue;
+            TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
+            if (!talentTabInfo)
+                continue;
 
-        //    if ((classMask & talentTabInfo->ClassMask) == 0)
-        //        continue;
+            if ((classMask & talentTabInfo->ClassMask) == 0)
+                continue;
 
-        //    // search highest talent rank
-        //    uint32 spellId = 0;
-        //    for (int8 rank = MAX_TALENT_RANK - 1; rank >= 0; --rank)
-        //    {
-        //        if (talentInfo->SpellRank[rank] != 0)
-        //        {
-        //            spellId = talentInfo->SpellRank[rank];
-        //            break;
-        //        }
-        //    }
+            // search highest talent rank
+            uint32 spellId = 0;
+            int8 rank = MAX_TALENT_RANK - 1;
+            for (; rank >= 0; --rank)
+            {
+                if (talentInfo->SpellRank[rank] != 0)
+                {
+                    spellId = talentInfo->SpellRank[rank];
+                    break;
+                }
+            }
 
-        //    if (!spellId)                                        // ??? none spells in talent
-        //        continue;
+            if (!spellId)                                        // ??? none spells in talent
+                continue;
 
-        //    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
-        //    if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
-        //        continue;
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
+            if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
+                continue;
 
-        //    player->AddTalent(spellId, player->GetActiveTalentGroup(), true);
-        //    player->LearnSpell(talentInfo->SpellID, false);
-        //}
+            player->LearnSpell(spellId, false);
+            player->AddTalent(talentInfo, rank, player->GetActiveTalentGroup(), true);
+        }
 
-        //player->SetFreeTalentPoints(0);
-        //player->SendTalentsInfoData(false);
+        player->SetFreeTalentPoints(0);
+        player->SendTalentsInfoData(false);
 
-        //handler->SendSysMessage(LANG_COMMAND_LEARN_CLASS_TALENTS);
+        handler->SendSysMessage(LANG_COMMAND_LEARN_CLASS_TALENTS);
         return true;
     }
 
