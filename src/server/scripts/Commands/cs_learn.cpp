@@ -174,6 +174,11 @@ public:
             if (!SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
                 continue;
 
+            // spell crashes client for some reason //TODOFROST better solution.
+            if (spellInfo->Id == 1010) {
+                continue;
+            }
+
             handler->GetSession()->GetPlayer()->LearnSpell(spellInfo->Id, false);
         }
 
