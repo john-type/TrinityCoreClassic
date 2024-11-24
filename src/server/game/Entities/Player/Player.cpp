@@ -9300,7 +9300,13 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
                 if (creature->CanGeneratePickPocketLoot())
                 {
                     creature->StartPickPocketRefillTimer();
-                    loot->clear();
+                    if (!loot)
+                    {
+                        creature->m_loot.reset(new Loot(creature->GetMap(), creature->GetGUID(), LOOT_PICKPOCKETING));
+                        loot = creature->m_loot.get();
+                    }
+                    else
+                        loot->clear();
 
                     if (uint32 lootid = creature->GetCreatureTemplate()->pickpocketLootId)
                         loot->FillLoot(lootid, LootTemplates_Pickpocketing, this, true);
@@ -9311,7 +9317,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
                     loot->gold = uint32(10 * (a + b) * sWorld->getRate(RATE_DROP_MONEY));
                     permission = OWNER_PERMISSION;
                 }
-                else
+                else if(loot)
                 {
                     SendLootError(loot->GetGUID(), guid, LOOT_ERROR_ALREADY_PICKPOCKETED);
                     return;
@@ -9408,6 +9414,8 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
             }
         }
     }
+
+    loot->loot_type = loot_type;
 
     if (permission != NONE_PERMISSION)
     {
