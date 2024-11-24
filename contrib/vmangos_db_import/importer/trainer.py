@@ -64,6 +64,8 @@ def Import():
         for vm_spell in vm_spells:
             _handle_trainer_spell(trainer_row[0], vm_spell)
         
+    cleanup_old()    
+        
 def _handle_trainer_spell(trainer_id, vm_spell_row):
     existing_spell = db.tri_world.get_row_raw("SELECT SpellId FROM trainer_spell WHERE TrainerId = %s AND SpellId = %s",
     (trainer_id, vm_spell_row[0],))
@@ -83,3 +85,20 @@ def _handle_trainer_spell(trainer_id, vm_spell_row):
             "ReqAbility1 = 0, ReqAbility2 = 0, ReqAbility3 = 0, ReqLevel = %s, VerifiedBuild = 40618 "
             "WHERE TrainerId = %s AND SpellId = %s"
             ), ( vm_spell_row[1], vm_spell_row[2], vm_spell_row[3], vm_spell_row[4], trainer_id, vm_spell_row[0],))
+        
+    
+def cleanup_old():
+    
+    trainer_spells = db.tri_world.select_all(
+        db.SelectQuery("trainer_spell"),
+    )
+    
+    for row in trainer_spells:
+        vm_row = db.vm_world.select_one(
+            db.SelectQuery("npc_trainer_template").where('spell', '=', row['SpellId'])
+        )
+        
+        if vm_row == None:
+            db.tri_world.delete(
+                db.DeleteQuery("trainer_spell").where('SpellId', '=', row['SpellId'])
+            )
