@@ -553,8 +553,10 @@ void SpellHistory::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /
 void SpellHistory::AddCooldown(uint32 spellId, uint32 itemId, Clock::time_point cooldownEnd, uint32 categoryId, Clock::time_point categoryEnd, bool onHold /*= false*/)
 {
     CooldownEntry& cooldownEntry = _spellCooldowns[spellId];
+    const bool holdChange = onHold || (cooldownEntry.OnHold && !onHold);
+
     // scripts can start multiple cooldowns for a given spell, only store the longest one
-    if (cooldownEnd > cooldownEntry.CooldownEnd || categoryEnd > cooldownEntry.CategoryEnd || onHold)
+    if (cooldownEnd > cooldownEntry.CooldownEnd || categoryEnd > cooldownEntry.CategoryEnd || holdChange)
     {
         cooldownEntry.SpellId = spellId;
         cooldownEntry.CooldownEnd = cooldownEnd;
