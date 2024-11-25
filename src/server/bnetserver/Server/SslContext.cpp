@@ -64,7 +64,7 @@ bool Battlenet::SslContext::Initialize()
 #define LOAD_CHECK(fn) do { fn; \
     if (err) \
     { \
-        TC_LOG_ERROR("server.ssl", #fn " failed: {}", err.message()); \
+        TC_LOG_ERROR("server.ssl", #fn " failed: {}", err.message().c_str()); \
         return false; \
     } } while (0)
 
@@ -86,7 +86,7 @@ bool Battlenet::SslContext::Initialize()
     if (!store)
     {
         err = GetLastOpenSSLError();
-        TC_LOG_ERROR("server.ssl", "OSSL_STORE_open failed: {}", err.message());
+        TC_LOG_ERROR("server.ssl", "OSSL_STORE_open failed: {}", err.message().c_str());
         return false;
     }
 
