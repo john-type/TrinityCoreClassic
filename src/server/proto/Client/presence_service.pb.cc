@@ -3179,18 +3179,18 @@ void PresenceService::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
     case 1: {
       ::bgs::protocol::presence::v1::SubscribeRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for PresenceService.Subscribe server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for PresenceService.Subscribe server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.Subscribe(bgs.protocol.presence.v1.SubscribeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method PresenceService.Subscribe(bgs.protocol.presence.v1.SubscribeRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         PresenceService* self = static_cast<PresenceService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.Subscribe() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method PresenceService.Subscribe() returned bgs.protocol.NoData{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -3205,18 +3205,18 @@ void PresenceService::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
     case 2: {
       ::bgs::protocol::presence::v1::UnsubscribeRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for PresenceService.Unsubscribe server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for PresenceService.Unsubscribe server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.Unsubscribe(bgs.protocol.presence.v1.UnsubscribeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method PresenceService.Unsubscribe(bgs.protocol.presence.v1.UnsubscribeRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         PresenceService* self = static_cast<PresenceService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.Unsubscribe() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method PresenceService.Unsubscribe() returned bgs.protocol.NoData{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -3231,18 +3231,18 @@ void PresenceService::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
     case 3: {
       ::bgs::protocol::presence::v1::UpdateRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for PresenceService.Update server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for PresenceService.Update server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.Update(bgs.protocol.presence.v1.UpdateRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method PresenceService.Update(bgs.protocol.presence.v1.UpdateRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         PresenceService* self = static_cast<PresenceService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.Update() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method PresenceService.Update() returned bgs.protocol.NoData{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -3257,18 +3257,18 @@ void PresenceService::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
     case 4: {
       ::bgs::protocol::presence::v1::QueryRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for PresenceService.Query server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for PresenceService.Query server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.Query(bgs.protocol.presence.v1.QueryRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method PresenceService.Query(bgs.protocol.presence.v1.QueryRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::presence::v1::QueryResponse::descriptor());
         PresenceService* self = static_cast<PresenceService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.Query() returned bgs.protocol.presence.v1.QueryResponse{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method PresenceService.Query() returned bgs.protocol.presence.v1.QueryResponse{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -3283,18 +3283,18 @@ void PresenceService::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
     case 8: {
       ::bgs::protocol::presence::v1::BatchSubscribeRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for PresenceService.BatchSubscribe server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for PresenceService.BatchSubscribe server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.BatchSubscribe(bgs.protocol.presence.v1.BatchSubscribeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method PresenceService.BatchSubscribe(bgs.protocol.presence.v1.BatchSubscribeRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::presence::v1::BatchSubscribeResponse::descriptor());
         PresenceService* self = static_cast<PresenceService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.BatchSubscribe() returned bgs.protocol.presence.v1.BatchSubscribeResponse{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method PresenceService.BatchSubscribe() returned bgs.protocol.presence.v1.BatchSubscribeResponse{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -3309,18 +3309,18 @@ void PresenceService::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
     case 9: {
       ::bgs::protocol::presence::v1::BatchUnsubscribeRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for PresenceService.BatchUnsubscribe server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for PresenceService.BatchUnsubscribe server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.BatchUnsubscribe(bgs.protocol.presence.v1.BatchUnsubscribeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method PresenceService.BatchUnsubscribe(bgs.protocol.presence.v1.BatchUnsubscribeRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         PresenceService* self = static_cast<PresenceService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.BatchUnsubscribe() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method PresenceService.BatchUnsubscribe() returned bgs.protocol.NoData{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -3333,45 +3333,45 @@ void PresenceService::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
       break;
     }
     default:
-      TC_LOG_ERROR("service.protobuf", "Bad method id %u.", methodId);
+      TC_LOG_ERROR("service.protobuf", "Bad method id{} .", methodId);
       SendResponse(service_hash_, methodId, token, ERROR_RPC_INVALID_METHOD);
       break;
     }
 }
 
 uint32 PresenceService::HandleSubscribe(::bgs::protocol::presence::v1::SubscribeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method PresenceService.Subscribe({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method PresenceService.Subscribe({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 PresenceService::HandleUnsubscribe(::bgs::protocol::presence::v1::UnsubscribeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method PresenceService.Unsubscribe({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method PresenceService.Unsubscribe({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 PresenceService::HandleUpdate(::bgs::protocol::presence::v1::UpdateRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method PresenceService.Update({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method PresenceService.Update({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 PresenceService::HandleQuery(::bgs::protocol::presence::v1::QueryRequest const* request, ::bgs::protocol::presence::v1::QueryResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method PresenceService.Query({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method PresenceService.Query({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 PresenceService::HandleBatchSubscribe(::bgs::protocol::presence::v1::BatchSubscribeRequest const* request, ::bgs::protocol::presence::v1::BatchSubscribeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method PresenceService.BatchSubscribe({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method PresenceService.BatchSubscribe({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 PresenceService::HandleBatchUnsubscribe(::bgs::protocol::presence::v1::BatchUnsubscribeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method PresenceService.BatchUnsubscribe({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method PresenceService.BatchUnsubscribe({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 

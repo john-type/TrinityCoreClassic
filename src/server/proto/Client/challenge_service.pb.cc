@@ -784,20 +784,20 @@ google::protobuf::ServiceDescriptor const* ChallengeListener::descriptor() {
 }
 
 void ChallengeListener::OnExternalChallenge(::bgs::protocol::challenge::v1::ChallengeExternalRequest const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChallengeListener.OnExternalChallenge(bgs.protocol.challenge.v1.ChallengeExternalRequest{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_DEBUG("service.protobuf", "{} Server called client method ChallengeListener.OnExternalChallenge(bgs.protocol.challenge.v1.ChallengeExternalRequest{{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   SendRequest(service_hash_, 3 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void ChallengeListener::OnExternalChallengeResult(::bgs::protocol::challenge::v1::ChallengeExternalResult const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChallengeListener.OnExternalChallengeResult(bgs.protocol.challenge.v1.ChallengeExternalResult{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_DEBUG("service.protobuf", "{} Server called client method ChallengeListener.OnExternalChallengeResult(bgs.protocol.challenge.v1.ChallengeExternalResult{{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   SendRequest(service_hash_, 4 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void ChallengeListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer /*buffer*/) {
-  TC_LOG_ERROR("service.protobuf", "%s Server tried to call server method %u",
-    GetCallerInfo().c_str(), methodId);
+  TC_LOG_ERROR("service.protobuf", "{} Server tried to call server method{} ",
+    GetCallerInfo(), methodId);
 }
 
 // @@protoc_insertion_point(namespace_scope)

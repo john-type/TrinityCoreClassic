@@ -30,7 +30,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
     // Validate
     if (!player->GetNPCIfCanInteractWith(transmogrifyItems.Npc, UNIT_NPC_FLAG_TRANSMOGRIFIER, UNIT_NPC_FLAG_2_NONE))
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - %s not found or player can't interact with it.", transmogrifyItems.Npc.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - {} not found or player can't interact with it.", transmogrifyItems.Npc.ToString().c_str());
         return;
     }
 
@@ -47,13 +47,13 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
         ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(itemModifiedAppearanceId);
         if (!itemModifiedAppearance)
         {
-            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - %s, Name: %s tried to transmogrify using invalid appearance (%d).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), itemModifiedAppearanceId);
+            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - {}, Name: {} tried to transmogrify using invalid appearance ({}).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), itemModifiedAppearanceId);
             return false;
         }
 
         if (isSecondary && itemTransmogrified->GetTemplate()->GetInventoryType() != INVTYPE_SHOULDERS)
         {
-            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - %s, Name: %s tried to transmogrify secondary appearance to non-shoulder item.", player->GetGUID().ToString().c_str(), player->GetName().c_str());
+            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - {}, Name: {} tried to transmogrify secondary appearance to non-shoulder item.", player->GetGUID().ToString().c_str(), player->GetName().c_str());
             return false;
         }
 
@@ -61,20 +61,20 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
         std::tie(hasAppearance, isTemporary) = GetCollectionMgr()->HasItemAppearance(itemModifiedAppearanceId);
         if (!hasAppearance)
         {
-            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - %s, Name: %s tried to transmogrify using appearance he has not collected (%d).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), itemModifiedAppearanceId);
+            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - {}, Name: {} tried to transmogrify using appearance he has not collected ({}).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), itemModifiedAppearanceId);
             return false;
         }
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemModifiedAppearance->ItemID);
         if (player->CanUseItem(itemTemplate) != EQUIP_ERR_OK)
         {
-            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - %s, Name: %s tried to transmogrify using appearance he can never use (%d).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), itemModifiedAppearanceId);
+            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - {}, Name: {} tried to transmogrify using appearance he can never use ({}).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), itemModifiedAppearanceId);
             return false;
         }
 
         // validity of the transmogrification items
         if (!Item::CanTransmogrifyItemWithItem(itemTransmogrified, itemModifiedAppearance))
         {
-            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - %s, Name: %s failed CanTransmogrifyItemWithItem (%u with appearance %d).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), itemTransmogrified->GetEntry(), itemModifiedAppearanceId);
+            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - {}, Name: {} failed CanTransmogrifyItemWithItem ({} with appearance {}).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), itemTransmogrified->GetEntry(), itemModifiedAppearanceId);
             return false;
         }
 
@@ -94,7 +94,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
         // slot of the transmogrified item
         if (transmogItem.Slot >= EQUIPMENT_SLOT_END)
         {
-            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (%s, name: %s) tried to transmogrify wrong slot (%u) when transmogrifying items.", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.Slot);
+            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player ({}, name: {}) tried to transmogrify wrong slot ({}) when transmogrifying items.", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.Slot);
             return;
         }
 
@@ -102,7 +102,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
         Item* itemTransmogrified = player->GetItemByPos(INVENTORY_SLOT_BAG_0, transmogItem.Slot);
         if (!itemTransmogrified)
         {
-            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (%s, name: %s) tried to transmogrify an invalid item in a valid slot (slot: %u).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.Slot);
+            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player ({}, name: {}) tried to transmogrify an invalid item in a valid slot (slot: {}).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.Slot);
             return;
         }
 

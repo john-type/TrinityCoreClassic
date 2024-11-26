@@ -2702,56 +2702,56 @@ google::protobuf::ServiceDescriptor const* ClubMembershipListener::descriptor() 
 }
 
 void ClubMembershipListener::OnClubAdded(::bgs::protocol::club::v1::membership::ClubAddedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method ClubMembershipListener.OnClubAdded(bgs.protocol.club.v1.membership.ClubAddedNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_DEBUG("service.protobuf", "{} Server called client method ClubMembershipListener.OnClubAdded(bgs.protocol.club.v1.membership.ClubAddedNotification{{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   SendRequest(service_hash_, 1 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void ClubMembershipListener::OnClubRemoved(::bgs::protocol::club::v1::membership::ClubRemovedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method ClubMembershipListener.OnClubRemoved(bgs.protocol.club.v1.membership.ClubRemovedNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_DEBUG("service.protobuf", "{} Server called client method ClubMembershipListener.OnClubRemoved(bgs.protocol.club.v1.membership.ClubRemovedNotification{{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   SendRequest(service_hash_, 2 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void ClubMembershipListener::OnReceivedInvitationAdded(::bgs::protocol::club::v1::membership::ReceivedInvitationAddedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method ClubMembershipListener.OnReceivedInvitationAdded(bgs.protocol.club.v1.membership.ReceivedInvitationAddedNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_DEBUG("service.protobuf", "{} Server called client method ClubMembershipListener.OnReceivedInvitationAdded(bgs.protocol.club.v1.membership.ReceivedInvitationAddedNotification{{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   SendRequest(service_hash_, 3 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void ClubMembershipListener::OnReceivedInvitationRemoved(::bgs::protocol::club::v1::membership::ReceivedInvitationRemovedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method ClubMembershipListener.OnReceivedInvitationRemoved(bgs.protocol.club.v1.membership.ReceivedInvitationRemovedNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_DEBUG("service.protobuf", "{} Server called client method ClubMembershipListener.OnReceivedInvitationRemoved(bgs.protocol.club.v1.membership.ReceivedInvitationRemovedNotification{{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   SendRequest(service_hash_, 4 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void ClubMembershipListener::OnSharedSettingsChanged(::bgs::protocol::club::v1::membership::SharedSettingsChangedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method ClubMembershipListener.OnSharedSettingsChanged(bgs.protocol.club.v1.membership.SharedSettingsChangedNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_DEBUG("service.protobuf", "{} Server called client method ClubMembershipListener.OnSharedSettingsChanged(bgs.protocol.club.v1.membership.SharedSettingsChangedNotification{{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   SendRequest(service_hash_, 5 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void ClubMembershipListener::OnStreamMentionAdded(::bgs::protocol::club::v1::membership::StreamMentionAddedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method ClubMembershipListener.OnStreamMentionAdded(bgs.protocol.club.v1.membership.StreamMentionAddedNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_DEBUG("service.protobuf", "{} Server called client method ClubMembershipListener.OnStreamMentionAdded(bgs.protocol.club.v1.membership.StreamMentionAddedNotification{{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   SendRequest(service_hash_, 6 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void ClubMembershipListener::OnStreamMentionRemoved(::bgs::protocol::club::v1::membership::StreamMentionRemovedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method ClubMembershipListener.OnStreamMentionRemoved(bgs.protocol.club.v1.membership.StreamMentionRemovedNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_DEBUG("service.protobuf", "{} Server called client method ClubMembershipListener.OnStreamMentionRemoved(bgs.protocol.club.v1.membership.StreamMentionRemovedNotification{{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   SendRequest(service_hash_, 7 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void ClubMembershipListener::OnStreamMentionAdvanceViewTime(::bgs::protocol::club::v1::membership::StreamMentionAdvanceViewTimeNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method ClubMembershipListener.OnStreamMentionAdvanceViewTime(bgs.protocol.club.v1.membership.StreamMentionAdvanceViewTimeNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_DEBUG("service.protobuf", "{} Server called client method ClubMembershipListener.OnStreamMentionAdvanceViewTime(bgs.protocol.club.v1.membership.StreamMentionAdvanceViewTimeNotification{{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   SendRequest(service_hash_, 8 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void ClubMembershipListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer /*buffer*/) {
-  TC_LOG_ERROR("service.protobuf", "%s Server tried to call server method %u",
-    GetCallerInfo().c_str(), methodId);
+  TC_LOG_ERROR("service.protobuf", "{} Server tried to call server method{} ",
+    GetCallerInfo(), methodId);
 }
 
 // @@protoc_insertion_point(namespace_scope)

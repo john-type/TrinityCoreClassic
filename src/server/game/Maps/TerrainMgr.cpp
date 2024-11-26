@@ -48,7 +48,7 @@ char const* TerrainInfo::GetMapName() const
 
 void TerrainInfo::DiscoverGridMapFiles()
 {
-    std::string tileListName = Trinity::StringFormat("%smaps/%04u.tilelist", sWorld->GetDataPath().c_str(), GetId());
+    std::string tileListName = Trinity::StringFormat("{}maps/{:04}.tilelist", sWorld->GetDataPath(), GetId());
     // tile list is optional
     if (FILE* tileList = fopen(tileListName.c_str(), "rb"))
     {
@@ -78,7 +78,7 @@ void TerrainInfo::DiscoverGridMapFiles()
 
 bool TerrainInfo::ExistMap(uint32 mapid, int32 gx, int32 gy, bool log /*= true*/)
 {
-    std::string fileName = Trinity::StringFormat("%smaps/%04u_%02u_%02u.map", sWorld->GetDataPath().c_str(), mapid, gx, gy);
+    std::string fileName = Trinity::StringFormat("{}maps/{:04}_{:02}_{:02}.map", sWorld->GetDataPath(), mapid, gx, gy);
 
     bool ret = false;
     FILE* file = fopen(fileName.c_str(), "rb");
@@ -86,8 +86,8 @@ bool TerrainInfo::ExistMap(uint32 mapid, int32 gx, int32 gy, bool log /*= true*/
     {
         if (log)
         {
-            TC_LOG_ERROR("maps", "Map file '%s' does not exist!", fileName.c_str());
-            TC_LOG_ERROR("maps", "Please place MAP-files (*.map) in the appropriate directory (%s), or correct the DataDir setting in your worldserver.conf file.", (sWorld->GetDataPath() + "maps/").c_str());
+            TC_LOG_ERROR("maps", "Map file '{}' does not exist!", fileName);
+            TC_LOG_ERROR("maps", "Please place MAP-files (*.map) in the appropriate directory ({}), or correct the DataDir setting in your worldserver.conf file.", (sWorld->GetDataPath() + "maps/").c_str());
         }
     }
     else
@@ -98,8 +98,8 @@ bool TerrainInfo::ExistMap(uint32 mapid, int32 gx, int32 gy, bool log /*= true*/
             if (header.mapMagic != MapMagic || header.versionMagic != MapVersionMagic)
             {
                 if (log)
-                    TC_LOG_ERROR("maps", "Map file '%s' is from an incompatible map version (%.*s v%u), %.*s v%u is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files. If you still have problems search on forum for error TCE00018.",
-                        fileName.c_str(), 4, header.mapMagic.data(), header.versionMagic, 4, MapMagic.data(), MapVersionMagic);
+                    TC_LOG_ERROR("maps", "Map file '{}' is from an incompatible map version ({} v{}), {} v{} is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files. If you still have problems search on forum for error TCE00018.",
+                        fileName, std::string_view(header.mapMagic.data(), 4), header.versionMagic, std::string_view(MapMagic.data(), 4), MapVersionMagic);
             }
             else
                 ret = true;
@@ -123,19 +123,19 @@ bool TerrainInfo::ExistVMap(uint32 mapid, int32 gx, int32 gy)
                 case VMAP::LoadResult::Success:
                     break;
                 case VMAP::LoadResult::FileNotFound:
-                    TC_LOG_ERROR("maps", "VMap file '%s' does not exist", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
-                    TC_LOG_ERROR("maps", "Please place VMAP files (*.vmtree and *.vmtile) in the vmap directory (%s), or correct the DataDir setting in your worldserver.conf file.", (sWorld->GetDataPath() + "vmaps/").c_str());
+                    TC_LOG_ERROR("maps", "VMap file '{}' does not exist", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
+                    TC_LOG_ERROR("maps", "Please place VMAP files (*.vmtree and *.vmtile) in the vmap directory ({}), or correct the DataDir setting in your worldserver.conf file.", (sWorld->GetDataPath() + "vmaps/").c_str());
                     return false;
                 case VMAP::LoadResult::VersionMismatch:
-                    TC_LOG_ERROR("maps", "VMap file '%s' couldn't be loaded", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
+                    TC_LOG_ERROR("maps", "VMap file '{}' couldn't be loaded", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
                     TC_LOG_ERROR("maps", "This is because the version of the VMap file and the version of this module are different, please re-extract the maps with the tools compiled with this module.");
                     return false;
                 case VMAP::LoadResult::ReadFromFileFailed:
-                    TC_LOG_ERROR("maps", "VMap file '%s' couldn't be loaded", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
+                    TC_LOG_ERROR("maps", "VMap file '{}' couldn't be loaded", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
                     TC_LOG_ERROR("maps", "This is because VMAP files are corrupted, please re-extract the maps with the tools compiled with this module.");
                     return false;
                 case VMAP::LoadResult::DisabledInConfig:
-                    TC_LOG_ERROR("maps", "VMap file '%s' couldn't be loaded", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
+                    TC_LOG_ERROR("maps", "VMap file '{}' couldn't be loaded", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
                     TC_LOG_ERROR("maps", "This is because VMAP is disabled in config file.");
                     return false;
             }
@@ -187,8 +187,8 @@ void TerrainInfo::LoadMap(int32 gx, int32 gy)
         return;
 
     // map file name
-    std::string fileName = Trinity::StringFormat("%smaps/%04u_%02u_%02u.map", sWorld->GetDataPath().c_str(), GetId(), gx, gy);
-    TC_LOG_DEBUG("maps", "Loading map %s", fileName.c_str());
+    std::string fileName = Trinity::StringFormat("{}maps/{:04}_{:02}_{:02}.map", sWorld->GetDataPath(), GetId(), gx, gy);
+    TC_LOG_DEBUG("maps", "Loading map {}", fileName);
     // loading data
     std::unique_ptr<GridMap> gridMap = std::make_unique<GridMap>();
     GridMap::LoadResult gridMapLoadResult = gridMap->loadData(fileName.c_str());
@@ -198,7 +198,7 @@ void TerrainInfo::LoadMap(int32 gx, int32 gy)
         _gridFileExists[GetBitsetIndex(gx, gy)] = false;
 
     if (gridMapLoadResult == GridMap::LoadResult::InvalidFile)
-        TC_LOG_ERROR("maps", "Error loading map file: %s", fileName.c_str());
+        TC_LOG_ERROR("maps", "Error loading map file: {}", fileName);
 }
 
 void TerrainInfo::LoadVMap(int32 gx, int32 gy)
@@ -210,14 +210,14 @@ void TerrainInfo::LoadVMap(int32 gx, int32 gy)
     switch (vmapLoadResult)
     {
         case VMAP::LoadResult::Success:
-            TC_LOG_DEBUG("maps", "VMAP loaded name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+            TC_LOG_DEBUG("maps", "VMAP loaded name:{}, id:{}, x:{}, y:{} (vmap rep.: x:{}, y:{})", GetMapName(), GetId(), gx, gy, gx, gy);
             break;
         case VMAP::LoadResult::VersionMismatch:
         case VMAP::LoadResult::ReadFromFileFailed:
-            TC_LOG_ERROR("maps", "Could not load VMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+            TC_LOG_ERROR("maps", "Could not load VMAP name:{}, id:{}, x:{}, y:{} (vmap rep.: x:{}, y:{})", GetMapName(), GetId(), gx, gy, gx, gy);
             break;
         case VMAP::LoadResult::DisabledInConfig:
-            TC_LOG_DEBUG("maps", "Ignored VMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+            TC_LOG_DEBUG("maps", "Ignored VMAP name:{}, id:{}, x:{}, y:{} (vmap rep.: x:{}, y:{})", GetMapName(), GetId(), gx, gy, gx, gy);
             break;
         default:
             break;
@@ -232,9 +232,9 @@ void TerrainInfo::LoadMMap(int32 gx, int32 gy)
     bool mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap(sWorld->GetDataPath(), GetId(), gx, gy);
 
     if (mmapLoadResult)
-        TC_LOG_DEBUG("mmaps.tiles", "MMAP loaded name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+        TC_LOG_DEBUG("mmaps.tiles", "MMAP loaded name:{}, id:{}, x:{}, y:{} (mmap rep.: x:{}, y:{})", GetMapName(), GetId(), gx, gy, gx, gy);
     else
-        TC_LOG_WARN("mmaps.tiles", "Could not load MMAP name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+        TC_LOG_WARN("mmaps.tiles", "Could not load MMAP name:{}, id:{}, x:{}, y:{} (mmap rep.: x:{}, y:{})", GetMapName(), GetId(), gx, gy, gx, gy);
 }
 
 void TerrainInfo::UnloadMap(int32 gx, int32 gy)
@@ -464,7 +464,7 @@ ZLiquidStatus TerrainInfo::GetLiquidStatus(PhaseShift const& phaseShift, float x
     if (vmgr->GetLiquidLevel(terrainMapId, x, y, z, AsUnderlyingType(ReqLiquidType), liquid_level, ground_level, liquid_type, mogpFlags))
     {
         useGridLiquid = !IsInWMOInterior(mogpFlags);
-        TC_LOG_DEBUG("maps", "GetLiquidStatus(): vmap liquid level: %f ground: %f type: %u", liquid_level, ground_level, liquid_type);
+        TC_LOG_DEBUG("maps", "GetLiquidStatus(): vmap liquid level: {} ground: {} type: {}", liquid_level, ground_level, liquid_type);
         // Check water level and ground level
         if (liquid_level > ground_level && G3D::fuzzyGe(z, ground_level - GROUND_HEIGHT_TOLERANCE))
         {

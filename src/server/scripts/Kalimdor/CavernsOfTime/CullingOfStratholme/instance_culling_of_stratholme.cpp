@@ -301,7 +301,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 if (!infiniteGuardianTime)
                     timediff = -1;
 
-                TC_LOG_DEBUG("scripts.cos", "instance_culling_of_stratholme::ReadSaveDataMore: Loaded with state %u and guardian timeout at %zu minutes %zu seconds from now", (uint32)loadState, timediff / MINUTE, timediff % MINUTE);
+                TC_LOG_DEBUG("scripts.cos", "instance_culling_of_stratholme::ReadSaveDataMore: Loaded with state {} and guardian timeout at {}u minutes {}u seconds from now", (uint32)loadState, timediff / MINUTE, timediff % MINUTE);
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -606,7 +606,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                         _plagueCrates.push_back(creature->GetGUID());
                         break;
                     case NPC_ARTHAS:
-                        TC_LOG_DEBUG("scripts.cos", "instance_culling_of_stratholme::OnCreatureCreate: Arthas spawned at %s", creature->GetPosition().ToString().c_str());
+                        TC_LOG_DEBUG("scripts.cos", "instance_culling_of_stratholme::OnCreatureCreate: Arthas spawned at {}", creature->GetPosition().ToString());
                         _arthasGUID = creature->GetGUID();
                         creature->setActive(true);
                         break;
@@ -644,7 +644,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
 
             void SetInstanceProgress(COSProgressStates state, bool force)
             {
-                TC_LOG_DEBUG("scripts.cos", "instance_culling_of_stratholme::SetInstanceProgress: Instance progress is now 0x%X", (uint32)state);
+                TC_LOG_DEBUG("scripts.cos", "instance_culling_of_stratholme::SetInstanceProgress: Instance progress is now 0x{:X}", (uint32)state);
                 _currentState = state;
 
                 /* Spawn group management */

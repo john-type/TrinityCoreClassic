@@ -30,7 +30,7 @@ static size_t const MAX_CHANNEL_PASS_STR = 127;
 
 void WorldSession::HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet)
 {
-    TC_LOG_DEBUG("chat.system", "CMSG_JOIN_CHANNEL %s ChatChannelId: %u, CreateVoiceSession: %u, Internal: %u, ChannelName: %s, Password: %s",
+    TC_LOG_DEBUG("chat.system", "CMSG_JOIN_CHANNEL {} ChatChannelId: {}, CreateVoiceSession: {}, Internal: {}, ChannelName: {}, Password: {}",
         GetPlayerInfo().c_str(), packet.ChatChannelId, packet.CreateVoiceSession, packet.Internal, packet.ChannelName.c_str(), packet.Password.c_str());
 
     AreaTableEntry const* zone = sAreaTableStore.LookupEntry(GetPlayer()->GetZoneId());
@@ -59,13 +59,13 @@ void WorldSession::HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet)
         channelNotify.Type = CHAT_INVALID_NAME_NOTICE;
         channelNotify._Channel = packet.ChannelName;
         SendPacket(channelNotify.Write());
-        TC_LOG_ERROR("network", "Player %s tried to create a channel with a name more than " SZFMTD " characters long - blocked", GetPlayer()->GetGUID().ToString().c_str(), MAX_CHANNEL_NAME_STR);
+        TC_LOG_ERROR("network", "Player {} tried to create a channel with a name more than {} characters long - blocked", GetPlayer()->GetGUID().ToString(), MAX_CHANNEL_NAME_STR);
         return;
     }
 
     if (packet.Password.length() > MAX_CHANNEL_PASS_STR)
     {
-        TC_LOG_ERROR("network", "Player %s tried to create a channel with a password more than " SZFMTD " characters long - blocked", GetPlayer()->GetGUID().ToString().c_str(), MAX_CHANNEL_PASS_STR);
+        TC_LOG_ERROR("network", "Player {} tried to create a channel with a password more than {} characters long - blocked", GetPlayer()->GetGUID().ToString(), MAX_CHANNEL_PASS_STR);
         return;
     }
 
@@ -83,7 +83,7 @@ void WorldSession::HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet)
         { // custom channel
             if (packet.ChannelName.length() > MAX_CHANNEL_NAME_STR)
             {
-                TC_LOG_ERROR("network", "Player %s tried to create a channel with a name more than " SZFMTD " characters long - blocked", GetPlayer()->GetGUID().ToString().c_str(), MAX_CHANNEL_NAME_STR);
+                TC_LOG_ERROR("network", "Player {} tried to create a channel with a name more than {} characters long - blocked", GetPlayer()->GetGUID().ToString(), MAX_CHANNEL_NAME_STR);
                 return;
             }
 
@@ -100,7 +100,7 @@ void WorldSession::HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet)
 
 void WorldSession::HandleLeaveChannel(WorldPackets::Channel::LeaveChannel& packet)
 {
-    TC_LOG_DEBUG("chat.system", "CMSG_LEAVE_CHANNEL %s ChannelName: %s, ZoneChannelID: %u",
+    TC_LOG_DEBUG("chat.system", "CMSG_LEAVE_CHANNEL {} ChannelName: {}, ZoneChannelID: {}",
         GetPlayerInfo().c_str(), packet.ChannelName.c_str(), packet.ZoneChannelID);
 
     if (packet.ChannelName.empty() && !packet.ZoneChannelID)
@@ -129,7 +129,7 @@ void WorldSession::HandleLeaveChannel(WorldPackets::Channel::LeaveChannel& packe
 
 void WorldSession::HandleChannelCommand(WorldPackets::Channel::ChannelCommand& packet)
 {
-    TC_LOG_DEBUG("chat.system", "%s %s ChannelName: %s",
+    TC_LOG_DEBUG("chat.system", "{} {} ChannelName: {}",
         GetOpcodeNameForLogging(packet.GetOpcode()).c_str(), GetPlayerInfo().c_str(), packet.ChannelName.c_str());
 
     if (Channel* channel = ChannelMgr::GetChannelForPlayerByNamePart(packet.ChannelName, GetPlayer()))
@@ -159,12 +159,12 @@ void WorldSession::HandleChannelPlayerCommand(WorldPackets::Channel::ChannelPlay
 {
     if (packet.Name.length() >= MAX_CHANNEL_NAME_STR)
     {
-        TC_LOG_DEBUG("chat.system", "%s %s ChannelName: %s, Name: %s, Name too long.",
+        TC_LOG_DEBUG("chat.system", "{} {} ChannelName: {}, Name: {}, Name too long.",
             GetOpcodeNameForLogging(packet.GetOpcode()).c_str(), GetPlayerInfo().c_str(), packet.ChannelName.c_str(), packet.Name.c_str());
         return;
     }
 
-    TC_LOG_DEBUG("chat.system", "%s %s ChannelName: %s, Name: %s",
+    TC_LOG_DEBUG("chat.system", "{} {} ChannelName: {}, Name: {}",
         GetOpcodeNameForLogging(packet.GetOpcode()).c_str(), GetPlayerInfo().c_str(), packet.ChannelName.c_str(), packet.Name.c_str());
 
     if (!normalizePlayerName(packet.Name))
@@ -211,12 +211,12 @@ void WorldSession::HandleChannelPassword(WorldPackets::Channel::ChannelPassword&
 {
     if (packet.Password.length() > MAX_CHANNEL_PASS_STR)
     {
-        TC_LOG_DEBUG("chat.system", "%s %s ChannelName: %s, Password: %s, Password too long.",
+        TC_LOG_DEBUG("chat.system", "{} {} ChannelName: {}, Password: {}, Password too long.",
             GetOpcodeNameForLogging(packet.GetOpcode()).c_str(), GetPlayerInfo().c_str(), packet.ChannelName.c_str(), packet.Password.c_str());
         return;
     }
 
-    TC_LOG_DEBUG("chat.system", "%s %s ChannelName: %s, Password: %s",
+    TC_LOG_DEBUG("chat.system", "{} {} ChannelName: {}, Password: {}",
         GetOpcodeNameForLogging(packet.GetOpcode()).c_str(), GetPlayerInfo().c_str(), packet.ChannelName.c_str(), packet.Password.c_str());
 
     if (Channel* channel = ChannelMgr::GetChannelForPlayerByNamePart(packet.ChannelName, GetPlayer()))

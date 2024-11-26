@@ -2980,18 +2980,18 @@ void ClubMembershipService::CallServerMethod(uint32 token, uint32 methodId, Mess
     case 1: {
       ::bgs::protocol::club::v1::membership::SubscribeRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipService.Subscribe server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for ClubMembershipService.Subscribe server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.Subscribe(bgs.protocol.club.v1.membership.SubscribeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method ClubMembershipService.Subscribe(bgs.protocol.club.v1.membership.SubscribeRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::club::v1::membership::SubscribeResponse::descriptor());
         ClubMembershipService* self = static_cast<ClubMembershipService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.Subscribe() returned bgs.protocol.club.v1.membership.SubscribeResponse{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method ClubMembershipService.Subscribe() returned bgs.protocol.club.v1.membership.SubscribeResponse{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -3006,18 +3006,18 @@ void ClubMembershipService::CallServerMethod(uint32 token, uint32 methodId, Mess
     case 2: {
       ::bgs::protocol::club::v1::membership::UnsubscribeRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipService.Unsubscribe server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for ClubMembershipService.Unsubscribe server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.Unsubscribe(bgs.protocol.club.v1.membership.UnsubscribeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method ClubMembershipService.Unsubscribe(bgs.protocol.club.v1.membership.UnsubscribeRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         ClubMembershipService* self = static_cast<ClubMembershipService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.Unsubscribe() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method ClubMembershipService.Unsubscribe() returned bgs.protocol.NoData{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -3032,18 +3032,18 @@ void ClubMembershipService::CallServerMethod(uint32 token, uint32 methodId, Mess
     case 3: {
       ::bgs::protocol::club::v1::membership::GetStateRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipService.GetState server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for ClubMembershipService.GetState server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.GetState(bgs.protocol.club.v1.membership.GetStateRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method ClubMembershipService.GetState(bgs.protocol.club.v1.membership.GetStateRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::club::v1::membership::GetStateResponse::descriptor());
         ClubMembershipService* self = static_cast<ClubMembershipService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.GetState() returned bgs.protocol.club.v1.membership.GetStateResponse{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method ClubMembershipService.GetState() returned bgs.protocol.club.v1.membership.GetStateResponse{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -3058,18 +3058,18 @@ void ClubMembershipService::CallServerMethod(uint32 token, uint32 methodId, Mess
     case 4: {
       ::bgs::protocol::club::v1::membership::UpdateClubSharedSettingsRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipService.UpdateClubSharedSettings server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for ClubMembershipService.UpdateClubSharedSettings server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.UpdateClubSharedSettings(bgs.protocol.club.v1.membership.UpdateClubSharedSettingsRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method ClubMembershipService.UpdateClubSharedSettings(bgs.protocol.club.v1.membership.UpdateClubSharedSettingsRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         ClubMembershipService* self = static_cast<ClubMembershipService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.UpdateClubSharedSettings() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method ClubMembershipService.UpdateClubSharedSettings() returned bgs.protocol.NoData{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -3084,18 +3084,18 @@ void ClubMembershipService::CallServerMethod(uint32 token, uint32 methodId, Mess
     case 5: {
       ::bgs::protocol::club::v1::membership::GetStreamMentionsRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipService.GetStreamMentions server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for ClubMembershipService.GetStreamMentions server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.GetStreamMentions(bgs.protocol.club.v1.membership.GetStreamMentionsRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method ClubMembershipService.GetStreamMentions(bgs.protocol.club.v1.membership.GetStreamMentionsRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::club::v1::membership::GetStreamMentionsResponse::descriptor());
         ClubMembershipService* self = static_cast<ClubMembershipService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.GetStreamMentions() returned bgs.protocol.club.v1.membership.GetStreamMentionsResponse{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method ClubMembershipService.GetStreamMentions() returned bgs.protocol.club.v1.membership.GetStreamMentionsResponse{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -3110,18 +3110,18 @@ void ClubMembershipService::CallServerMethod(uint32 token, uint32 methodId, Mess
     case 6: {
       ::bgs::protocol::club::v1::membership::RemoveStreamMentionsRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipService.RemoveStreamMentions server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for ClubMembershipService.RemoveStreamMentions server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.RemoveStreamMentions(bgs.protocol.club.v1.membership.RemoveStreamMentionsRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method ClubMembershipService.RemoveStreamMentions(bgs.protocol.club.v1.membership.RemoveStreamMentionsRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         ClubMembershipService* self = static_cast<ClubMembershipService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.RemoveStreamMentions() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method ClubMembershipService.RemoveStreamMentions() returned bgs.protocol.NoData{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -3136,18 +3136,18 @@ void ClubMembershipService::CallServerMethod(uint32 token, uint32 methodId, Mess
     case 7: {
       ::bgs::protocol::club::v1::membership::AdvanceStreamMentionViewTimeRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipService.AdvanceStreamMentionViewTime server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for ClubMembershipService.AdvanceStreamMentionViewTime server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.AdvanceStreamMentionViewTime(bgs.protocol.club.v1.membership.AdvanceStreamMentionViewTimeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method ClubMembershipService.AdvanceStreamMentionViewTime(bgs.protocol.club.v1.membership.AdvanceStreamMentionViewTimeRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         ClubMembershipService* self = static_cast<ClubMembershipService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.AdvanceStreamMentionViewTime() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method ClubMembershipService.AdvanceStreamMentionViewTime() returned bgs.protocol.NoData{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -3160,51 +3160,51 @@ void ClubMembershipService::CallServerMethod(uint32 token, uint32 methodId, Mess
       break;
     }
     default:
-      TC_LOG_ERROR("service.protobuf", "Bad method id %u.", methodId);
+      TC_LOG_ERROR("service.protobuf", "Bad method id{} .", methodId);
       SendResponse(service_hash_, methodId, token, ERROR_RPC_INVALID_METHOD);
       break;
     }
 }
 
 uint32 ClubMembershipService::HandleSubscribe(::bgs::protocol::club::v1::membership::SubscribeRequest const* request, ::bgs::protocol::club::v1::membership::SubscribeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipService.Subscribe({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method ClubMembershipService.Subscribe({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 ClubMembershipService::HandleUnsubscribe(::bgs::protocol::club::v1::membership::UnsubscribeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipService.Unsubscribe({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method ClubMembershipService.Unsubscribe({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 ClubMembershipService::HandleGetState(::bgs::protocol::club::v1::membership::GetStateRequest const* request, ::bgs::protocol::club::v1::membership::GetStateResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipService.GetState({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method ClubMembershipService.GetState({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 ClubMembershipService::HandleUpdateClubSharedSettings(::bgs::protocol::club::v1::membership::UpdateClubSharedSettingsRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipService.UpdateClubSharedSettings({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method ClubMembershipService.UpdateClubSharedSettings({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 ClubMembershipService::HandleGetStreamMentions(::bgs::protocol::club::v1::membership::GetStreamMentionsRequest const* request, ::bgs::protocol::club::v1::membership::GetStreamMentionsResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipService.GetStreamMentions({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method ClubMembershipService.GetStreamMentions({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 ClubMembershipService::HandleRemoveStreamMentions(::bgs::protocol::club::v1::membership::RemoveStreamMentionsRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipService.RemoveStreamMentions({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method ClubMembershipService.RemoveStreamMentions({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 ClubMembershipService::HandleAdvanceStreamMentionViewTime(::bgs::protocol::club::v1::membership::AdvanceStreamMentionViewTimeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipService.AdvanceStreamMentionViewTime({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method ClubMembershipService.AdvanceStreamMentionViewTime({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 

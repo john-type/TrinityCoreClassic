@@ -210,13 +210,13 @@ void TransportMgr::LoadTransportTemplates()
         GameObjectTemplate const* goInfo = sObjectMgr->GetGameObjectTemplate(entry);
         if (goInfo == nullptr)
         {
-            TC_LOG_ERROR("sql.sql", "Transport %u has no associated GameObjectTemplate from `gameobject_template` , skipped.", entry);
+            TC_LOG_ERROR("sql.sql", "Transport {} has no associated GameObjectTemplate from `gameobject_template` , skipped.", entry);
             continue;
         }
 
         if (goInfo->moTransport.taxiPathID >= sTaxiPathNodesByPath.size())
         {
-            TC_LOG_ERROR("sql.sql", "Transport %u (name: %s) has an invalid path specified in `gameobject_template`.`Data0` (%u) field, skipped.", entry, goInfo->name.c_str(), goInfo->moTransport.taxiPathID);
+            TC_LOG_ERROR("sql.sql", "Transport {} (name: {}) has an invalid path specified in `gameobject_template`.`Data0` ({}) field, skipped.", entry, goInfo->name, goInfo->moTransport.taxiPathID);
             continue;
         }
 
@@ -225,7 +225,7 @@ void TransportMgr::LoadTransportTemplates()
 
         if (!sTaxiPathStore.LookupEntry(goInfo->moTransport.taxiPathID))
         {
-            TC_LOG_ERROR("sql.sql", "Transport {} (name: {}) has an invalid path specified in `gameobject_template`.`Data0` ({}) field, skipped.", entry, goInfo->name.c_str(), goInfo->moTransport.taxiPathID);
+            TC_LOG_ERROR("sql.sql", "Transport {} (name: {}) has an invalid path specified in `gameobject_template`.`Data0` ({}) field, skipped.", entry, goInfo->name, goInfo->moTransport.taxiPathID);
             continue;
         }
 
@@ -241,7 +241,7 @@ void TransportMgr::LoadTransportTemplates()
 
         if (!hasValidMaps)
         {
-            TC_LOG_ERROR("sql.sql", "Transport {} (name: {}) is trying to spawn on a map which does not exist, skipped.", entry, goInfo->name.c_str());
+            TC_LOG_ERROR("sql.sql", "Transport {} (name: {}) is trying to spawn on a map which does not exist, skipped.", entry, goInfo->name);
             _transportTemplates.erase(entry);
             continue;
         }
@@ -255,7 +255,7 @@ void TransportMgr::LoadTransportTemplates()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u transport templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} transport templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void TransportMgr::LoadTransportAnimationAndRotation()
@@ -291,26 +291,26 @@ void TransportMgr::LoadTransportSpawns()
             TransportTemplate const* transportTemplate = GetTransportTemplate(entry);
             if (!transportTemplate)
             {
-                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with unknown gameobject `entry` set, skipped.", guid, entry);
+                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: {} Entry: {}) with unknown gameobject `entry` set, skipped.", guid, entry);
                 continue;
             }
 
             if (phaseUseFlags & ~PHASE_USE_FLAGS_ALL)
             {
-                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with unknown `phaseUseFlags` set, removed unknown value.", guid, entry);
+                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: {} Entry: {}) with unknown `phaseUseFlags` set, removed unknown value.", guid, entry);
                 phaseUseFlags &= PHASE_USE_FLAGS_ALL;
             }
 
             if (phaseUseFlags & PHASE_USE_FLAGS_ALWAYS_VISIBLE && phaseUseFlags & PHASE_USE_FLAGS_INVERSE)
             {
-                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE,"
+                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: {} Entry: {}) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE,"
                     " removing PHASE_USE_FLAGS_INVERSE.", guid, entry);
                 phaseUseFlags &= ~PHASE_USE_FLAGS_INVERSE;
             }
 
             if (phaseGroupId && phaseId)
             {
-                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, entry);
+                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: {} Entry: {}) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, entry);
                 phaseGroupId = 0;
             }
 
@@ -318,7 +318,7 @@ void TransportMgr::LoadTransportSpawns()
             {
                 if (!sPhaseStore.LookupEntry(phaseId))
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with `phaseid` %u does not exist, set to 0", guid, entry, phaseId);
+                    TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: {} Entry: {}) with `phaseid` {} does not exist, set to 0", guid, entry, phaseId);
                     phaseId = 0;
                 }
             }
@@ -327,7 +327,7 @@ void TransportMgr::LoadTransportSpawns()
             {
                 if (!sDB2Manager.GetPhasesForGroup(phaseGroupId))
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with `phaseGroup` %u does not exist, set to 0", guid, entry, phaseGroupId);
+                    TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: {} Entry: {}) with `phaseGroup` {} does not exist, set to 0", guid, entry, phaseGroupId);
                     phaseGroupId = 0;
                 }
             }
@@ -345,7 +345,7 @@ void TransportMgr::LoadTransportSpawns()
         } while (result->NextRow());
     }
 
-    TC_LOG_INFO("server.loading", ">> Spawned %u continent transports in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Spawned {} continent transports in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 class SplineRawInitializer
@@ -617,14 +617,14 @@ Transport* TransportMgr::CreateTransport(uint32 entry, Map* map, ObjectGuid::Low
     TransportTemplate const* tInfo = GetTransportTemplate(entry);
     if (!tInfo)
     {
-        TC_LOG_ERROR("sql.sql", "Transport %u will not be loaded, `transport_template` missing", entry);
+        TC_LOG_ERROR("sql.sql", "Transport {} will not be loaded, `transport_template` missing", entry);
         return nullptr;
     }
 
     Optional<Position> startingPosition = tInfo->ComputePosition(0, nullptr, nullptr);
     if (!startingPosition)
     {
-        TC_LOG_ERROR("sql.sql", "Transport %u will not be loaded, failed to compute starting position", entry);
+        TC_LOG_ERROR("sql.sql", "Transport {} will not be loaded, failed to compute starting position", entry);
         return nullptr;
     }
 
@@ -652,7 +652,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, Map* map, ObjectGuid::Low
     {
         if (mapEntry->Instanceable() != tInfo->InInstance)
         {
-            TC_LOG_ERROR("entities.transport", "Transport %u (name: %s) attempted creation in instance map (id: %u) but it is not an instanced transport!", entry, trans->GetName().c_str(), mapId);
+            TC_LOG_ERROR("entities.transport", "Transport {} (name: {}) attempted creation in instance map (id: {}) but it is not an instanced transport!", entry, trans->GetName(), mapId);
             delete trans;
             return nullptr;
         }

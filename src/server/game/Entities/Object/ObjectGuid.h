@@ -263,6 +263,7 @@ class TC_GAME_API ObjectGuid
 
     public:
         static ObjectGuid const Empty;
+        static ObjectGuid const ToStringFailed;
         static ObjectGuid const FromStringFailed;
         static ObjectGuid const TradeItem;
 
@@ -436,6 +437,35 @@ namespace std
             return key.GetHash();
         }
     };
+}
+
+namespace fmt
+{
+    inline namespace v10
+    {
+        template <typename T, typename Char, typename Enable>
+        struct formatter;
+
+        template <>
+        struct formatter<ObjectGuid, char, void>
+        {
+            template <typename ParseContext>
+            constexpr auto parse(ParseContext& ctx) -> decltype(ctx.begin())
+            {
+                auto begin = ctx.begin(), end = ctx.end();
+                if (begin == end)
+                    return begin;
+
+                if (*begin != '}')
+                    throw std::invalid_argument("invalid type specifier");
+
+                return begin;
+            }
+
+            template <typename FormatContext>
+            auto format(ObjectGuid const& guid, FormatContext& ctx) const -> decltype(ctx.out());
+        };
+    }
 }
 
 namespace Trinity

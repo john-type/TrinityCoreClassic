@@ -6278,18 +6278,18 @@ void FriendsService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
     case 1: {
       ::bgs::protocol::friends::v1::SubscribeRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.Subscribe server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for FriendsService.Subscribe server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.Subscribe(bgs.protocol.friends.v1.SubscribeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.Subscribe(bgs.protocol.friends.v1.SubscribeRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::friends::v1::SubscribeResponse::descriptor());
         FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.Subscribe() returned bgs.protocol.friends.v1.SubscribeResponse{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.Subscribe() returned bgs.protocol.friends.v1.SubscribeResponse{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -6304,18 +6304,18 @@ void FriendsService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
     case 2: {
       ::bgs::protocol::friends::v1::SendInvitationRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.SendInvitation server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for FriendsService.SendInvitation server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.SendInvitation(bgs.protocol.friends.v1.SendInvitationRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.SendInvitation(bgs.protocol.friends.v1.SendInvitationRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.SendInvitation() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.SendInvitation() returned bgs.protocol.NoData{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -6330,18 +6330,18 @@ void FriendsService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
     case 3: {
       ::bgs::protocol::friends::v1::AcceptInvitationRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.AcceptInvitation server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for FriendsService.AcceptInvitation server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.AcceptInvitation(bgs.protocol.friends.v1.AcceptInvitationRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.AcceptInvitation(bgs.protocol.friends.v1.AcceptInvitationRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.AcceptInvitation() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.AcceptInvitation() returned bgs.protocol.NoData{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -6356,18 +6356,18 @@ void FriendsService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
     case 4: {
       ::bgs::protocol::friends::v1::RevokeInvitationRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.RevokeInvitation server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for FriendsService.RevokeInvitation server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.RevokeInvitation(bgs.protocol.friends.v1.RevokeInvitationRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.RevokeInvitation(bgs.protocol.friends.v1.RevokeInvitationRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.RevokeInvitation() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.RevokeInvitation() returned bgs.protocol.NoData{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -6382,18 +6382,18 @@ void FriendsService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
     case 5: {
       ::bgs::protocol::friends::v1::DeclineInvitationRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.DeclineInvitation server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for FriendsService.DeclineInvitation server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.DeclineInvitation(bgs.protocol.friends.v1.DeclineInvitationRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.DeclineInvitation(bgs.protocol.friends.v1.DeclineInvitationRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.DeclineInvitation() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.DeclineInvitation() returned bgs.protocol.NoData{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -6408,18 +6408,18 @@ void FriendsService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
     case 6: {
       ::bgs::protocol::friends::v1::IgnoreInvitationRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.IgnoreInvitation server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for FriendsService.IgnoreInvitation server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.IgnoreInvitation(bgs.protocol.friends.v1.IgnoreInvitationRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.IgnoreInvitation(bgs.protocol.friends.v1.IgnoreInvitationRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.IgnoreInvitation() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.IgnoreInvitation() returned bgs.protocol.NoData{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -6434,18 +6434,18 @@ void FriendsService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
     case 8: {
       ::bgs::protocol::friends::v1::RemoveFriendRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.RemoveFriend server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for FriendsService.RemoveFriend server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.RemoveFriend(bgs.protocol.friends.v1.RemoveFriendRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.RemoveFriend(bgs.protocol.friends.v1.RemoveFriendRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.RemoveFriend() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.RemoveFriend() returned bgs.protocol.NoData{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -6460,18 +6460,18 @@ void FriendsService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
     case 9: {
       ::bgs::protocol::friends::v1::ViewFriendsRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.ViewFriends server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for FriendsService.ViewFriends server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.ViewFriends(bgs.protocol.friends.v1.ViewFriendsRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.ViewFriends(bgs.protocol.friends.v1.ViewFriendsRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::friends::v1::ViewFriendsResponse::descriptor());
         FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.ViewFriends() returned bgs.protocol.friends.v1.ViewFriendsResponse{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.ViewFriends() returned bgs.protocol.friends.v1.ViewFriendsResponse{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -6486,18 +6486,18 @@ void FriendsService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
     case 10: {
       ::bgs::protocol::friends::v1::UpdateFriendStateRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.UpdateFriendState server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for FriendsService.UpdateFriendState server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.UpdateFriendState(bgs.protocol.friends.v1.UpdateFriendStateRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.UpdateFriendState(bgs.protocol.friends.v1.UpdateFriendStateRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.UpdateFriendState() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.UpdateFriendState() returned bgs.protocol.NoData{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -6512,18 +6512,18 @@ void FriendsService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
     case 11: {
       ::bgs::protocol::friends::v1::UnsubscribeRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.Unsubscribe server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for FriendsService.Unsubscribe server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.Unsubscribe(bgs.protocol.friends.v1.UnsubscribeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.Unsubscribe(bgs.protocol.friends.v1.UnsubscribeRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.Unsubscribe() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.Unsubscribe() returned bgs.protocol.NoData{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -6538,18 +6538,18 @@ void FriendsService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
     case 12: {
       ::bgs::protocol::friends::v1::RevokeAllInvitationsRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.RevokeAllInvitations server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for FriendsService.RevokeAllInvitations server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.RevokeAllInvitations(bgs.protocol.friends.v1.RevokeAllInvitationsRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.RevokeAllInvitations(bgs.protocol.friends.v1.RevokeAllInvitationsRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.RevokeAllInvitations() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.RevokeAllInvitations() returned bgs.protocol.NoData{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -6564,18 +6564,18 @@ void FriendsService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
     case 13: {
       ::bgs::protocol::friends::v1::GetFriendListRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.GetFriendList server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for FriendsService.GetFriendList server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.GetFriendList(bgs.protocol.friends.v1.GetFriendListRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.GetFriendList(bgs.protocol.friends.v1.GetFriendListRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::friends::v1::GetFriendListResponse::descriptor());
         FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.GetFriendList() returned bgs.protocol.friends.v1.GetFriendListResponse{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.GetFriendList() returned bgs.protocol.friends.v1.GetFriendListResponse{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -6590,18 +6590,18 @@ void FriendsService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
     case 14: {
       ::bgs::protocol::friends::v1::CreateFriendshipRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.CreateFriendship server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "{} Failed to parse request for FriendsService.CreateFriendship server method call.", GetCallerInfo());
         SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.CreateFriendship(bgs.protocol.friends.v1.CreateFriendshipRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.CreateFriendship(bgs.protocol.friends.v1.CreateFriendshipRequest{{ {} }}).",
+        GetCallerInfo(), request.ShortDebugString());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.CreateFriendship() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        TC_LOG_DEBUG("service.protobuf", "{} Client called server method FriendsService.CreateFriendship() returned bgs.protocol.NoData{{ {} }} status{} .",
+          self->GetCallerInfo(), response->ShortDebugString(), status);
         if (!status)
           self->SendResponse(self->service_hash_, methodId, token, response);
         else
@@ -6614,87 +6614,87 @@ void FriendsService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
       break;
     }
     default:
-      TC_LOG_ERROR("service.protobuf", "Bad method id %u.", methodId);
+      TC_LOG_ERROR("service.protobuf", "Bad method id{} .", methodId);
       SendResponse(service_hash_, methodId, token, ERROR_RPC_INVALID_METHOD);
       break;
     }
 }
 
 uint32 FriendsService::HandleSubscribe(::bgs::protocol::friends::v1::SubscribeRequest const* request, ::bgs::protocol::friends::v1::SubscribeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.Subscribe({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method FriendsService.Subscribe({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 FriendsService::HandleSendInvitation(::bgs::protocol::friends::v1::SendInvitationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.SendInvitation({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method FriendsService.SendInvitation({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 FriendsService::HandleAcceptInvitation(::bgs::protocol::friends::v1::AcceptInvitationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.AcceptInvitation({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method FriendsService.AcceptInvitation({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 FriendsService::HandleRevokeInvitation(::bgs::protocol::friends::v1::RevokeInvitationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.RevokeInvitation({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method FriendsService.RevokeInvitation({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 FriendsService::HandleDeclineInvitation(::bgs::protocol::friends::v1::DeclineInvitationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.DeclineInvitation({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method FriendsService.DeclineInvitation({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 FriendsService::HandleIgnoreInvitation(::bgs::protocol::friends::v1::IgnoreInvitationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.IgnoreInvitation({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method FriendsService.IgnoreInvitation({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 FriendsService::HandleRemoveFriend(::bgs::protocol::friends::v1::RemoveFriendRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.RemoveFriend({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method FriendsService.RemoveFriend({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 FriendsService::HandleViewFriends(::bgs::protocol::friends::v1::ViewFriendsRequest const* request, ::bgs::protocol::friends::v1::ViewFriendsResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.ViewFriends({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method FriendsService.ViewFriends({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 FriendsService::HandleUpdateFriendState(::bgs::protocol::friends::v1::UpdateFriendStateRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.UpdateFriendState({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method FriendsService.UpdateFriendState({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 FriendsService::HandleUnsubscribe(::bgs::protocol::friends::v1::UnsubscribeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.Unsubscribe({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method FriendsService.Unsubscribe({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 FriendsService::HandleRevokeAllInvitations(::bgs::protocol::friends::v1::RevokeAllInvitationsRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.RevokeAllInvitations({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method FriendsService.RevokeAllInvitations({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 FriendsService::HandleGetFriendList(::bgs::protocol::friends::v1::GetFriendListRequest const* request, ::bgs::protocol::friends::v1::GetFriendListResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.GetFriendList({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method FriendsService.GetFriendList({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
 uint32 FriendsService::HandleCreateFriendship(::bgs::protocol::friends::v1::CreateFriendshipRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.CreateFriendship({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_ERROR("service.protobuf", "{} Client tried to call not implemented method FriendsService.CreateFriendship({{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
@@ -6712,50 +6712,50 @@ google::protobuf::ServiceDescriptor const* FriendsListener::descriptor() {
 }
 
 void FriendsListener::OnFriendAdded(::bgs::protocol::friends::v1::FriendNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsListener.OnFriendAdded(bgs.protocol.friends.v1.FriendNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_DEBUG("service.protobuf", "{} Server called client method FriendsListener.OnFriendAdded(bgs.protocol.friends.v1.FriendNotification{{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   SendRequest(service_hash_, 1 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void FriendsListener::OnFriendRemoved(::bgs::protocol::friends::v1::FriendNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsListener.OnFriendRemoved(bgs.protocol.friends.v1.FriendNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_DEBUG("service.protobuf", "{} Server called client method FriendsListener.OnFriendRemoved(bgs.protocol.friends.v1.FriendNotification{{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   SendRequest(service_hash_, 2 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void FriendsListener::OnReceivedInvitationAdded(::bgs::protocol::friends::v1::InvitationNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsListener.OnReceivedInvitationAdded(bgs.protocol.friends.v1.InvitationNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_DEBUG("service.protobuf", "{} Server called client method FriendsListener.OnReceivedInvitationAdded(bgs.protocol.friends.v1.InvitationNotification{{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   SendRequest(service_hash_, 3 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void FriendsListener::OnReceivedInvitationRemoved(::bgs::protocol::friends::v1::InvitationNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsListener.OnReceivedInvitationRemoved(bgs.protocol.friends.v1.InvitationNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_DEBUG("service.protobuf", "{} Server called client method FriendsListener.OnReceivedInvitationRemoved(bgs.protocol.friends.v1.InvitationNotification{{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   SendRequest(service_hash_, 4 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void FriendsListener::OnSentInvitationAdded(::bgs::protocol::friends::v1::SentInvitationAddedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsListener.OnSentInvitationAdded(bgs.protocol.friends.v1.SentInvitationAddedNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_DEBUG("service.protobuf", "{} Server called client method FriendsListener.OnSentInvitationAdded(bgs.protocol.friends.v1.SentInvitationAddedNotification{{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   SendRequest(service_hash_, 5 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void FriendsListener::OnSentInvitationRemoved(::bgs::protocol::friends::v1::SentInvitationRemovedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsListener.OnSentInvitationRemoved(bgs.protocol.friends.v1.SentInvitationRemovedNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_DEBUG("service.protobuf", "{} Server called client method FriendsListener.OnSentInvitationRemoved(bgs.protocol.friends.v1.SentInvitationRemovedNotification{{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   SendRequest(service_hash_, 6 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void FriendsListener::OnUpdateFriendState(::bgs::protocol::friends::v1::UpdateFriendStateNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsListener.OnUpdateFriendState(bgs.protocol.friends.v1.UpdateFriendStateNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  TC_LOG_DEBUG("service.protobuf", "{} Server called client method FriendsListener.OnUpdateFriendState(bgs.protocol.friends.v1.UpdateFriendStateNotification{{ {} }})",
+    GetCallerInfo(), request->ShortDebugString());
   SendRequest(service_hash_, 7 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void FriendsListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer /*buffer*/) {
-  TC_LOG_ERROR("service.protobuf", "%s Server tried to call server method %u",
-    GetCallerInfo().c_str(), methodId);
+  TC_LOG_ERROR("service.protobuf", "{} Server tried to call server method{} ",
+    GetCallerInfo(), methodId);
 }
 
 // @@protoc_insertion_point(namespace_scope)

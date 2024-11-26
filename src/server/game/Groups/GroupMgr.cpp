@@ -171,7 +171,7 @@ void GroupMgr::LoadGroups()
         }
         while (result->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded %u group definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded {} group definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
 
     TC_LOG_INFO("server.loading", "Loading Group members...");
@@ -196,13 +196,13 @@ void GroupMgr::LoadGroups()
             if (group)
                 group->LoadMemberFromDB(fields[1].GetUInt64(), fields[2].GetUInt8(), fields[3].GetUInt8(), fields[4].GetUInt8());
             else
-                TC_LOG_ERROR("misc", "GroupMgr::LoadGroups: Consistency failed, can't find group (storage id: %u)", fields[0].GetUInt32());
+                TC_LOG_ERROR("misc", "GroupMgr::LoadGroups: Consistency failed, can't find group (storage id: {})", fields[0].GetUInt32());
 
             ++count;
         }
         while (result->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded %u group members in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded {} group members in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
 
     TC_LOG_INFO("server.loading", "Loading Group instance saves...");
@@ -232,7 +232,7 @@ void GroupMgr::LoadGroups()
             MapEntry const* mapEntry = sMapStore.LookupEntry(fields[1].GetUInt16());
             if (!mapEntry || !mapEntry->IsDungeon())
             {
-                TC_LOG_ERROR("sql.sql", "Incorrect entry in group_instance table : no dungeon map %d", fields[1].GetUInt16());
+                TC_LOG_ERROR("sql.sql", "Incorrect entry in group_instance table : no dungeon map {}", fields[1].GetUInt16());
                 continue;
             }
 
@@ -247,6 +247,6 @@ void GroupMgr::LoadGroups()
         }
         while (result->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded %u group-instance saves in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded {} group-instance saves in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
 }

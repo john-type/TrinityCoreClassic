@@ -224,7 +224,7 @@ bool ExtractSingleWmo(std::string& fname)
     //printf("root has %d groups\n", froot->nGroups);
     for (std::size_t i = 0; i < froot.groupFileDataIDs.size(); ++i)
     {
-        std::string s = Trinity::StringFormat("FILE%08X.xxx", froot.groupFileDataIDs[i]);
+        std::string s = Trinity::StringFormat("FILE{:08X}.xxx", froot.groupFileDataIDs[i]);
         WMOGroup fgroup(s);
         if (!fgroup.open(&froot))
         {
@@ -275,7 +275,7 @@ void ParsMapFiles()
             if (mapEntryItr == map_ids.end())
                 return nullptr;
 
-            std::string fileName = Trinity::StringFormat(R"(World\Maps\%s\%s.wdt)", mapEntryItr->Directory.c_str(), mapEntryItr->Directory.c_str());
+            std::string fileName = Trinity::StringFormat(R"(World\Maps\{}\{}.wdt)", mapEntryItr->Directory, mapEntryItr->Directory);
             std::string directory = mapEntryItr->Directory;
             itr = wdts.emplace(std::piecewise_construct, std::forward_as_tuple(mapId), std::forward_as_tuple(std::move(fileName), std::move(directory), maps_that_are_parents.count(mapId) > 0)).first;
             if (!itr->second.init(mapId))

@@ -97,7 +97,7 @@ static ChatSubCommandMap COMMAND_MAP;
                 }
                 else
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `command` contains data for non-existant command '" STRING_VIEW_FMT "'. Skipped.", STRING_VIEW_FMT_ARG(name));
+                    TC_LOG_ERROR("sql.sql", "Table `command` contains data for non-existant command '{}'. Skipped.", name);
                     cmd = nullptr;
                     break;
                 }
@@ -107,12 +107,12 @@ static ChatSubCommandMap COMMAND_MAP;
                 continue;
 
             if (std::holds_alternative<std::string>(cmd->_help))
-                TC_LOG_ERROR("sql.sql", "Table `command` contains duplicate data for command '" STRING_VIEW_FMT "'. Skipped.", STRING_VIEW_FMT_ARG(name));
+                TC_LOG_ERROR("sql.sql", "Table `command` contains duplicate data for command '{}'. Skipped.", name);
 
             if (std::holds_alternative<std::monostate>(cmd->_help))
                 cmd->_help.emplace<std::string>(help);
             else
-                TC_LOG_ERROR("sql.sql", "Table `command` contains legacy help text for command '" STRING_VIEW_FMT "', which uses `trinity_string`. Skipped.", STRING_VIEW_FMT_ARG(name));
+                TC_LOG_ERROR("sql.sql", "Table `command` contains legacy help text for command '{}', which uses `trinity_string`. Skipped.", name);
         } while (result->NextRow());
     }
 
@@ -123,7 +123,7 @@ static ChatSubCommandMap COMMAND_MAP;
 void Trinity::Impl::ChatCommands::ChatCommandNode::ResolveNames(std::string name)
 {
     if (_invoker && std::holds_alternative<std::monostate>(_help))
-        TC_LOG_WARN("sql.sql", "Table `command` is missing help text for command '" STRING_VIEW_FMT "'.", STRING_VIEW_FMT_ARG(name));
+        TC_LOG_WARN("sql.sql", "Table `command` is missing help text for command '{}'.", name);
 
     _name = name;
     for (auto& [subToken, cmd] : _subCommands)
@@ -156,7 +156,7 @@ static void LogCommandUsage(WorldSession const& session, uint32 permission, std:
             zoneName = zone->AreaName[locale];
     }
 
-    sLog->outCommand(session.GetAccountId(), "Command: " STRING_VIEW_FMT " [Player: %s (%s) (Account: %u) X: %f Y: %f Z: %f Map: %u (%s) Area: %u (%s) Zone: %s Selected: %s (%s)]",
+    sLog->OutCommand(session.GetAccountId(), "Command: " STRING_VIEW_FMT " [Player: {} ({}) (Account: {}) X: {} Y: {} Z: {} Map: {} ({}) Area: {} ({}) Zone: {} Selected: {} ({})]",
         STRING_VIEW_FMT_ARG(cmdStr), player->GetName().c_str(), player->GetGUID().ToString().c_str(),
         session.GetAccountId(), player->GetPositionX(), player->GetPositionY(),
         player->GetPositionZ(), player->GetMapId(),
@@ -401,12 +401,12 @@ namespace Trinity::Impl::ChatCommands
                 {
                     if (prefix.empty())
                     {
-                        return Trinity::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
+                        return Trinity::StringFormat(STRING_VIEW_FMT "{}" STRING_VIEW_FMT,
                             STRING_VIEW_FMT_ARG(match), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(suffix));
                     }
                     else
                     {
-                        return Trinity::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
+                        return Trinity::StringFormat(STRING_VIEW_FMT "{}" STRING_VIEW_FMT "{}" STRING_VIEW_FMT,
                             STRING_VIEW_FMT_ARG(prefix), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(match), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(suffix));
                     }
                 });
@@ -425,7 +425,7 @@ namespace Trinity::Impl::ChatCommands
             path.assign(it1->first);
         else
         {
-            path = Trinity::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
+            path = Trinity::StringFormat(STRING_VIEW_FMT "{}" STRING_VIEW_FMT,
                 STRING_VIEW_FMT_ARG(path), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(it1->first));
         }
         cmd = &it1->second;
@@ -439,7 +439,7 @@ namespace Trinity::Impl::ChatCommands
         if (cmd)
         { /* if we matched a command at some point, auto-complete it */
             return {
-                Trinity::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
+                Trinity::StringFormat(STRING_VIEW_FMT "{}" STRING_VIEW_FMT,
                     STRING_VIEW_FMT_ARG(path), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(oldTail))
             };
         }
@@ -454,7 +454,7 @@ namespace Trinity::Impl::ChatCommands
                 return std::string(match);
             else
             {
-                return Trinity::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
+                return Trinity::StringFormat(STRING_VIEW_FMT "{}" STRING_VIEW_FMT,
                     STRING_VIEW_FMT_ARG(prefix), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(match));
             }
         });

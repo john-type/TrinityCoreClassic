@@ -41,7 +41,7 @@ bool Metric::Connect()
     auto error = stream.error();
     if (error)
     {
-        TC_LOG_ERROR("metric", "Error connecting to '%s:%s', disabling Metric. Error message : %s",
+        TC_LOG_ERROR("metric", "Error connecting to '{}:{}', disabling Metric. Error message : {}",
             _hostname.c_str(), _port.c_str(), error.message().c_str());
         _enabled = false;
         return false;
@@ -57,14 +57,14 @@ void Metric::LoadFromConfigs()
     _updateInterval = sConfigMgr->GetIntDefault("Metric.Interval", 1);
     if (_updateInterval < 1)
     {
-        TC_LOG_ERROR("metric", "'Metric.Interval' config set to %d, overriding to 1.", _updateInterval);
+        TC_LOG_ERROR("metric", "'Metric.Interval' config set to {}, overriding to 1.", _updateInterval);
         _updateInterval = 1;
     }
 
     _overallStatusTimerInterval = sConfigMgr->GetIntDefault("Metric.OverallStatusInterval", 1);
     if (_overallStatusTimerInterval < 1)
     {
-        TC_LOG_ERROR("metric", "'Metric.OverallStatusInterval' config set to %d, overriding to 1.", _overallStatusTimerInterval);
+        TC_LOG_ERROR("metric", "'Metric.OverallStatusInterval' config set to {}, overriding to 1.", _overallStatusTimerInterval);
         _overallStatusTimerInterval = 1;
     }
 
@@ -200,7 +200,7 @@ void Metric::SendBatch()
     GetDataStream() >> status_code;
     if (status_code != 204)
     {
-        TC_LOG_ERROR("metric", "Error sending data, returned HTTP code: %u", status_code);
+        TC_LOG_ERROR("metric", "Error sending data, returned HTTP code: {}", status_code);
     }
 
     // Read and ignore the status description

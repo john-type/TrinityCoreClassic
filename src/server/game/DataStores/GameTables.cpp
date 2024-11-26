@@ -44,21 +44,21 @@ inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& stor
     std::ifstream stream(path.string());
     if (!stream)
     {
-        errors.push_back(Trinity::StringFormat("GameTable file %s cannot be opened.", path.string().c_str()));
+        errors.push_back(Trinity::StringFormat("GameTable file {} cannot be opened.", path.string()));
         return 0;
     }
 
     std::string headers;
     if (!std::getline(stream, headers))
     {
-        errors.push_back(Trinity::StringFormat("GameTable file %s is empty.", path.string().c_str()));
+        errors.push_back(Trinity::StringFormat("GameTable file {} is empty.", path.string()));
         return 0;
     }
 
     std::vector<std::string_view> columnDefs = Trinity::Tokenize(headers, '\t', false);
 
     ASSERT(columnDefs.size() - 1 == sizeof(T) / sizeof(float),
-        "GameTable '%s' has different count of columns " SZFMTD " than expected by size of C++ structure (" SZFMTD ").",
+        "GameTable '{}' has different count of columns " SZFMTD " than expected by size of C++ structure (" SZFMTD ").",
         path.string().c_str(), columnDefs.size() - 1, sizeof(T) / sizeof(float));
 
     std::vector<T> data;
@@ -85,7 +85,7 @@ inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& stor
 
         // client ignores id column - CombatRatings has copypasted rows for levels > 110
         //ASSERT(strtol(values[0], nullptr, 10) == data.size(),
-        //    "Unexpected row identifier %u at row " SZFMTD " (expected " SZFMTD ")",
+        //    "Unexpected row identifier {} at row " SZFMTD " (expected " SZFMTD ")",
         //    strtol(values[0], nullptr, 10), data.size(), data.size());
 
         data.emplace_back();
@@ -131,10 +131,10 @@ void LoadGameTables(std::string const& dataPath)
     {
         std::ostringstream str;
         for (std::string const& err  : bad_gt_files)
-            TC_LOG_INFO("server.loading", "GameTable file not found or not compatible: %s", err.c_str());
+            TC_LOG_INFO("server.loading", "GameTable file not found or not compatible: {}", err);
     }
 
-    TC_LOG_INFO("server.loading", ">> Initialized %d GameTables in %u ms", gameTableCount, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Initialized {} GameTables in {} ms", gameTableCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
 template<class T>

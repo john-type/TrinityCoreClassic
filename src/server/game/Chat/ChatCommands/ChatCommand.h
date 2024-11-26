@@ -92,7 +92,7 @@ namespace Trinity::Impl::ChatCommands
                 return result2;
             if (result1.HasErrorMessage() && result2.HasErrorMessage())
             {
-                return Trinity::StringFormat("%s \"%s\"\n%s \"%s\"",
+                return Trinity::StringFormat("{} \"{}\"\n{} \"{}\"",
                     GetTrinityString(handler, LANG_CMDPARSER_EITHER), result2.GetErrorMessage().c_str(),
                     GetTrinityString(handler, LANG_CMDPARSER_OR), result1.GetErrorMessage().c_str());
             }

@@ -111,7 +111,7 @@ void InstanceScenario::LoadInstanceData(uint32 instanceId)
             if (!criteria)
             {
                 // Removing non-existing criteria data for all instances
-                TC_LOG_ERROR("criteria.instancescenarios", "Removing scenario criteria %u data from the table `instance_scenario_progress`.", id);
+                TC_LOG_ERROR("criteria.instancescenarios", "Removing scenario criteria {} data from the table `instance_scenario_progress`.", id);
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_SCENARIO_INSTANCE_CRITERIA);
                 stmt->setUInt32(0, instanceId);
@@ -156,7 +156,7 @@ void InstanceScenario::LoadInstanceData(uint32 instanceId)
 
 std::string InstanceScenario::GetOwnerInfo() const
 {
-    return Trinity::StringFormat("Instance ID %u", _map->GetInstanceId());
+    return Trinity::StringFormat("Instance ID {}", _map->GetInstanceId());
 }
 
 void InstanceScenario::SendPacket(WorldPacket const* data) const

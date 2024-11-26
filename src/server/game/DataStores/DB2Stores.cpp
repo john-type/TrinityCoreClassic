@@ -480,7 +480,7 @@ void LoadDB2(std::bitset<TOTAL_LOCALES>& availableDb2Locales, std::vector<std::s
     {
         if (e.code() == std::errc::no_such_file_or_directory)
         {
-            errlist.push_back(Trinity::StringFormat("File %s%s/%s does not exist", db2Path.c_str(), localeNames[defaultLocale], storage->GetFileName().c_str()));
+            errlist.push_back(Trinity::StringFormat("File {}{}/{} does not exist", db2Path, localeNames[defaultLocale], storage->GetFileName()));
         }
         else
             throw;
@@ -815,7 +815,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         sLog->SetSynchronous(); // server will shut down after this, so set sync logging to prevent messages from getting lost
 
         for (std::string const& error : loadErrors)
-            TC_LOG_ERROR("misc", "%s", error.c_str());
+            TC_LOG_ERROR("misc", "{}", error);
 
         return 0;
     }
@@ -848,12 +848,12 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     {
         if (battlemaster->MaxLevel < battlemaster->MinLevel)
         {
-            TC_LOG_ERROR("db2.hotfix.battlemaster_list", "Battlemaster (%u) contains bad values for MinLevel (%u) and MaxLevel (%u). Swapping values.", battlemaster->ID, battlemaster->MinLevel, battlemaster->MaxLevel);
+            TC_LOG_ERROR("db2.hotfix.battlemaster_list", "Battlemaster ({}) contains bad values for MinLevel ({}) and MaxLevel ({}). Swapping values.", battlemaster->ID, battlemaster->MinLevel, battlemaster->MaxLevel);
             std::swap(const_cast<BattlemasterListEntry*>(battlemaster)->MaxLevel, const_cast<BattlemasterListEntry*>(battlemaster)->MinLevel);
         }
         if (battlemaster->MaxPlayers < battlemaster->MinPlayers)
         {
-            TC_LOG_ERROR("db2.hotfix.battlemaster_list", "Battlemaster (%u) contains bad values for MinPlayers (%u) and MaxPlayers (%u). Swapping values.", battlemaster->ID, battlemaster->MinPlayers, battlemaster->MaxPlayers);
+            TC_LOG_ERROR("db2.hotfix.battlemaster_list", "Battlemaster ({}) contains bad values for MinPlayers ({}) and MaxPlayers ({}). Swapping values.", battlemaster->ID, battlemaster->MinPlayers, battlemaster->MaxPlayers);
             int32 oldMaxPlayers = battlemaster->MaxPlayers;
             int32 oldMinPlayers = battlemaster->MinPlayers;
 
@@ -1410,7 +1410,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
             sOldContinentsNodesMask[field] |= submask;
     }
 
-    TC_LOG_INFO("server.loading", ">> Initialized " SZFMTD " DB2 data stores in %u ms", _stores.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Initialized {} DB2 data stores in {} ms", _stores.size(), GetMSTimeDiffToNow(oldMSTime));
 
     return availableDb2Locales.to_ulong();
 }
@@ -1455,7 +1455,7 @@ void DB2Manager::LoadHotfixData()
             HotfixBlobKey key = std::make_pair(tableHash, recordId);
             if (std::none_of(_hotfixBlob.begin(), _hotfixBlob.end(), [key](HotfixBlobMap const& blob) { return blob.find(key) != blob.end(); }))
             {
-                TC_LOG_ERROR("sql.sql", "Table `hotfix_data` references unknown DB2 store by hash 0x%X and has no reference to `hotfix_blob` in hotfix id %d with RecordID: %d", tableHash, id, recordId);
+                TC_LOG_ERROR("sql.sql", "Table `hotfix_data` references unknown DB2 store by hash 0x{:X} and has no reference to `hotfix_blob` in hotfix id {} with RecordID: {}", tableHash, id, recordId);
                 continue;
             }
         }
@@ -1477,7 +1477,7 @@ void DB2Manager::LoadHotfixData()
             if (DB2StorageBase* store = Trinity::Containers::MapGetValuePtr(_stores, itr->first.first))
                 store->EraseRecord(itr->first.second);
 
-    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " hotfix records in %u ms", _hotfixData.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} hotfix records in {} ms", _hotfixData.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void DB2Manager::LoadHotfixBlob(uint32 localeMask)
@@ -1502,7 +1502,7 @@ void DB2Manager::LoadHotfixBlob(uint32 localeMask)
         auto storeItr = _stores.find(tableHash);
         if (storeItr != _stores.end())
         {
-            TC_LOG_ERROR("sql.sql", "Table hash 0x%X points to a loaded DB2 store %s, fill related table instead of hotfix_blob",
+            TC_LOG_ERROR("sql.sql", "Table hash 0x{:X} points to a loaded DB2 store {}, fill related table instead of hotfix_blob",
                 tableHash, storeItr->second->GetFileName().c_str());
             continue;
         }
@@ -1513,7 +1513,7 @@ void DB2Manager::LoadHotfixBlob(uint32 localeMask)
 
         if (!IsValidLocale(locale))
         {
-            TC_LOG_ERROR("sql.sql", "`hotfix_blob` contains invalid locale: %s at TableHash: 0x%X and RecordID: %d", localeName.c_str(), tableHash, recordId);
+            TC_LOG_ERROR("sql.sql", "`hotfix_blob` contains invalid locale: {} at TableHash: 0x{:X} and RecordID: {}", localeName, tableHash, recordId);
             continue;
         }
 
@@ -1524,7 +1524,7 @@ void DB2Manager::LoadHotfixBlob(uint32 localeMask)
         hotfixBlobCount++;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %d hotfix blob records in %u ms", hotfixBlobCount, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} hotfix blob records in {} ms", hotfixBlobCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
 bool ValidateBroadcastTextTactKeyOptionalData(std::vector<uint8> const& data)
@@ -1557,7 +1557,7 @@ void DB2Manager::LoadHotfixOptionalData(uint32 localeMask)
         auto allowedHotfixes = Trinity::Containers::MapEqualRange(_allowedHotfixOptionalData, tableHash);
         if (allowedHotfixes.begin() == allowedHotfixes.end())
         {
-            TC_LOG_ERROR("sql.sql", "Table `hotfix_optional_data` references DB2 store by hash 0x%X that is not allowed to have optional data", tableHash);
+            TC_LOG_ERROR("sql.sql", "Table `hotfix_optional_data` references DB2 store by hash 0x{:X} that is not allowed to have optional data", tableHash);
             continue;
         }
 
@@ -1565,7 +1565,7 @@ void DB2Manager::LoadHotfixOptionalData(uint32 localeMask)
         auto storeItr = _stores.find(tableHash);
         if (storeItr == _stores.end())
         {
-            TC_LOG_ERROR("sql.sql", "Table `hotfix_optional_data` references unknown DB2 store by hash 0x%X with RecordID: %u", tableHash, recordId);
+            TC_LOG_ERROR("sql.sql", "Table `hotfix_optional_data` references unknown DB2 store by hash 0x{:X} with RecordID: {}", tableHash, recordId);
             continue;
         }
 
@@ -1574,7 +1574,7 @@ void DB2Manager::LoadHotfixOptionalData(uint32 localeMask)
 
         if (!IsValidLocale(locale))
         {
-            TC_LOG_ERROR("sql.sql", "`hotfix_optional_data` contains invalid locale: %s at TableHash: 0x%X and RecordID: %u", localeName.c_str(), tableHash, recordId);
+            TC_LOG_ERROR("sql.sql", "`hotfix_optional_data` contains invalid locale: {} at TableHash: 0x{:X} and RecordID: {}", localeName, tableHash, recordId);
             continue;
         }
 
@@ -1589,7 +1589,7 @@ void DB2Manager::LoadHotfixOptionalData(uint32 localeMask)
         });
         if (allowedHotfixItr == allowedHotfixes.end())
         {
-            TC_LOG_ERROR("sql.sql", "Table `hotfix_optional_data` references non-allowed optional data key 0x%X for DB2 store by hash 0x%X and RecordID: %u",
+            TC_LOG_ERROR("sql.sql", "Table `hotfix_optional_data` references non-allowed optional data key 0x{:X} for DB2 store by hash 0x{:X} and RecordID: {}",
                 optionalData.Key, tableHash, recordId);
             continue;
         }
@@ -1597,7 +1597,7 @@ void DB2Manager::LoadHotfixOptionalData(uint32 localeMask)
         optionalData.Data = fields[4].GetBinary();
         if (!allowedHotfixItr->second.second(optionalData.Data))
         {
-            TC_LOG_ERROR("sql.sql", "Table `hotfix_optional_data` contains invalid data for DB2 store 0x%X, RecordID: %u and Key: 0x%X",
+            TC_LOG_ERROR("sql.sql", "Table `hotfix_optional_data` contains invalid data for DB2 store 0x{:X}, RecordID: {} and Key: 0x{:X}",
                 tableHash, recordId, optionalData.Key);
             continue;
         }
@@ -1606,7 +1606,7 @@ void DB2Manager::LoadHotfixOptionalData(uint32 localeMask)
         hotfixOptionalDataCount++;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %d hotfix optional data records in %u ms", hotfixOptionalDataCount, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} hotfix optional data records in {} ms", hotfixOptionalDataCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
 uint32 DB2Manager::GetHotfixCount() const
