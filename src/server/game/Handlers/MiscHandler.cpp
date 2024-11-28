@@ -1171,3 +1171,15 @@ void WorldSession::HandleRequestLatestSplashScreen(WorldPackets::Misc::RequestLa
     splashScreenShowLatest.UISplashScreenID = 0;
     SendPacket(splashScreenShowLatest.Write());
 }
+
+void WorldSession::HandleRequestConquestFormulaConstants(WorldPackets::Misc::RequestConquestFormulaConstants& request)
+{
+    WorldPackets::Misc::ConquestFormulaConstants response;
+    response.PvpMinCPPerWeek = 1500;
+    response.PvpMaxCPPerWeek = 3000;
+    response.PvpCPBaseCoefficient = 1511.26f;
+    response.PvpCPExpCoefficient = 1639.28f;
+    response.PvpCPNumerator = 0.00412f;
+
+    SendPacket(response.Write());
+}

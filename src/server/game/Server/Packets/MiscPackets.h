@@ -1004,6 +1004,28 @@ namespace WorldPackets
             ::Gender Gender = GENDER_NONE;
             uint32 CurrencyID = 0;
         };
+
+        class RequestConquestFormulaConstants final : public ClientPacket
+        {
+        public:
+            RequestConquestFormulaConstants(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class ConquestFormulaConstants final : public ServerPacket
+        {
+        public:
+            ConquestFormulaConstants() : ServerPacket(SMSG_CONQUEST_FORMULA_CONSTANTS, 20) { }
+
+            WorldPacket const* Write() override;
+
+            int32 PvpMinCPPerWeek;
+            int32 PvpMaxCPPerWeek;
+            float PvpCPBaseCoefficient;
+            float PvpCPExpCoefficient;
+            float PvpCPNumerator;
+        };
     }
 }
 

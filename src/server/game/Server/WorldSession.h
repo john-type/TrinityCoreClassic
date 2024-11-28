@@ -491,6 +491,7 @@ namespace WorldPackets
         class CloseInteraction;
         class ConversationLineStarted;
         class RequestLatestSplashScreen;
+        class RequestConquestFormulaConstants;
     }
 
     namespace Movement
@@ -1753,6 +1754,7 @@ class TC_GAME_API WorldSession
         void HandleQueryScenarioPOI(WorldPackets::Scenario::QueryScenarioPOI& queryScenarioPOI);
 
         void HandleRequestLatestSplashScreen(WorldPackets::Misc::RequestLatestSplashScreen& requestLatestSplashScreen);
+        void HandleRequestConquestFormulaConstants(WorldPackets::Misc::RequestConquestFormulaConstants& request);
 
         void HandleSocialContractRequest(WorldPackets::Social::SocialContractRequest& socialContractRequest);
 

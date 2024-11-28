@@ -53,8 +53,9 @@ enum CUFBoolOptions
     CUF_AUTO_ACTIVATE_SPEC_2,
     CUF_AUTO_ACTIVATE_SPEC_3,
     CUF_AUTO_ACTIVATE_SPEC_4,
-    CUF_AUTO_ACTIVATE_PVP,
-    CUF_AUTO_ACTIVATE_PVE,
+    // This enum/field got made slightly smaller for classic, not sure which got removed or how many, but removing these work.
+    //CUF_AUTO_ACTIVATE_PVP,
+    //CUF_AUTO_ACTIVATE_PVE,    
 
     CUF_BOOL_OPTIONS_COUNT,
 };

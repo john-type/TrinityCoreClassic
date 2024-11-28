@@ -780,3 +780,14 @@ WorldPacket const* WorldPackets::Misc::DisplayToast::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::ConquestFormulaConstants::Write()
+{
+    _worldPacket << PvpMinCPPerWeek;
+    _worldPacket << PvpMaxCPPerWeek;
+    _worldPacket << PvpCPBaseCoefficient;
+    _worldPacket << PvpCPExpCoefficient;
+    _worldPacket << PvpCPNumerator;
+
+    return &_worldPacket;
+}
