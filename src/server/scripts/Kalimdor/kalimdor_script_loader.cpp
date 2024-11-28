@@ -102,14 +102,6 @@ void AddSC_instance_wailing_caverns();
 void AddSC_boss_zum_rah();
 void AddSC_zulfarrak();
 void AddSC_instance_zulfarrak();
-void AddSC_instance_halls_of_origination();
-void AddSC_boss_temple_guardian_anhuur();
-void AddSC_boss_earthrager_ptah();
-void AddSC_boss_anraphet();
-void AddSC_instance_firelands();
-void AddSC_firelands();
-void AddSC_boss_alysrazor();
-void AddSC_boss_baleroc();
 
 void AddSC_ashenvale();
 void AddSC_azshara();
@@ -143,36 +135,38 @@ void AddKalimdorScripts()
     AddSC_boss_kelris();
     AddSC_boss_aku_mai();
     AddSC_instance_blackfathom_deeps();
-    // CoT Battle for Mt. Hyjal
-    AddSC_hyjal();
-    AddSC_boss_archimonde();
-    AddSC_instance_mount_hyjal();
-    AddSC_hyjal_trash();
-    AddSC_boss_rage_winterchill();
-    AddSC_boss_anetheron();
-    AddSC_boss_kazrogal();
-    AddSC_boss_azgalor();
-    // CoT Old Hillsbrad
-    AddSC_boss_captain_skarloc();
-    AddSC_boss_epoch_hunter();
-    AddSC_boss_lieutenant_drake();
-    AddSC_instance_old_hillsbrad();
-    AddSC_old_hillsbrad();
-    // CoT The Black Morass
-    AddSC_boss_aeonus();
-    AddSC_boss_chrono_lord_deja();
-    AddSC_boss_temporus();
-    AddSC_the_black_morass();
-    AddSC_instance_the_black_morass();
-    // CoT Culling Of Stratholme
-    AddSC_boss_epoch();
-    AddSC_npc_arthas_stratholme();
-    AddSC_boss_infinite_corruptor();
-    AddSC_boss_salramm();
-    AddSC_boss_mal_ganis();
-    AddSC_boss_meathook();
-    AddSC_culling_of_stratholme();
-    AddSC_instance_culling_of_stratholme();
+    if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE) {
+        // CoT Battle for Mt. Hyjal
+        AddSC_hyjal();
+        AddSC_boss_archimonde();
+        AddSC_instance_mount_hyjal();
+        AddSC_hyjal_trash();
+        AddSC_boss_rage_winterchill();
+        AddSC_boss_anetheron();
+        AddSC_boss_kazrogal();
+        AddSC_boss_azgalor();
+        // CoT Old Hillsbrad
+        AddSC_boss_captain_skarloc();
+        AddSC_boss_epoch_hunter();
+        AddSC_boss_lieutenant_drake();
+        AddSC_instance_old_hillsbrad();
+        AddSC_old_hillsbrad();
+        // CoT The Black Morass
+        AddSC_boss_aeonus();
+        AddSC_boss_chrono_lord_deja();
+        AddSC_boss_temporus();
+        AddSC_the_black_morass();
+        AddSC_instance_the_black_morass();
+        // CoT Culling Of Stratholme
+        AddSC_boss_epoch();
+        AddSC_npc_arthas_stratholme();
+        AddSC_boss_infinite_corruptor();
+        AddSC_boss_salramm();
+        AddSC_boss_mal_ganis();
+        AddSC_boss_meathook();
+        AddSC_culling_of_stratholme();
+        AddSC_instance_culling_of_stratholme();
+    }
     // Dire Maul
     AddSC_instance_dire_maul();
     // Ragefire Chasm
@@ -245,14 +239,4 @@ void AddKalimdorScripts()
     AddSC_thunder_bluff();
     // AddSC_ungoro_crater();
     AddSC_winterspring();
-
-    AddSC_instance_halls_of_origination();
-    AddSC_boss_temple_guardian_anhuur();
-    AddSC_boss_earthrager_ptah();
-    AddSC_boss_anraphet();
-
-    AddSC_instance_firelands();
-    AddSC_firelands();
-    AddSC_boss_alysrazor();
-    AddSC_boss_baleroc();
 }

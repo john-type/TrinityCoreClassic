@@ -110,7 +110,9 @@ void LoadGameTables(std::string const& dataPath)
 
 #define LOAD_GT(store, file) gameTableCount += LoadGameTable(bad_gt_files, store, gtPath / file); ++expectedGameTableCount;
 
-    LOAD_GT(sBarberShopCostBaseGameTable, "BarberShopCostBase.txt");
+    if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
+        LOAD_GT(sBarberShopCostBaseGameTable, "BarberShopCostBase.txt");
+    }
     LOAD_GT(sBaseMPGameTable, "BaseMp.txt");
     LOAD_GT(sBattlePetXPGameTable, "BattlePetXP.txt");
     LOAD_GT(sCombatRatingsGameTable, "CombatRatings.txt");
