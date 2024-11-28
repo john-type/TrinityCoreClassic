@@ -20,6 +20,9 @@ def remove_modern():
         500,
         _handle_obsolete_modern_row
     )
+    db.tri_world.execute_raw("DELETE FROM quest_details WHERE ID NOT IN (SELECT ID FROM quest_template)")
+    db.tri_world.execute_raw("DELETE FROM quest_greeting WHERE ID NOT IN (SELECT ID FROM quest_template)")
+    db.tri_world.execute_raw("DELETE FROM quest_visual_effect WHERE ID NOT IN (SELECT ID FROM quest_objectives)")
     
 def _handle_obsolete_modern_row(row):
     queries = [
