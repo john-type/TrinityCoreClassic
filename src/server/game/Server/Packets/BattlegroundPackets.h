@@ -77,6 +77,52 @@ namespace WorldPackets
             int32 TimeLeft = 0;
         };
 
+        class ArenaTeamRosterRequest final : public ClientPacket
+        {
+        public:
+            ArenaTeamRosterRequest(WorldPacket&& packet) : ClientPacket(CMSG_ARENA_TEAM_ROSTER, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 TeamIndex;
+        };
+
+        struct ArenaTeamMember
+        {
+            ObjectGuid MemberGUID;
+            bool Online;
+            int32 Captain;
+            uint8 Level;
+            uint8 ClassId;
+            uint32 WeekGamesPlayed;
+            uint32 WeekGamesWon;
+            uint32 SeasonGamesPlayed;
+            uint32 SeasonGamesWon;
+            uint32 PersonalRating;
+            std::string Name;
+            Optional<float> dword60;
+            Optional<float> dword68;
+        };
+
+        class ArenaTeamRosterResponse final : public ServerPacket
+        {
+        public:
+            ArenaTeamRosterResponse() : ServerPacket(SMSG_ARENA_TEAM_ROSTER, 36) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 TeamId;
+            uint32 TeamSize;
+            uint32 TeamPlayed;
+            uint32 TeamWins;
+            uint32 SeasonPlayed;
+            uint32 SeasonWins;
+            uint32 TeamRating;
+            uint32 PlayerRating;
+            uint32 UnkBit;
+            std::vector<ArenaTeamMember> Members;
+        };
+
         class HearthAndResurrect final : public ClientPacket
         {
         public:

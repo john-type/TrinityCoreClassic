@@ -153,6 +153,7 @@ namespace WorldPackets
     {
         class AreaSpiritHealerQuery;
         class AreaSpiritHealerQueue;
+        class ArenaTeamRosterRequest;
         class HearthAndResurrect;
         class PVPLogDataRequest;
         class BattlemasterJoin;
@@ -1598,6 +1599,9 @@ class TC_GAME_API WorldSession
         void SendLfgDisabled();
         void SendLfgOfferContinue(uint32 dungeonEntry);
         void SendLfgTeleportError(lfg::LfgTeleportResult err);
+
+        // Arena Team
+        void HandleArenaTeamRoster(WorldPackets::Battleground::ArenaTeamRosterRequest& rosterRequest);
 
         void HandleSelfResOpcode(WorldPackets::Spells::SelfRes& selfRes);
         void HandleRequestPetInfo(WorldPackets::Pet::RequestPetInfo& requestPetInfo);

@@ -48,6 +48,58 @@ WorldPacket const* WorldPackets::Battleground::AreaSpiritHealerTime::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Battleground::ArenaTeamRosterRequest::Read()
+{
+    _worldPacket >> TeamIndex;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::ArenaTeamMember const& member)
+{
+    data << member.MemberGUID;
+    data << member.Online;
+    data << member.Captain;
+    data << member.Level;
+    data << member.ClassId;
+    data << member.WeekGamesPlayed;
+    data << member.WeekGamesWon;
+    data << member.SeasonGamesPlayed;
+    data << member.SeasonGamesWon;
+    data << member.PersonalRating;
+
+    data.WriteBits(member.Name.size(), 6);
+    data.WriteBit(member.dword60.has_value());
+    data.WriteBit(member.dword68.has_value());
+    data.FlushBits();
+
+    data.WriteString(member.Name);
+
+    if (member.dword60)
+        data << *member.dword60;
+
+    if (member.dword68)
+        data << *member.dword68;
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Battleground::ArenaTeamRosterResponse::Write()
+{
+    _worldPacket << TeamId;
+    _worldPacket << TeamSize;
+    _worldPacket << TeamPlayed;
+    _worldPacket << TeamWins;
+    _worldPacket << SeasonPlayed;
+    _worldPacket << SeasonWins;
+    _worldPacket << TeamRating;
+    _worldPacket << PlayerRating;
+    _worldPacket << Members.size();
+
+    for (ArenaTeamMember const& member : Members)
+        _worldPacket << member;
+
+    return &_worldPacket;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPMatchStatistics::RatingData const& ratingData)
 {
     for (std::size_t i = 0; i < 2; ++i)
