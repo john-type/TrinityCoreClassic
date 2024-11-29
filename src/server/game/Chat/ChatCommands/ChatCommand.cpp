@@ -156,8 +156,8 @@ static void LogCommandUsage(WorldSession const& session, uint32 permission, std:
             zoneName = zone->AreaName[locale];
     }
 
-    sLog->OutCommand(session.GetAccountId(), "Command: " STRING_VIEW_FMT " [Player: {} ({}) (Account: {}) X: {} Y: {} Z: {} Map: {} ({}) Area: {} ({}) Zone: {} Selected: {} ({})]",
-        STRING_VIEW_FMT_ARG(cmdStr), player->GetName().c_str(), player->GetGUID().ToString().c_str(),
+    sLog->OutCommand(session.GetAccountId(), "Command: {} [Player: {} ({}) (Account: {}) X: {} Y: {} Z: {} Map: {} ({}) Area: {} ({}) Zone: {} Selected: {} ({})]",
+        cmdStr, player->GetName().c_str(), player->GetGUID().ToString().c_str(),
         session.GetAccountId(), player->GetPositionX(), player->GetPositionY(),
         player->GetPositionZ(), player->GetMapId(),
         player->FindMap() ? player->FindMap()->GetMapName() : "Unknown",
