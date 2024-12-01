@@ -3995,6 +3995,13 @@ bool IsInterruptFlagIgnoredForSpell(SpellAuraInterruptFlags flag, Unit const* un
         case SpellAuraInterruptFlags::Moving:
             return unit->CanCastSpellWhileMoving(auraSpellInfo);
         case SpellAuraInterruptFlags::Action:
+            if constexpr (CURRENT_EXPANSION == EXPANSION_CLASSIC) {
+                // Special case for sap.
+                if (interruptSource->Id == 6770 || interruptSource->Id == 2070 || interruptSource->Id == 11297) {
+                    return true;
+                }
+            }
+            [[fallthrough]];
         case SpellAuraInterruptFlags::ActionDelayed:
             if (interruptSource)
             {
