@@ -179,7 +179,7 @@ inline void KillRewarder::_RewardKillCredit(Player* player)
     if (!_group || player->IsAlive() || !player->GetCorpse())
         if (Creature* target = _victim->ToCreature())
         {
-            player->KilledMonster(target->GetCreatureTemplate(), target->GetGUID());
+            player->KilledMonster(target);
             player->UpdateCriteria(CriteriaType::KillAnyCreature, target->GetCreatureType(), 1, 0, target);
         }
 }
