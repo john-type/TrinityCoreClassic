@@ -37,6 +37,7 @@ class WorldObject;
 enum Difficulty : uint8;
 enum ProcFlags : uint32;
 enum ProcFlags2 : int32;
+enum UnitFlags : uint32;
 
 namespace WorldPackets
 {
@@ -527,6 +528,16 @@ public:
         _storage[1] = right[1];
         return *this;
     }
+};
+
+struct TC_GAME_API CastSpellInitState {
+    CastSpellInitState() = default;
+
+    inline bool CasterHasUnitFlag(UnitFlags flags) const { return (CasterUnitFlags & flags) != 0; };
+    inline bool TargetHasUnitFlag(UnitFlags flags) const { return (TargetUnitFlags & flags) != 0; };
+
+    uint32 CasterUnitFlags = 0;
+    uint32 TargetUnitFlags = 0;
 };
 
 #endif

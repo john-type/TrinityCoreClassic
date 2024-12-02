@@ -2125,7 +2125,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     return SPELL_CAST_OK;
 }
 
-SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject const* target, bool implicit /*= true*/) const
+SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject const* target, CastSpellInitState const* initial_state /* = nullptr */, bool implicit /*= true*/) const
 {
     if (HasAttribute(SPELL_ATTR1_EXCLUDE_CASTER) && caster == target)
         return SPELL_FAILED_BAD_TARGETS;
@@ -2140,8 +2140,21 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
     if (unitTarget)
     {
         // spells cannot be cast if target has a pet in combat either
-        if (HasAttribute(SPELL_ATTR1_ONLY_PEACEFUL_TARGETS) && (unitTarget->IsInCombat() || unitTarget->HasUnitFlag(UNIT_FLAG_PET_IN_COMBAT)))
-            return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
+        if (HasAttribute(SPELL_ATTR1_ONLY_PEACEFUL_TARGETS))
+        {
+            // handle cases where modifiers applied during prepare can unexpectedly trigger combat.
+            bool currentCombat = unitTarget->IsInCombat() || unitTarget->HasUnitFlag(UNIT_FLAG_PET_IN_COMBAT);
+            bool initCombat = initial_state && (initial_state->TargetHasUnitFlag(UNIT_FLAG_IN_COMBAT) || initial_state->TargetHasUnitFlag(UNIT_FLAG_PET_IN_COMBAT));
+
+            //TODOFROST - remove debug code.
+            if (initial_state && (Id != 6770 && Id != 2070 && Id != 11297))
+                if(currentCombat != initCombat)
+                    TC_LOG_ERROR("spells", "SpellInfo::CheckTarget: Unexpected combat state for {}", Id);
+
+            if(initial_state ? initCombat : currentCombat) 
+                return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
+        }
+            
 
         // only spells with SPELL_ATTR3_ONLY_TARGET_GHOSTS can target ghosts
         if (HasAttribute(SPELL_ATTR3_ONLY_ON_GHOSTS) != unitTarget->HasAuraType(SPELL_AURA_GHOST))

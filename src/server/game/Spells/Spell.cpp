@@ -1792,7 +1792,7 @@ void Spell::SelectImplicitTrajTargets(SpellEffectInfo const& spellEffectInfo, Sp
     Unit* unitCaster = ASSERT_NOTNULL(m_caster->ToUnit());
     for (auto itr = targets.begin(); itr != targets.end(); ++itr)
     {
-        if (m_spellInfo->CheckTarget(unitCaster, *itr, true) != SPELL_CAST_OK)
+        if (m_spellInfo->CheckTarget(unitCaster, *itr, nullptr, true) != SPELL_CAST_OK)
             continue;
 
         if (Unit* unit = (*itr)->ToUnit())
@@ -2294,7 +2294,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         return;
 
     if (checkIfValid)
-        if (m_spellInfo->CheckTarget(m_caster, target, implicit) != SPELL_CAST_OK) // skip stealth checks for AOE
+        if (m_spellInfo->CheckTarget(m_caster, target, &m_initialState, implicit) != SPELL_CAST_OK) // skip stealth checks for AOE
             return;
 
     // Check for effect immune skip if immuned
@@ -3380,6 +3380,8 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
 
     // Prepare data for triggers
     prepareDataForTriggerSystem();
+
+    prepareInitialState();
 
     m_casttime = CallScriptCalcCastTimeHandlers(m_spellInfo->CalcCastTime(this));
 
@@ -5679,7 +5681,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
 
     if (Unit* target = m_targets.GetUnitTarget())
     {
-        SpellCastResult castResult = m_spellInfo->CheckTarget(m_caster, target, m_caster->GetTypeId() == TYPEID_GAMEOBJECT); // skip stealth checks for GO casts
+        SpellCastResult castResult = m_spellInfo->CheckTarget(m_caster, target, nullptr, m_caster->GetTypeId() == TYPEID_GAMEOBJECT); // skip stealth checks for GO casts
         if (castResult != SPELL_CAST_OK)
             return castResult;
 
@@ -7082,6 +7084,19 @@ std::pair<float, float> Spell::GetMinMaxRange(bool strict) const
     return { minRange, maxRange };
 }
 
+void Spell::prepareInitialState()
+{
+    if (Unit* caster = m_caster->ToUnit())
+    {
+        m_initialState.CasterUnitFlags = caster->m_unitData->Flags;
+    }
+
+    if (Unit* target = m_targets.GetUnitTarget())
+    {
+        m_initialState.TargetUnitFlags = target->m_unitData->Flags;
+    }
+}
+
 SpellCastResult Spell::CheckPower() const
 {
     Unit* unitCaster = m_caster->ToUnit();
@@ -8183,6 +8198,7 @@ void Spell::PreprocessSpellLaunch(TargetInfo& targetInfo)
     // This will only cause combat - the target will engage once the projectile hits (in Spell::TargetInfo::PreprocessTarget)
     if (m_originalCaster && targetInfo.MissCondition != SPELL_MISS_EVADE && !m_originalCaster->IsFriendlyTo(targetUnit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)) && (m_spellInfo->HasInitialAggro() || targetUnit->IsEngaged()))
         m_originalCaster->SetInCombatWith(targetUnit, true);
+    
 
     Unit* unit = nullptr;
     // In case spell hit target, do all effect on that target
@@ -8808,7 +8824,7 @@ WorldObjectSpellTargetCheck::~WorldObjectSpellTargetCheck()
 
 bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
 {
-    if (_spellInfo->CheckTarget(_caster, target, true) != SPELL_CAST_OK)
+    if (_spellInfo->CheckTarget(_caster, target, nullptr, true) != SPELL_CAST_OK)
         return false;
 
     Unit* unitTarget = target->ToUnit();

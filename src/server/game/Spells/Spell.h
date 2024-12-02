@@ -650,6 +650,7 @@ class TC_GAME_API Spell
 
         void SendLoot(ObjectGuid guid, LootType loottype);
         std::pair<float, float> GetMinMaxRange(bool strict) const;
+        void prepareInitialState();
 
         WorldObject* const m_caster;
 
@@ -669,6 +670,7 @@ class TC_GAME_API Spell
         bool m_canReflect;                                  // can reflect this spell?
         bool m_autoRepeat;
         uint8 m_runesState;
+        CastSpellInitState m_initialState;                  // initial state info gathered during the Spell::prepare phase.
 
         uint8 m_delayAtDamageCount;
         bool IsDelayableNoMore()

@@ -57,7 +57,9 @@ enum RogueSpells
     SPELL_ROGUE_CRIPPLING_POISON = 3409,
     SPELL_ROGUE_MASTER_OF_SUBTLETY_BUFF = 31665,
     SPELL_ROGUE_OVERKILL_BUFF = 58427,
-    SPELL_ROGUE_STEALTH = 1784
+    SPELL_ROGUE_STEALTH = 1784,
+    SPELL_ROGUE_IMPROVED_SAP_R1 = 14076,
+    SPELL_ROGUE_SAP_R1 = 6770
 };
 
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
@@ -989,6 +991,51 @@ class spell_rog_vanish : public AuraScript
     }
 };
 
+// 14093 - Vannish (improved sap)
+class spell_rog_improved_sap_vanish : public SpellScript
+{
+    PrepareSpellScript(spell_rog_improved_sap_vanish);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_STEALTH });
+    }
+
+    void ApplyStealth()
+    {
+        GetCaster()->CastSpell(nullptr, SPELL_ROGUE_STEALTH, true);       
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_rog_improved_sap_vanish::ApplyStealth);
+    }
+};
+
+// -14076 Improved sap
+class spell_rog_improved_sap : public AuraScript
+{
+    PrepareAuraScript(spell_rog_improved_sap);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_SAP_R1 });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        // Ensure proc is only triggered for sap casts.
+        SpellInfo const* sap = sSpellMgr->GetSpellInfo(SPELL_ROGUE_SAP_R1, GetCastDifficulty());
+        return eventInfo.GetProcSpell()->m_spellInfo->IsRankOf(sap);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_rog_improved_sap::CheckProc);
+    }
+};
+
+
 void AddSC_rogue_spell_scripts()
 {
     RegisterSpellScript(spell_rog_blade_flurry);
@@ -996,14 +1043,16 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_preparation);
     new spell_rog_rupture();
     RegisterSpellScript(spell_rog_setup);
-    RegisterSpellScript(spell_rog_shiv);
     RegisterSpellScript(spell_rog_vanish);
+    RegisterSpellScript(spell_rog_improved_sap_vanish);
+    RegisterSpellScript(spell_rog_improved_sap);
 
     if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE) {
         RegisterSpellScript(spell_rog_cheat_death);
         RegisterSpellScript(spell_rog_nerves_of_steel);
         RegisterSpellScriptWithArgs(spell_rog_overkill_mos<SPELL_ROGUE_MASTER_OF_SUBTLETY_BUFF>, "spell_rog_master_of_subtlety");
         RegisterSpellScript(spell_rog_quick_recovery);
+        RegisterSpellScript(spell_rog_shiv);
     }
 
     if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {

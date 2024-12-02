@@ -1829,12 +1829,14 @@ class spell_quest_taming_the_beast : public AuraScript
             SPELL_TAME_ARMORED_SCORPID_1,
             SPELL_TAME_NIGHTSABER_STALKER_1,
             SPELL_TAME_STRIGID_SCREECHER_1,
+#if CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CURSADE
             SPELL_TAME_BARBED_CRAWLER_1,
             SPELL_TAME_GREATER_TIMBERSTRIDER_1,
             SPELL_TAME_NIGHTSTALKER_1,
             SPELL_TAME_CRAZED_DRAGONHAWK_1,
             SPELL_TAME_ELDER_SPRINGPAW_1,
             SPELL_TAME_MISTBAT_1
+#endif
         });
     }
 

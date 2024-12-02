@@ -3995,13 +3995,6 @@ bool IsInterruptFlagIgnoredForSpell(SpellAuraInterruptFlags flag, Unit const* un
         case SpellAuraInterruptFlags::Moving:
             return unit->CanCastSpellWhileMoving(auraSpellInfo);
         case SpellAuraInterruptFlags::Action:
-            if constexpr (CURRENT_EXPANSION == EXPANSION_CLASSIC) {
-                // Special case for sap.
-                if (interruptSource->Id == 6770 || interruptSource->Id == 2070 || interruptSource->Id == 11297) {
-                    return true;
-                }
-            }
-            [[fallthrough]];
         case SpellAuraInterruptFlags::ActionDelayed:
             if (interruptSource)
             {
@@ -4219,12 +4212,16 @@ void Unit::RemoveAurasOnEvade()
 
     // don't remove vehicle auras, passengers aren't supposed to drop off the vehicle
     // don't remove clone caster on evade (to be verified)
+    // don't remove stun (sap, improved sap)
     auto evadeAuraCheck = [](Aura const* aura)
     {
         if (aura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE))
             return false;
 
         if (aura->HasEffectType(SPELL_AURA_CLONE_CASTER))
+            return false;
+
+        if (aura->HasEffectType(SPELL_AURA_MOD_STUN))
             return false;
 
         if (aura->GetSpellInfo()->HasAttribute(SPELL_ATTR1_AURA_STAYS_AFTER_COMBAT))
@@ -6294,7 +6291,7 @@ Unit* Unit::GetMeleeHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo /
         if (Unit* magnet = (*i)->GetBase()->GetCaster())
             if (IsValidAttackTarget(magnet, spellInfo) && magnet->IsWithinLOSInMap(this)
                 && (!spellInfo || (spellInfo->CheckExplicitTarget(this, magnet) == SPELL_CAST_OK
-                && spellInfo->CheckTarget(this, magnet, false) == SPELL_CAST_OK)))
+                && spellInfo->CheckTarget(this, magnet, nullptr, false) == SPELL_CAST_OK)))
             {
                 (*i)->GetBase()->DropCharge(AURA_REMOVE_BY_EXPIRE);
                 return magnet;

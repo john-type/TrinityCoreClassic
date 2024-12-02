@@ -4615,20 +4615,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Attributes |= SPELL_ATTR0_NO_IMMUNITIES;
     });
 
-    if constexpr (CURRENT_EXPANSION == EXPANSION_CLASSIC) {
-        // hack fix so sap doesnt immediately remove stealth, but still gets removed as part of the cast.
-        // Sap - all ranks
-        ApplySpellFix({ 6770, 2070, 11297 }, [](SpellInfo* spellInfo)
-        {
-            spellInfo->AuraInterruptFlags |= SpellAuraInterruptFlags::ActionDelayed;
-        });
-        // Stealth - all ranks
-        ApplySpellFix({ 1784, 1785, 1786, 1787 }, [](SpellInfo* spellInfo)
-        {
-            spellInfo->AuraInterruptFlags |= SpellAuraInterruptFlags::ActionDelayed;
-        });
-    }
-
     for (SpellInfo const& s : mSpellInfoMap)
     {
         SpellInfo* spellInfo = &const_cast<SpellInfo&>(s);
