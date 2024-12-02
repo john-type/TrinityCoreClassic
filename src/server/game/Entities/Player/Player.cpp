@@ -25345,66 +25345,69 @@ bool Player::HasQuestForGO(int32 GOId) const
 
 void Player::UpdateVisibleGameobjectsOrSpellClicks()
 {
-    if (m_clientGUIDs.empty())
-        return;
+    //TODOFROST
+    return;
 
-    UpdateData udata(GetMapId());
-    WorldPacket packet;
-    for (auto itr = m_clientGUIDs.begin(); itr != m_clientGUIDs.end(); ++itr)
-    {
-        if (itr->IsGameObject())
-        {
-            if (GameObject* obj = ObjectAccessor::GetGameObject(*this, *itr))
-            {
-                UF::ObjectData::Base objMask;
-                UF::GameObjectData::Base goMask;
+    //if (m_clientGUIDs.empty())
+    //    return;
 
-                if (m_questObjectiveStatus.find({ QUEST_OBJECTIVE_GAMEOBJECT, int32(obj->GetEntry()) }) != m_questObjectiveStatus.end())
-                    objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
+    //UpdateData udata(GetMapId());
+    //WorldPacket packet;
+    //for (auto itr = m_clientGUIDs.begin(); itr != m_clientGUIDs.end(); ++itr)
+    //{
+    //    if (itr->IsGameObject())
+    //    {
+    //        if (GameObject* obj = ObjectAccessor::GetGameObject(*this, *itr))
+    //        {
+    //            UF::ObjectData::Base objMask;
+    //            UF::GameObjectData::Base goMask;
 
-                switch (obj->GetGoType())
-                {
-                    case GAMEOBJECT_TYPE_QUESTGIVER:
-                    case GAMEOBJECT_TYPE_CHEST:
-                    case GAMEOBJECT_TYPE_GOOBER:
-                    case GAMEOBJECT_TYPE_GENERIC:
-                        if (sObjectMgr->IsGameObjectForQuests(obj->GetEntry()))
-                            objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
-                        break;
-                    default:
-                        break;
-                }
+    //            if (m_questObjectiveStatus.find({ QUEST_OBJECTIVE_GAMEOBJECT, int32(obj->GetEntry()) }) != m_questObjectiveStatus.end())
+    //                objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
 
-                if (objMask.GetChangesMask().IsAnySet() || goMask.GetChangesMask().IsAnySet())
-                    obj->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), goMask.GetChangesMask(), this);
-            }
-        }
-        else if (itr->IsCreatureOrVehicle())
-        {
-            Creature* obj = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, *itr);
-            if (!obj)
-                continue;
+    //            switch (obj->GetGoType())
+    //            {
+    //                case GAMEOBJECT_TYPE_QUESTGIVER:
+    //                case GAMEOBJECT_TYPE_CHEST:
+    //                case GAMEOBJECT_TYPE_GOOBER:
+    //                case GAMEOBJECT_TYPE_GENERIC:
+    //                    if (sObjectMgr->IsGameObjectForQuests(obj->GetEntry()))
+    //                        objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
+    //                    break;
+    //                default:
+    //                    break;
+    //            }
 
-            // check if this unit requires quest specific flags
-            if (!obj->HasNpcFlag(UNIT_NPC_FLAG_SPELLCLICK))
-                continue;
+    //            if (objMask.GetChangesMask().IsAnySet() || goMask.GetChangesMask().IsAnySet())
+    //                obj->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), goMask.GetChangesMask(), this);
+    //        }
+    //    }
+    //    else if (itr->IsCreatureOrVehicle())
+    //    {
+    //        Creature* obj = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, *itr);
+    //        if (!obj)
+    //            continue;
 
-            auto clickBounds = sObjectMgr->GetSpellClickInfoMapBounds(obj->GetEntry());
-            for (auto const& clickPair : clickBounds)
-            {
-                if (sConditionMgr->GetConditionsForSpellClickEvent(obj->GetEntry(), clickPair.second.spellId))
-                {
-                    UF::ObjectData::Base objMask;
-                    UF::UnitData::Base unitMask;
-                    unitMask.MarkChanged(&UF::UnitData::NpcFlags, 0); // NpcFlags[0] has UNIT_NPC_FLAG_SPELLCLICK
-                    obj->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), unitMask.GetChangesMask(), this);
-                    break;
-                }
-            }
-        }
-    }
-    udata.BuildPacket(&packet);
-    SendDirectMessage(&packet);
+    //        // check if this unit requires quest specific flags
+    //        if (!obj->HasNpcFlag(UNIT_NPC_FLAG_SPELLCLICK))
+    //            continue;
+
+    //        auto clickBounds = sObjectMgr->GetSpellClickInfoMapBounds(obj->GetEntry());
+    //        for (auto const& clickPair : clickBounds)
+    //        {
+    //            if (sConditionMgr->GetConditionsForSpellClickEvent(obj->GetEntry(), clickPair.second.spellId))
+    //            {
+    //                UF::ObjectData::Base objMask;
+    //                UF::UnitData::Base unitMask;
+    //                unitMask.MarkChanged(&UF::UnitData::NpcFlags, 0); // NpcFlags[0] has UNIT_NPC_FLAG_SPELLCLICK
+    //                obj->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), unitMask.GetChangesMask(), this);
+    //                break;
+    //            }
+    //        }
+    //    }
+    //}
+    //udata.BuildPacket(&packet);
+    //SendDirectMessage(&packet);
 }
 
 bool Player::HasSummonPending() const
