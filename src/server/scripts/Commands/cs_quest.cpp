@@ -168,9 +168,17 @@ public:
                 }
                 break;
             }
-            case QUEST_OBJECTIVE_CURRENCY:
+            case QUEST_OBJECTIVE_MONSTER:
             {
-                player->ModifyCurrency(obj.ObjectID, obj.Amount, CurrencyGainSource::Cheat);
+                if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(obj.ObjectID))
+                    for (uint16 z = 0; z < obj.Amount; ++z)
+                        player->KilledMonster(creatureInfo, ObjectGuid::Empty);
+                break;
+            }
+            case QUEST_OBJECTIVE_GAMEOBJECT:
+            {
+                for (uint16 z = 0; z < obj.Amount; ++z)
+                    player->KillCreditGO(obj.ObjectID);
                 break;
             }
             case QUEST_OBJECTIVE_MIN_REPUTATION:
@@ -194,11 +202,13 @@ public:
                 player->ModifyMoney(obj.Amount);
                 break;
             }
-            case QUEST_OBJECTIVE_PROGRESS_BAR:
-                // do nothing
+            case QUEST_OBJECTIVE_PLAYERKILLS:
+            {
+                for (uint16 z = 0; z < obj.Amount; ++z)
+                    player->KilledPlayerCredit(ObjectGuid::Empty);
                 break;
+            }
             default:
-                player->UpdateQuestObjectiveProgress(static_cast<QuestObjectiveType>(obj.Type), obj.ObjectID, obj.Amount);
                 break;
         }
     }

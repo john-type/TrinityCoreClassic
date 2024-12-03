@@ -16908,17 +16908,20 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 /*count*/)
     UpdateVisibleGameobjectsOrSpellClicks();
 }
 
-void Player::KilledMonster(Creature const* creature)
+void Player::KilledMonster(CreatureTemplate const* cInfo, ObjectGuid guid)
 {
-    ASSERT(creature);
-
-    CreatureTemplate const* cInfo = creature->GetCreatureTemplate();
-
-    KilledMonsterCredit(cInfo->Entry, creature->GetGUID());
+    ASSERT(cInfo);
+    KilledMonsterCredit(cInfo->Entry, guid);
 
     for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
         if (cInfo->KillCredit[i])
             KilledMonsterCredit(cInfo->KillCredit[i], ObjectGuid::Empty);
+}
+
+void Player::KilledMonster(Creature const* creature)
+{
+    ASSERT(creature);
+    KilledMonster(creature->GetCreatureTemplate(), creature->GetGUID());
 }
 
 void Player::KilledMonsterCredit(uint32 entry, ObjectGuid guid /*= ObjectGuid::Empty*/)
