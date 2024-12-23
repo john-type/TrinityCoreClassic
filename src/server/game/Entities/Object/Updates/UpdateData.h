@@ -25,13 +25,15 @@
 
 class WorldPacket;
 
-enum OBJECT_UPDATE_TYPE
+enum class ObjectUpdateType : uint8
 {
-    UPDATETYPE_VALUES               = 0,
-    UPDATETYPE_CREATE_OBJECT        = 1,
-    UPDATETYPE_CREATE_OBJECT2       = 2,
-    UPDATETYPE_OUT_OF_RANGE_OBJECTS = 3,
+    Values            = 0,
+    CreateObject      = 1,
+    CreateObject2     = 2,
+    OutOfRangeObjects = 3
 };
+
+DEFINE_ENUM_FLAG(ObjectUpdateType);
 
 class UpdateData
 {

@@ -185,8 +185,10 @@ void Player::UpdateSpellDamageAndHealingBonus()
                 negativeMod += aurEff->GetAmount();
             return negativeMod;
         }));
-        SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModDamageDonePos, i),
-            SpellBaseDamageBonusDone(SpellSchoolMask(1 << i)) - m_activePlayerData->ModDamageDoneNeg[i]);
+
+        const auto dmg_done_pos = SpellBaseDamageBonusDone(SpellSchoolMask(1 << i)) - m_activePlayerData->ModDamageDoneNeg[i];
+        SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModDamageDonePos, i), dmg_done_pos);
+        SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, dmg_done_pos);
     }
 
     if (HasAuraType(SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SP_PCT))
@@ -641,17 +643,26 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
     switch (attType)
     {
         case OFF_ATTACK:
-            SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::OffhandCritPercentage),
-                applyCritLimit(GetBaseModValue(OFFHAND_CRIT_PERCENTAGE, FLAT_MOD) + GetBaseModValue(OFFHAND_CRIT_PERCENTAGE, PCT_MOD) + GetRatingBonusValue(CR_CRIT_MELEE)));
+        {
+            const auto crit = applyCritLimit(GetBaseModValue(OFFHAND_CRIT_PERCENTAGE, FLAT_MOD) + GetBaseModValue(OFFHAND_CRIT_PERCENTAGE, PCT_MOD) + GetRatingBonusValue(CR_CRIT_MELEE));
+            SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::OffhandCritPercentage), crit);
+            SetFloatValue(UF::ACTIVE_PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE, crit);
+        }
             break;
         case RANGED_ATTACK:
-            SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::RangedCritPercentage),
-                applyCritLimit(GetBaseModValue(RANGED_CRIT_PERCENTAGE, FLAT_MOD) + GetBaseModValue(RANGED_CRIT_PERCENTAGE, PCT_MOD) + GetRatingBonusValue(CR_CRIT_RANGED)));
+        {
+            const auto crit = applyCritLimit(GetBaseModValue(RANGED_CRIT_PERCENTAGE, FLAT_MOD) + GetBaseModValue(RANGED_CRIT_PERCENTAGE, PCT_MOD) + GetRatingBonusValue(CR_CRIT_RANGED));
+            SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::RangedCritPercentage), crit);
+            SetFloatValue(UF::ACTIVE_PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, crit);
+        }
             break;
         case BASE_ATTACK:
         default:
-            SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::CritPercentage),
-                applyCritLimit(GetBaseModValue(CRIT_PERCENTAGE, FLAT_MOD) + GetBaseModValue(CRIT_PERCENTAGE, PCT_MOD) + GetRatingBonusValue(CR_CRIT_MELEE)));
+        {
+            const auto crit = applyCritLimit(GetBaseModValue(CRIT_PERCENTAGE, FLAT_MOD) + GetBaseModValue(CRIT_PERCENTAGE, PCT_MOD) + GetRatingBonusValue(CR_CRIT_MELEE));
+            SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::CritPercentage), crit);
+            SetFloatValue(UF::ACTIVE_PLAYER_FIELD_CRIT_PERCENTAGE, crit);
+        }
             break;
     }
 }
@@ -674,12 +685,14 @@ void Player::UpdateMastery()
     if (!CanUseMastery())
     {
         SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Mastery), 0.0f);
+        SetFloatValue(UF::ACTIVE_PLAYER_FIELD_MASTERY, 0.0f);
         return;
     }
 
     float value = GetTotalAuraModifier(SPELL_AURA_MASTERY);
     value += GetRatingBonusValue(CR_MASTERY);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Mastery), value);
+    SetFloatValue(UF::ACTIVE_PLAYER_FIELD_MASTERY, value);
 
     ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(GetPrimarySpecialization());
     if (!chrSpec)
@@ -853,7 +866,7 @@ void Player::UpdateSpellCritChance()
     // Store crit value
     for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i) {
         SetFloatValue(UF::ACTIVE_PLAYER_FIELD_SPELL_CRIT_PERCENTAGE1 + i, crit);
-        //SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::SpellCritPercentage, i), crit); 
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::SpellCritPercentage, i), crit); 
     }
 }
 

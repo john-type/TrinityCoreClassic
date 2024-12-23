@@ -42,6 +42,1172 @@ class Unit;
 
 namespace UF
 {
+    enum ObjectFields
+    {
+        OBJECT_FIELD_GUID = 0x000, // Size: 4, Flags: PUBLIC
+        OBJECT_FIELD_ENTRY = 0x004, // Size: 1, Flags: DYNAMIC
+        OBJECT_DYNAMIC_FLAGS = 0x005, // Size: 1, Flags: DYNAMIC, URGENT
+        OBJECT_FIELD_SCALE_X = 0x006, // Size: 1, Flags: PUBLIC
+        OBJECT_END = 0x007,
+    };
+
+    enum ObjectDynamicFields
+    {
+        OBJECT_DYNAMIC_END = 0x000,
+    };
+
+    enum ItemFields
+    {
+        ITEM_START = OBJECT_END,
+        ITEM_FIELD_OWNER = OBJECT_END + 0x000, // Size: 4, Flags: PUBLIC
+        ITEM_FIELD_CONTAINED = OBJECT_END + 0x004, // Size: 4, Flags: PUBLIC
+        ITEM_FIELD_CREATOR = OBJECT_END + 0x008, // Size: 4, Flags: PUBLIC
+        ITEM_FIELD_GIFTCREATOR = OBJECT_END + 0x00C, // Size: 4, Flags: PUBLIC
+        ITEM_FIELD_STACK_COUNT = OBJECT_END + 0x010, // Size: 1, Flags: OWNER
+        ITEM_FIELD_DURATION = OBJECT_END + 0x011, // Size: 1, Flags: OWNER
+        ITEM_FIELD_SPELL_CHARGES = OBJECT_END + 0x012, // Size: 5, Flags: OWNER
+        ITEM_FIELD_FLAGS = OBJECT_END + 0x017, // Size: 1, Flags: PUBLIC
+        ITEM_FIELD_ENCHANTMENT = OBJECT_END + 0x018, // Size: 39, Flags: PUBLIC
+        ITEM_FIELD_PROPERTY_SEED = OBJECT_END + 0x03F, // Size: 1, Flags: PUBLIC
+        ITEM_FIELD_RANDOM_PROPERTIES_ID = OBJECT_END + 0x040, // Size: 1, Flags: PUBLIC
+        ITEM_FIELD_DURABILITY = OBJECT_END + 0x041, // Size: 1, Flags: OWNER
+        ITEM_FIELD_MAXDURABILITY = OBJECT_END + 0x042, // Size: 1, Flags: OWNER
+        ITEM_FIELD_CREATE_PLAYED_TIME = OBJECT_END + 0x043, // Size: 1, Flags: PUBLIC
+        ITEM_FIELD_MODIFIERS_MASK = OBJECT_END + 0x044, // Size: 1, Flags: OWNER
+        ITEM_FIELD_CONTEXT = OBJECT_END + 0x045, // Size: 1, Flags: PUBLIC
+        ITEM_FIELD_ARTIFACT_XP = OBJECT_END + 0x046, // Size: 2, Flags: OWNER
+        ITEM_FIELD_APPEARANCE_MOD_ID = OBJECT_END + 0x048, // Size: 1, Flags: OWNER
+        ITEM_END = OBJECT_END + 0x049,
+    };
+
+    enum ItemDynamicFields
+    {
+        ITEM_DYNAMIC_START = OBJECT_DYNAMIC_END,
+        ITEM_DYNAMIC_FIELD_MODIFIERS = OBJECT_DYNAMIC_END + 0x000, // Flags: OWNER
+        ITEM_DYNAMIC_FIELD_BONUSLIST_IDS = OBJECT_DYNAMIC_END + 0x001, // Flags: OWNER, 0x100
+        ITEM_DYNAMIC_FIELD_ARTIFACT_POWERS = OBJECT_DYNAMIC_END + 0x002, // Flags: OWNER
+        ITEM_DYNAMIC_FIELD_GEMS = OBJECT_DYNAMIC_END + 0x003, // Flags: OWNER
+        ITEM_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x004,
+    };
+
+    enum ContainerFields
+    {
+        CONTAINER_START = ITEM_END,
+        CONTAINER_FIELD_SLOT_1 = ITEM_END + 0x000, // Size: 144, Flags: PUBLIC
+        CONTAINER_FIELD_NUM_SLOTS = ITEM_END + 0x090, // Size: 1, Flags: PUBLIC
+        CONTAINER_END = ITEM_END + 0x091,
+    };
+
+    enum ContainerDynamicFields
+    {
+        CONTAINER_DYNAMIC_END = ITEM_DYNAMIC_END + 0x000,
+    };
+
+    enum UnitFields
+    {
+        UNIT_START = OBJECT_END,
+        UNIT_FIELD_CHARM = OBJECT_END + 0x000, // Size: 4, Flags: PUBLIC
+        UNIT_FIELD_SUMMON = OBJECT_END + 0x004, // Size: 4, Flags: PUBLIC
+        UNIT_FIELD_CRITTER = OBJECT_END + 0x008, // Size: 4, Flags: PRIVATE
+        UNIT_FIELD_CHARMEDBY = OBJECT_END + 0x00C, // Size: 4, Flags: PUBLIC
+        UNIT_FIELD_SUMMONEDBY = OBJECT_END + 0x010, // Size: 4, Flags: PUBLIC
+        UNIT_FIELD_CREATEDBY = OBJECT_END + 0x014, // Size: 4, Flags: PUBLIC
+        UNIT_FIELD_DEMON_CREATOR = OBJECT_END + 0x018, // Size: 4, Flags: PUBLIC
+        UNIT_FIELD_LOOK_AT_CONTROLLER_TARGET = OBJECT_END + 0x01C, // Size: 4, Flags: PUBLIC
+        UNIT_FIELD_TARGET = OBJECT_END + 0x020, // Size: 4, Flags: PUBLIC
+        UNIT_FIELD_BATTLE_PET_COMPANION_GUID = OBJECT_END + 0x024, // Size: 4, Flags: PUBLIC
+        UNIT_FIELD_BATTLE_PET_DB_ID = OBJECT_END + 0x028, // Size: 2, Flags: PUBLIC
+        UNIT_FIELD_CHANNEL_DATA = OBJECT_END + 0x02A, // Size: 2, Flags: PUBLIC, URGENT
+        UNIT_FIELD_SUMMONED_BY_HOME_REALM = OBJECT_END + 0x02C, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_BYTES_0 = OBJECT_END + 0x02D, // Size: 1, Flags: PUBLIC Nested: (Race, ClassId, PlayerClassId, Sex)
+        UNIT_FIELD_DISPLAY_POWER = OBJECT_END + 0x02E, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_OVERRIDE_DISPLAY_POWER_ID = OBJECT_END + 0x02F, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_HEALTH = OBJECT_END + 0x030, // Size: 2, Flags: DYNAMIC
+        UNIT_FIELD_POWER = OBJECT_END + 0x032, // Size: 6, Flags: PUBLIC, URGENT_SELF_ONLY
+        UNIT_FIELD_MAXHEALTH = OBJECT_END + 0x038, // Size: 2, Flags: DYNAMIC
+        UNIT_FIELD_MAXPOWER = OBJECT_END + 0x03A, // Size: 6, Flags: PUBLIC
+        UNIT_FIELD_MOD_POWER_REGEN = OBJECT_END + 0x040, // Size: 6, Flags: PRIVATE, OWNER, UNIT_ALL
+        UNIT_FIELD_LEVEL = OBJECT_END + 0x046, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_EFFECTIVE_LEVEL = OBJECT_END + 0x047, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_CONTENT_TUNING_ID = OBJECT_END + 0x048, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_SCALING_LEVEL_MIN = OBJECT_END + 0x049, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_SCALING_LEVEL_MAX = OBJECT_END + 0x04A, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_SCALING_LEVEL_DELTA = OBJECT_END + 0x04B, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_SCALING_FACTION_GROUP = OBJECT_END + 0x04C, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_SCALING_HEALTH_ITEM_LEVEL_CURVE_ID = OBJECT_END + 0x04D, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_SCALING_DAMAGE_ITEM_LEVEL_CURVE_ID = OBJECT_END + 0x04E, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_FACTIONTEMPLATE = OBJECT_END + 0x04F, // Size: 1, Flags: PUBLIC
+        UNIT_VIRTUAL_ITEM_SLOT_ID = OBJECT_END + 0x050, // Size: 6, Flags: PUBLIC
+        UNIT_FIELD_FLAGS = OBJECT_END + 0x056, // Size: 1, Flags: PUBLIC, URGENT
+        UNIT_FIELD_FLAGS_2 = OBJECT_END + 0x057, // Size: 1, Flags: PUBLIC, URGENT
+        UNIT_FIELD_FLAGS_3 = OBJECT_END + 0x058, // Size: 1, Flags: PUBLIC, URGENT
+        UNIT_FIELD_AURASTATE = OBJECT_END + 0x059, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_BASEATTACKTIME = OBJECT_END + 0x05A, // Size: 2, Flags: PUBLIC
+        UNIT_FIELD_RANGEDATTACKTIME = OBJECT_END + 0x05C, // Size: 1, Flags: PRIVATE
+        UNIT_FIELD_BOUNDINGRADIUS = OBJECT_END + 0x05D, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_COMBATREACH = OBJECT_END + 0x05E, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_DISPLAYID = OBJECT_END + 0x05F, // Size: 1, Flags: DYNAMIC, URGENT
+        UNIT_FIELD_DISPLAY_SCALE = OBJECT_END + 0x060, // Size: 1, Flags: DYNAMIC, URGENT
+        UNIT_FIELD_NATIVEDISPLAYID = OBJECT_END + 0x061, // Size: 1, Flags: PUBLIC, URGENT
+        UNIT_FIELD_NATIVE_X_DISPLAY_SCALE = OBJECT_END + 0x062, // Size: 1, Flags: PUBLIC, URGENT
+        UNIT_FIELD_MOUNTDISPLAYID = OBJECT_END + 0x063, // Size: 1, Flags: PUBLIC, URGENT
+        UNIT_FIELD_MINDAMAGE = OBJECT_END + 0x064, // Size: 1, Flags: PRIVATE, OWNER, SPECIAL_INFO
+        UNIT_FIELD_MAXDAMAGE = OBJECT_END + 0x065, // Size: 1, Flags: PRIVATE, OWNER, SPECIAL_INFO
+        UNIT_FIELD_MINOFFHANDDAMAGE = OBJECT_END + 0x066, // Size: 1, Flags: PRIVATE, OWNER, SPECIAL_INFO
+        UNIT_FIELD_MAXOFFHANDDAMAGE = OBJECT_END + 0x067, // Size: 1, Flags: PRIVATE, OWNER, SPECIAL_INFO
+        UNIT_FIELD_BYTES_1 = OBJECT_END + 0x068, // Size: 1, Flags: PUBLIC Nested: (StandState, PetLoyaltyIndex, VisFlags, AnimTier)
+        UNIT_FIELD_PETNUMBER = OBJECT_END + 0x069, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_PET_NAME_TIMESTAMP = OBJECT_END + 0x06A, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_PETEXPERIENCE = OBJECT_END + 0x06B, // Size: 1, Flags: OWNER
+        UNIT_FIELD_PETNEXTLEVELXP = OBJECT_END + 0x06C, // Size: 1, Flags: OWNER
+        UNIT_MOD_CAST_SPEED = OBJECT_END + 0x06D, // Size: 1, Flags: PUBLIC
+        UNIT_MOD_CAST_HASTE = OBJECT_END + 0x06E, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_MOD_HASTE = OBJECT_END + 0x06F, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_MOD_RANGED_HASTE = OBJECT_END + 0x070, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_MOD_HASTE_REGEN = OBJECT_END + 0x071, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_MOD_TIME_RATE = OBJECT_END + 0x072, // Size: 1, Flags: PUBLIC
+        UNIT_CREATED_BY_SPELL = OBJECT_END + 0x073, // Size: 1, Flags: PUBLIC
+        UNIT_NPC_FLAGS = OBJECT_END + 0x074, // Size: 2, Flags: PUBLIC, DYNAMIC
+        UNIT_NPC_EMOTESTATE = OBJECT_END + 0x076, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_TRAINING_POINTS_TOTAL = OBJECT_END + 0x077, // Size: 1, Flags: OWNER Nested: (TrainingPointsUsed, TrainingPointsTotal)
+        UNIT_FIELD_STAT = OBJECT_END + 0x078, // Size: 5, Flags: PRIVATE, OWNER
+        UNIT_FIELD_POSSTAT = OBJECT_END + 0x07D, // Size: 5, Flags: PRIVATE, OWNER
+        UNIT_FIELD_NEGSTAT = OBJECT_END + 0x082, // Size: 5, Flags: PRIVATE, OWNER
+        UNIT_FIELD_RESISTANCES = OBJECT_END + 0x087, // Size: 7, Flags: PRIVATE, OWNER, SPECIAL_INFO
+        UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE = OBJECT_END + 0x08E, // Size: 7, Flags: PRIVATE, OWNER
+        UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE = OBJECT_END + 0x095, // Size: 7, Flags: PRIVATE, OWNER
+        UNIT_FIELD_BASE_MANA = OBJECT_END + 0x09C, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_BASE_HEALTH = OBJECT_END + 0x09D, // Size: 1, Flags: PRIVATE, OWNER
+        UNIT_FIELD_BYTES_2 = OBJECT_END + 0x09E, // Size: 1, Flags: PUBLIC Nested: (SheatheState, PvpFlags, PetFlags, ShapeshiftForm)
+        UNIT_FIELD_ATTACK_POWER = OBJECT_END + 0x09F, // Size: 1, Flags: PRIVATE, OWNER
+        UNIT_FIELD_ATTACK_POWER_MOD_POS = OBJECT_END + 0x0A0, // Size: 1, Flags: PRIVATE, OWNER
+        UNIT_FIELD_ATTACK_POWER_MOD_NEG = OBJECT_END + 0x0A1, // Size: 1, Flags: PRIVATE, OWNER
+        UNIT_FIELD_ATTACK_POWER_MULTIPLIER = OBJECT_END + 0x0A2, // Size: 1, Flags: PRIVATE, OWNER
+        UNIT_FIELD_RANGED_ATTACK_POWER = OBJECT_END + 0x0A3, // Size: 1, Flags: PRIVATE, OWNER
+        UNIT_FIELD_RANGED_ATTACK_POWER_MOD_POS = OBJECT_END + 0x0A4, // Size: 1, Flags: PRIVATE, OWNER
+        UNIT_FIELD_RANGED_ATTACK_POWER_MOD_NEG = OBJECT_END + 0x0A5, // Size: 1, Flags: PRIVATE, OWNER
+        UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER = OBJECT_END + 0x0A6, // Size: 1, Flags: PRIVATE, OWNER
+        UNIT_FIELD_ATTACK_SPEED_AURA = OBJECT_END + 0x0A7, // Size: 1, Flags: PRIVATE, OWNER
+        UNIT_FIELD_LIFESTEAL = OBJECT_END + 0x0A8, // Size: 1, Flags: PRIVATE, OWNER
+        UNIT_FIELD_MINRANGEDDAMAGE = OBJECT_END + 0x0A9, // Size: 1, Flags: PRIVATE, OWNER
+        UNIT_FIELD_MAXRANGEDDAMAGE = OBJECT_END + 0x0AA, // Size: 1, Flags: PRIVATE, OWNER
+        UNIT_FIELD_POWER_COST_MODIFIER = OBJECT_END + 0x0AB, // Size: 7, Flags: PRIVATE, OWNER
+        UNIT_FIELD_POWER_COST_MULTIPLIER = OBJECT_END + 0x0B2, // Size: 7, Flags: PRIVATE, OWNER
+        UNIT_FIELD_MAXHEALTHMODIFIER = OBJECT_END + 0x0B9, // Size: 1, Flags: PRIVATE, OWNER
+        UNIT_FIELD_HOVERHEIGHT = OBJECT_END + 0x0BA, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_MIN_ITEM_LEVEL_CUTOFF = OBJECT_END + 0x0BB, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_MIN_ITEM_LEVEL = OBJECT_END + 0x0BC, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_MAXITEMLEVEL = OBJECT_END + 0x0BD, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_WILD_BATTLEPET_LEVEL = OBJECT_END + 0x0BE, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_BATTLEPET_COMPANION_NAME_TIMESTAMP = OBJECT_END + 0x0BF, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_INTERACT_SPELLID = OBJECT_END + 0x0C0, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_STATE_SPELL_VISUAL_ID = OBJECT_END + 0x0C1, // Size: 1, Flags: DYNAMIC, URGENT
+        UNIT_FIELD_STATE_ANIM_ID = OBJECT_END + 0x0C2, // Size: 1, Flags: DYNAMIC, URGENT
+        UNIT_FIELD_STATE_ANIM_KIT_ID = OBJECT_END + 0x0C3, // Size: 1, Flags: DYNAMIC, URGENT
+        UNIT_FIELD_STATE_WORLD_EFFECT_ID = OBJECT_END + 0x0C4, // Size: 4, Flags: DYNAMIC, URGENT
+        UNIT_FIELD_SCALE_DURATION = OBJECT_END + 0x0C8, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_LOOKS_LIKE_MOUNT_ID = OBJECT_END + 0x0C9, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_LOOKS_LIKE_CREATURE_ID = OBJECT_END + 0x0CA, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_LOOK_AT_CONTROLLER_ID = OBJECT_END + 0x0CB, // Size: 1, Flags: PUBLIC
+        UNIT_FIELD_GUILD_GUID = OBJECT_END + 0x0CC, // Size: 4, Flags: PUBLIC
+        UNIT_END = OBJECT_END + 0x0D0,
+    };
+
+    enum UnitDynamicFields
+    {
+        UNIT_DYNAMIC_START = OBJECT_DYNAMIC_END,
+        UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS = OBJECT_DYNAMIC_END + 0x000, // Flags: PUBLIC, URGENT
+        UNIT_DYNAMIC_FIELD_WORLD_EFFECTS = OBJECT_DYNAMIC_END + 0x001, // Flags: PUBLIC, URGENT
+        UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS = OBJECT_DYNAMIC_END + 0x002, // Flags: PUBLIC, URGENT
+        UNIT_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x003,
+    };
+
+    enum PlayerFields
+    {
+        PLAYER_START = UNIT_END,
+        PLAYER_DUEL_ARBITER = UNIT_END + 0x000, // Size: 4, Flags: PUBLIC
+        PLAYER_WOW_ACCOUNT = UNIT_END + 0x004, // Size: 4, Flags: PUBLIC
+        PLAYER_LOOT_TARGET_GUID = UNIT_END + 0x008, // Size: 4, Flags: PUBLIC
+        PLAYER_FLAGS = UNIT_END + 0x00C, // Size: 1, Flags: PUBLIC
+        PLAYER_FLAGS_EX = UNIT_END + 0x00D, // Size: 1, Flags: PUBLIC
+        PLAYER_GUILDRANK = UNIT_END + 0x00E, // Size: 1, Flags: PUBLIC
+        PLAYER_GUILDDELETE_DATE = UNIT_END + 0x00F, // Size: 1, Flags: PUBLIC
+        PLAYER_GUILDLEVEL = UNIT_END + 0x010, // Size: 1, Flags: PUBLIC
+        PLAYER_BYTES = UNIT_END + 0x011, // Size: 1, Flags: PUBLIC Nested: (PartyType, NumBankSlots, NativeSex, Inebriation)
+        PLAYER_BYTES_2 = UNIT_END + 0x012, // Size: 1, Flags: PUBLIC Nested: (PvpTitle, ArenaFaction, PvpRank)
+        PLAYER_DUEL_TEAM = UNIT_END + 0x013, // Size: 1, Flags: PUBLIC
+        PLAYER_GUILD_TIMESTAMP = UNIT_END + 0x014, // Size: 1, Flags: PUBLIC
+        PLAYER_QUEST_LOG = UNIT_END + 0x015, // Size: 400, Flags: GROUP_ONLY
+        PLAYER_VISIBLE_ITEM = UNIT_END + 0x1A5, // Size: 38, Flags: PUBLIC
+        PLAYER_CHOSEN_TITLE = UNIT_END + 0x1CB, // Size: 1, Flags: PUBLIC
+        PLAYER_FAKE_INEBRIATION = UNIT_END + 0x1CC, // Size: 1, Flags: PUBLIC
+        PLAYER_FIELD_VIRTUAL_PLAYER_REALM = UNIT_END + 0x1CD, // Size: 1, Flags: PUBLIC
+        PLAYER_FIELD_CURRENT_SPEC_ID = UNIT_END + 0x1CE, // Size: 1, Flags: PUBLIC
+        PLAYER_FIELD_TAXI_MOUNT_ANIM_KIT_ID = UNIT_END + 0x1CF, // Size: 1, Flags: PUBLIC
+        PLAYER_FIELD_AVG_ITEM_LEVEL = UNIT_END + 0x1D0, // Size: 6, Flags: PUBLIC
+        PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY = UNIT_END + 0x1D6, // Size: 1, Flags: PUBLIC
+        PLAYER_FIELD_HONOR_LEVEL = UNIT_END + 0x1D7, // Size: 1, Flags: PUBLIC
+        PLAYER_FIELD_CUSTOMIZATION_CHOICES = UNIT_END + 0x1D8, // Size: 72, Flags: PUBLIC
+        PLAYER_END = UNIT_END + 0x220,
+    };
+
+    enum PlayerDynamicFields
+    {
+        PLAYER_DYNAMIC_START = UNIT_DYNAMIC_END,
+        PLAYER_DYNAMIC_FIELD_ARENA_COOLDOWNS = UNIT_DYNAMIC_END + 0x000, // Flags: PUBLIC
+        PLAYER_DYNAMIC_END = UNIT_DYNAMIC_END + 0x001,
+    };
+
+    enum ActivePlayerFields
+    {
+        ACTIVE_PLAYER_START = PLAYER_END,
+        ACTIVE_PLAYER_FIELD_INV_SLOT_HEAD = PLAYER_END + 0x000, // Size: 516, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_FARSIGHT = PLAYER_END + 0x204, // Size: 4, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_COMBO_TARGET = PLAYER_END + 0x208, // Size: 4, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_SUMMONED_BATTLE_PET_ID = PLAYER_END + 0x20C, // Size: 4, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_KNOWN_TITLES = PLAYER_END + 0x210, // Size: 12, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_COINAGE = PLAYER_END + 0x21C, // Size: 2, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_XP = PLAYER_END + 0x21E, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_NEXT_LEVEL_XP = PLAYER_END + 0x21F, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_TRIAL_XP = PLAYER_END + 0x220, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_SKILL_LINEID = PLAYER_END + 0x221, // Size: 896, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_CHARACTER_POINTS = PLAYER_END + 0x5A1, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_MAX_TALENT_TIERS = PLAYER_END + 0x5A2, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_TRACK_CREATURES = PLAYER_END + 0x5A3, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_TRACK_RESOURCES = PLAYER_END + 0x5A4, // Size: 2, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_EXPERTISE = PLAYER_END + 0x5A6, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_OFFHAND_EXPERTISE = PLAYER_END + 0x5A7, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_RANGED_EXPERTISE = PLAYER_END + 0x5A8, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_COMBAT_RATING_EXPERTISE = PLAYER_END + 0x5A9, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_BLOCK_PERCENTAGE = PLAYER_END + 0x5AA, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_DODGE_PERCENTAGE = PLAYER_END + 0x5AB, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_DODGE_PERCENTAGE_FROM_ATTRIBUTE = PLAYER_END + 0x5AC, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_PARRY_PERCENTAGE = PLAYER_END + 0x5AD, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_PARRY_PERCENTAGE_FROM_ATTRIBUTE = PLAYER_END + 0x5AE, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_CRIT_PERCENTAGE = PLAYER_END + 0x5AF, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_RANGED_CRIT_PERCENTAGE = PLAYER_END + 0x5B0, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE = PLAYER_END + 0x5B1, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_SPELL_CRIT_PERCENTAGE1 = PLAYER_END + 0x5B2, // Size: 7, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_SHIELD_BLOCK = PLAYER_END + 0x5B9, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_MASTERY = PLAYER_END + 0x5BA, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_SPEED = PLAYER_END + 0x5BB, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_AVOIDANCE = PLAYER_END + 0x5BC, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_STURDINESS = PLAYER_END + 0x5BD, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_VERSATILITY = PLAYER_END + 0x5BE, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_VERSATILITY_BONUS = PLAYER_END + 0x5BF, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_PVP_POWER_DAMAGE = PLAYER_END + 0x5C0, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_PVP_POWER_HEALING = PLAYER_END + 0x5C1, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_EXPLORED_ZONES = PLAYER_END + 0x5C2, // Size: 480, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_REST_INFO = PLAYER_END + 0x7A2, // Size: 4, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_POS = PLAYER_END + 0x7A6, // Size: 7, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_NEG = PLAYER_END + 0x7AD, // Size: 7, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_PCT = PLAYER_END + 0x7B4, // Size: 7, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_MOD_HEALING_DONE_POS = PLAYER_END + 0x7BB, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_MOD_HEALING_PCT = PLAYER_END + 0x7BC, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_MOD_HEALING_DONE_PCT = PLAYER_END + 0x7BD, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_MOD_PERIODIC_HEALING_DONE_PERCENT = PLAYER_END + 0x7BE, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS = PLAYER_END + 0x7BF, // Size: 3, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_WEAPON_ATK_SPEED_MULTIPLIERS = PLAYER_END + 0x7C2, // Size: 3, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_MOD_SPELL_POWER_PCT = PLAYER_END + 0x7C5, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_MOD_RESILIENCE_PERCENT = PLAYER_END + 0x7C6, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_OVERRIDE_SPELL_POWER_BY_AP_PCT = PLAYER_END + 0x7C7, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_OVERRIDE_AP_BY_SPELL_POWER_PERCENT = PLAYER_END + 0x7C8, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_MOD_TARGET_RESISTANCE = PLAYER_END + 0x7C9, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_MOD_TARGET_PHYSICAL_RESISTANCE = PLAYER_END + 0x7CA, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_LOCAL_FLAGS = PLAYER_END + 0x7CB, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_BYTES = PLAYER_END + 0x7CC, // Size: 1, Flags: PUBLIC Nested: (GrantableLevels, MultiActionBars, LifetimeMaxRank, NumRespecs)
+        ACTIVE_PLAYER_FIELD_AMMO_ID = PLAYER_END + 0x7CD, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_PVP_MEDALS = PLAYER_END + 0x7CE, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_BUYBACK_PRICE = PLAYER_END + 0x7CF, // Size: 12, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_BUYBACK_TIMESTAMP = PLAYER_END + 0x7DB, // Size: 12, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_BYTES_2 = PLAYER_END + 0x7E7, // Size: 1, Flags: (All) Nested: (TodayHonorableKills, TodayDishonorableKills)
+        ACTIVE_PLAYER_FIELD_BYTES_3 = PLAYER_END + 0x7E8, // Size: 1, Flags: (All) Nested: (YesterdayHonorableKills, YesterdayDishonorableKills)
+        ACTIVE_PLAYER_FIELD_BYTES_4 = PLAYER_END + 0x7E9, // Size: 1, Flags: (All) Nested: (LastWeekHonorableKills, LastWeekDishonorableKills)
+        ACTIVE_PLAYER_FIELD_BYTES_5 = PLAYER_END + 0x7EA, // Size: 1, Flags: (All) Nested: (ThisWeekHonorableKills, ThisWeekDishonorableKills)
+        ACTIVE_PLAYER_FIELD_THIS_WEEK_CONTRIBUTION = PLAYER_END + 0x7EB, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_LIFETIME_HONORABLE_KILLS = PLAYER_END + 0x7EC, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_LIFETIME_DISHONORABLE_KILLS = PLAYER_END + 0x7ED, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_YESTERDAY_CONTRIBUTION = PLAYER_END + 0x7EE, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_LAST_WEEK_CONTRIBUTION = PLAYER_END + 0x7EF, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_LAST_WEEK_RANK = PLAYER_END + 0x7F0, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_WATCHED_FACTION_INDEX = PLAYER_END + 0x7F1, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_COMBAT_RATING = PLAYER_END + 0x7F2, // Size: 32, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_ARENA_TEAM_INFO = PLAYER_END + 0x812, // Size: 72, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_MAX_LEVEL = PLAYER_END + 0x85A, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA = PLAYER_END + 0x85B, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_MAX_CREATURE_SCALING_LEVEL = PLAYER_END + 0x85C, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_NO_REAGENT_COST = PLAYER_END + 0x85D, // Size: 4, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_PET_SPELL_POWER = PLAYER_END + 0x861, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE = PLAYER_END + 0x862, // Size: 2, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_UI_HIT_MODIFIER = PLAYER_END + 0x864, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_UI_SPELL_HIT_MODIFIER = PLAYER_END + 0x865, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_HOME_REALM_TIME_OFFSET = PLAYER_END + 0x866, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_MOD_PET_HASTE = PLAYER_END + 0x867, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_BYTES_6 = PLAYER_END + 0x868, // Size: 1, Flags: PUBLIC Nested: (LocalRegenFlags, AuraVision, NumBackpackSlots)
+        ACTIVE_PLAYER_FIELD_OVERRIDE_SPELLS_ID = PLAYER_END + 0x869, // Size: 1, Flags: PUBLIC, URGENT_SELF_ONLY
+        ACTIVE_PLAYER_FIELD_LFG_BONUS_FACTION_ID = PLAYER_END + 0x86A, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_LOOT_SPEC_ID = PLAYER_END + 0x86B, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_OVERRIDE_ZONE_PVP_TYPE = PLAYER_END + 0x86C, // Size: 1, Flags: PUBLIC, URGENT_SELF_ONLY
+        ACTIVE_PLAYER_FIELD_BAG_SLOT_FLAGS = PLAYER_END + 0x86D, // Size: 4, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_BANK_BAG_SLOT_FLAGS = PLAYER_END + 0x871, // Size: 6, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_QUEST_COMPLETED = PLAYER_END + 0x877, // Size: 1750, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_HONOR = PLAYER_END + 0xF4D, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_HONOR_NEXT_LEVEL = PLAYER_END + 0xF4E, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_PVP_TIER_MAX_FROM_WINS = PLAYER_END + 0xF4F, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_PVP_LAST_WEEKS_TIER_MAX_FROM_WINS = PLAYER_END + 0xF50, // Size: 1, Flags: PUBLIC
+        ACTIVE_PLAYER_FIELD_BYTES_7 = PLAYER_END + 0xF51, // Size: 1, Flags: PUBLIC Nested: (InsertItemsLeftToRight, PvpRankProgress)
+        ACTIVE_PLAYER_END = PLAYER_END + 0xF52,
+    };
+
+    enum ActivePlayerDynamicFields
+    {
+        ACTIVE_PLAYER_DYNAMIC_START = PLAYER_DYNAMIC_END,
+        ACTIVE_PLAYER_DYNAMIC_FIELD_RESEARCH = PLAYER_DYNAMIC_END + 0x000, // Flags: PUBLIC
+        ACTIVE_PLAYER_DYNAMIC_FIELD_RESEARCH_SITES = PLAYER_DYNAMIC_END + 0x001, // Flags: PUBLIC
+        ACTIVE_PLAYER_DYNAMIC_FIELD_RESEARCH_SITE_PROGRESS = PLAYER_DYNAMIC_END + 0x002, // Flags: PUBLIC
+        ACTIVE_PLAYER_DYNAMIC_FIELD_DAILY_QUESTS_COMPLETED = PLAYER_DYNAMIC_END + 0x003, // Flags: PUBLIC
+        ACTIVE_PLAYER_DYNAMIC_FIELD_AVAILABLE_QUEST_LINE_X_QUEST_IDS = PLAYER_DYNAMIC_END + 0x004, // Flags: PUBLIC
+        ACTIVE_PLAYER_DYNAMIC_FIELD_HEIRLOOMS = PLAYER_DYNAMIC_END + 0x005, // Flags: PUBLIC
+        ACTIVE_PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS = PLAYER_DYNAMIC_END + 0x006, // Flags: PUBLIC
+        ACTIVE_PLAYER_DYNAMIC_FIELD_TOYS = PLAYER_DYNAMIC_END + 0x007, // Flags: PUBLIC
+        ACTIVE_PLAYER_DYNAMIC_FIELD_TRANSMOG = PLAYER_DYNAMIC_END + 0x008, // Flags: PUBLIC
+        ACTIVE_PLAYER_DYNAMIC_FIELD_CONDITIONAL_TRANSMOG = PLAYER_DYNAMIC_END + 0x009, // Flags: PUBLIC
+        ACTIVE_PLAYER_DYNAMIC_FIELD_SELF_RES_SPELLS = PLAYER_DYNAMIC_END + 0x00A, // Flags: PUBLIC
+        ACTIVE_PLAYER_DYNAMIC_FIELD_CHARACTER_RESTRICTIONS = PLAYER_DYNAMIC_END + 0x00B, // Flags: PUBLIC
+        ACTIVE_PLAYER_DYNAMIC_FIELD_SPELL_FLAT_MOD_BY_LABEL = PLAYER_DYNAMIC_END + 0x00C, // Flags: PUBLIC
+        ACTIVE_PLAYER_DYNAMIC_FIELD_SPELL_PCT_MOD_BY_LABEL = PLAYER_DYNAMIC_END + 0x00D, // Flags: PUBLIC
+        ACTIVE_PLAYER_DYNAMIC_END = PLAYER_DYNAMIC_END + 0x00E,
+    };
+
+    enum GameObjectFields
+    {
+        GAMEOBJECT_START = OBJECT_END,
+        GAMEOBJECT_FIELD_CREATED_BY = OBJECT_END + 0x000, // Size: 4, Flags: PUBLIC
+        GAMEOBJECT_FIELD_GUILD_GUID = OBJECT_END + 0x004, // Size: 4, Flags: PUBLIC
+        GAMEOBJECT_DISPLAYID = OBJECT_END + 0x008, // Size: 1, Flags: DYNAMIC, URGENT
+        GAMEOBJECT_FLAGS = OBJECT_END + 0x009, // Size: 1, Flags: PUBLIC, URGENT
+        GAMEOBJECT_PARENTROTATION = OBJECT_END + 0x00A, // Size: 4, Flags: PUBLIC
+        GAMEOBJECT_FACTION = OBJECT_END + 0x00E, // Size: 1, Flags: PUBLIC
+        GAMEOBJECT_LEVEL = OBJECT_END + 0x00F, // Size: 1, Flags: PUBLIC
+        GAMEOBJECT_BYTES_1 = OBJECT_END + 0x010, // Size: 1, Flags: PUBLIC, URGENT
+        GAMEOBJECT_SPELL_VISUAL_ID = OBJECT_END + 0x011, // Size: 1, Flags: PUBLIC, DYNAMIC, URGENT
+        GAMEOBJECT_STATE_SPELL_VISUAL_ID = OBJECT_END + 0x012, // Size: 1, Flags: DYNAMIC, URGENT
+        GAMEOBJECT_STATE_ANIM_ID = OBJECT_END + 0x013, // Size: 1, Flags: DYNAMIC, URGENT
+        GAMEOBJECT_STATE_ANIM_KIT_ID = OBJECT_END + 0x014, // Size: 1, Flags: DYNAMIC, URGENT
+        GAMEOBJECT_STATE_WORLD_EFFECT_ID = OBJECT_END + 0x015, // Size: 4, Flags: DYNAMIC, URGENT
+        GAMEOBJECT_FIELD_CUSTOM_PARAM = OBJECT_END + 0x019, // Size: 1, Flags: PUBLIC, URGENT
+        GAMEOBJECT_END = OBJECT_END + 0x01A,
+    };
+
+    enum GameObjectDynamicFields
+    {
+        GAMEOBJECT_DYNAMIC_START = OBJECT_DYNAMIC_END,
+        GAMEOBJECT_DYNAMIC_ENABLE_DOODAD_SETS = OBJECT_DYNAMIC_END + 0x000, // Flags: PUBLIC
+        GAMEOBJECT_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x001,
+    };
+
+    enum DynamicObjectFields
+    {
+        DYNAMICOBJECT_START = OBJECT_END,
+        DYNAMICOBJECT_CASTER = OBJECT_END + 0x000, // Size: 4, Flags: PUBLIC
+        DYNAMICOBJECT_TYPE = OBJECT_END + 0x004, // Size: 1, Flags: PUBLIC
+        DYNAMICOBJECT_SPELL_X_SPELL_VISUAL_ID = OBJECT_END + 0x005, // Size: 1, Flags: PUBLIC
+        DYNAMICOBJECT_SPELLID = OBJECT_END + 0x006, // Size: 1, Flags: PUBLIC
+        DYNAMICOBJECT_RADIUS = OBJECT_END + 0x007, // Size: 1, Flags: PUBLIC
+        DYNAMICOBJECT_CASTTIME = OBJECT_END + 0x008, // Size: 1, Flags: PUBLIC
+        DYNAMICOBJECT_END = OBJECT_END + 0x009,
+    };
+
+    enum DynamicObjectDynamicFields
+    {
+        DYNAMICOBJECT_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x000,
+    };
+
+    enum CorpseFields
+    {
+        CORPSE_START = OBJECT_END,
+        CORPSE_FIELD_OWNER = OBJECT_END + 0x000, // Size: 4, Flags: PUBLIC
+        CORPSE_FIELD_PARTY_GUID = OBJECT_END + 0x004, // Size: 4, Flags: PUBLIC
+        CORPSE_FIELD_GUILD_GUID = OBJECT_END + 0x008, // Size: 4, Flags: PUBLIC
+        CORPSE_FIELD_DISPLAY_ID = OBJECT_END + 0x00C, // Size: 1, Flags: PUBLIC
+        CORPSE_FIELD_ITEMS = OBJECT_END + 0x00D, // Size: 19, Flags: PUBLIC
+        CORPSE_FIELD_BYTES_1 = OBJECT_END + 0x020, // Size: 1, Flags: PUBLIC Nested: (RaceID, Sex, ClassID, Padding)
+        CORPSE_FIELD_FLAGS = OBJECT_END + 0x021, // Size: 1, Flags: PUBLIC
+        CORPSE_FIELD_DYNAMIC_FLAGS = OBJECT_END + 0x022, // Size: 1, Flags: DYNAMIC
+        CORPSE_FIELD_FACTION_TEMPLATE = OBJECT_END + 0x023, // Size: 1, Flags: PUBLIC
+        CORPSE_FIELD_CUSTOMIZATION_CHOICES = OBJECT_END + 0x024, // Size: 72, Flags: PUBLIC
+        CORPSE_END = OBJECT_END + 0x06C,
+    };
+
+    enum CorpseDynamicFields
+    {
+        CORPSE_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x000,
+    };
+
+    enum AreaTriggerFields
+    {
+        AREATRIGGER_START = OBJECT_END,
+        AREATRIGGER_OVERRIDE_SCALE_CURVE = OBJECT_END + 0x000, // Size: 7, Flags: PUBLIC, URGENT
+        AREATRIGGER_EXTRA_SCALE_CURVE = OBJECT_END + 0x007, // Size: 7, Flags: PUBLIC, URGENT
+        AREATRIGGER_CASTER = OBJECT_END + 0x00E, // Size: 4, Flags: PUBLIC
+        AREATRIGGER_DURATION = OBJECT_END + 0x012, // Size: 1, Flags: PUBLIC
+        AREATRIGGER_TIME_TO_TARGET = OBJECT_END + 0x013, // Size: 1, Flags: PUBLIC, URGENT
+        AREATRIGGER_TIME_TO_TARGET_SCALE = OBJECT_END + 0x014, // Size: 1, Flags: PUBLIC, URGENT
+        AREATRIGGER_TIME_TO_TARGET_EXTRA_SCALE = OBJECT_END + 0x015, // Size: 1, Flags: PUBLIC, URGENT
+        AREATRIGGER_SPELLID = OBJECT_END + 0x016, // Size: 1, Flags: PUBLIC
+        AREATRIGGER_SPELL_FOR_VISUALS = OBJECT_END + 0x017, // Size: 1, Flags: PUBLIC
+        AREATRIGGER_SPELL_X_SPELL_VISUAL_ID = OBJECT_END + 0x018, // Size: 1, Flags: PUBLIC
+        AREATRIGGER_BOUNDS_RADIUS_2D = OBJECT_END + 0x019, // Size: 1, Flags: DYNAMIC, URGENT
+        AREATRIGGER_DECAL_PROPERTIES_ID = OBJECT_END + 0x01A, // Size: 1, Flags: PUBLIC
+        AREATRIGGER_CREATING_EFFECT_GUID = OBJECT_END + 0x01B, // Size: 4, Flags: PUBLIC
+        AREATRIGGER_END = OBJECT_END + 0x01F,
+    };
+
+    enum AreaTriggerDynamicFields
+    {
+        AREATRIGGER_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x000,
+    };
+
+    enum SceneObjectFields
+    {
+        SCENEOBJECT_START = OBJECT_END,
+        SCENEOBJECT_FIELD_SCRIPT_PACKAGE_ID = OBJECT_END + 0x000, // Size: 1, Flags: PUBLIC
+        SCENEOBJECT_FIELD_RND_SEED_VAL = OBJECT_END + 0x001, // Size: 1, Flags: PUBLIC
+        SCENEOBJECT_FIELD_CREATEDBY = OBJECT_END + 0x002, // Size: 4, Flags: PUBLIC
+        SCENEOBJECT_FIELD_SCENE_TYPE = OBJECT_END + 0x006, // Size: 1, Flags: PUBLIC
+        SCENEOBJECT_END = OBJECT_END + 0x007,
+    };
+
+    enum SceneObjectDynamicFields
+    {
+        SCENEOBJECT_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x000,
+    };
+
+    enum ConversationFields
+    {
+        CONVERSATION_START = OBJECT_END,
+        CONVERSATION_LAST_LINE_END_TIME = OBJECT_END + 0x000, // Size: 1, Flags: DYNAMIC
+        CONVERSATION_END = OBJECT_END + 0x001,
+    };
+
+    enum ConversationDynamicFields
+    {
+        CONVERSATION_DYNAMIC_FIELD_ACTORS = OBJECT_DYNAMIC_END + 0x000, // Flags: PUBLIC
+        CONVERSATION_DYNAMIC_FIELD_LINES = OBJECT_DYNAMIC_END + 0x001, // Flags: 0x100
+        CONVERSATION_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x002,
+    };
+
+    // Note that the Data structures arent as optimised as the old style or new format
+    // Excess bits are used for the change mask when nested structures are used.
+    // I expect WriteUpdate methods could be improved too.
+
+    struct ObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<UF::OBJECT_END>
+    {
+        Compat::UpdateField<ObjectGuid, UF::OBJECT_FIELD_GUID> GUID;
+        Compat::UpdateField<int32, UF::OBJECT_FIELD_ENTRY> EntryID;
+        struct EntryIDTag : ViewerDependentValueTag<int32> {};
+        Compat::UpdateField<uint32, UF::OBJECT_DYNAMIC_FLAGS> DynamicFlags;
+        struct DynamicFlagsTag : ViewerDependentValueTag<uint32> {};
+        Compat::UpdateField<float, UF::OBJECT_FIELD_SCALE_X> Scale;
+
+        void WriteUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, Object const* owner, Player const* receiver) const;
+        void WriteDynamicUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, Object const* owner, Player const* receiver) const;
+        void ClearChangesMask();
+    };
+
+    struct ItemEnchantment : public IsUpdateFieldStructureTag, public HasChangesMask<3>
+    {
+        Compat::UpdateField<int32, 0> ID;
+        Compat::UpdateField<uint32, 1> Duration;
+        Compat::UpdateField<int16, 2> Charges;
+        Compat::UpdateField<uint16, 2, 2> Inactive;
+
+        void WriteUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, Item const* owner, Player const* receiver) const;
+        void ClearChangesMask();
+    };
+
+    struct ItemMod : public IsUpdateFieldStructureTag
+    {
+        int32 Value;
+        uint8 Type;
+
+        bool operator==(ItemMod const& right) const;
+        bool operator!=(ItemMod const& right) const { return !(*this == right); }
+    };
+
+    struct ItemModList : public IsUpdateFieldStructureTag, public HasChangesMask<1>
+    {
+        DynamicUpdateField<UF::ItemMod, 0, 0> Values;
+    };
+
+    struct ArtifactPower : public IsUpdateFieldStructureTag
+    {
+        int16 ArtifactPowerID;
+        uint8 PurchasedRank;
+        uint8 CurrentRankWithBonus;
+    };
+
+    struct SocketedGem : public IsUpdateFieldStructureTag, public HasChangesMask<20>
+    {
+        Compat::UpdateField<int32, 0> ItemID;
+        Compat::UpdateField<uint8, 1> Context;
+        Compat::UpdateFieldArray<uint16, 16, 2> BonusListIDs;
+    };
+
+
+    struct ItemData : public IsUpdateFieldStructureTag, public HasChangesMask<UF::ITEM_END - UF::ITEM_START>, public Compat::HasDynamicChangesMask<UF::ITEM_DYNAMIC_END - UF::ITEM_DYNAMIC_START>
+    {
+        Compat::UpdateField<ObjectGuid, ITEM_FIELD_OWNER - UF::ITEM_START> Owner;
+        Compat::UpdateField<ObjectGuid, ITEM_FIELD_CONTAINED - UF::ITEM_START> ContainedIn;
+        Compat::UpdateField<ObjectGuid, ITEM_FIELD_CREATOR - UF::ITEM_START> Creator;
+        Compat::UpdateField<ObjectGuid, ITEM_FIELD_GIFTCREATOR - UF::ITEM_START> GiftCreator;
+        Compat::UpdateField<uint32, ITEM_FIELD_STACK_COUNT - UF::ITEM_START> StackCount;
+        Compat::UpdateField<uint32, ITEM_FIELD_DURATION - UF::ITEM_START> Expiration;
+        Compat::UpdateFieldArray<int32, 5, ITEM_FIELD_SPELL_CHARGES - UF::ITEM_START> SpellCharges;
+        Compat::UpdateField<uint32, ITEM_FIELD_FLAGS - UF::ITEM_START> DynamicFlags;
+        Compat::UpdateFieldArray<ItemEnchantment, 13, ITEM_FIELD_ENCHANTMENT - UF::ITEM_START> Enchantment;
+        Compat::UpdateField<int32, ITEM_FIELD_PROPERTY_SEED - UF::ITEM_START> PropertySeed;
+        Compat::UpdateField<int32, ITEM_FIELD_RANDOM_PROPERTIES_ID - UF::ITEM_START> RandomPropertiesID;
+        Compat::UpdateField<uint32, ITEM_FIELD_DURABILITY - UF::ITEM_START> Durability;
+        Compat::UpdateField<uint32, ITEM_FIELD_MAXDURABILITY - UF::ITEM_START> MaxDurability;
+        Compat::UpdateField<uint32, ITEM_FIELD_CREATE_PLAYED_TIME - UF::ITEM_START> CreatePlayedTime;
+        Compat::UpdateField<uint32, ITEM_FIELD_MODIFIERS_MASK - UF::ITEM_START> ModifiersMask;
+        Compat::UpdateField<int32, ITEM_FIELD_CONTEXT - UF::ITEM_START> Context;
+        Compat::UpdateField<uint64, ITEM_FIELD_ARTIFACT_XP - UF::ITEM_START> ArtifactXP;
+        Compat::UpdateField<uint32, ITEM_FIELD_APPEARANCE_MOD_ID - UF::ITEM_START> ItemAppearanceModID;
+
+        //Compat::DynamicUpdateField<ItemMod, ITEM_DYNAMIC_FIELD_MODIFIERS> Modifiers;
+        //Compat::DynamicUpdateField<int32, ITEM_DYNAMIC_FIELD_BONUSLIST_IDS> BonusListIDs;
+        //Compat::DynamicUpdateField<ArtifactPower, ITEM_DYNAMIC_FIELD_ARTIFACT_POWERS> ArtifactPowers;
+        Compat::DynamicUpdateField<SocketedGem, ITEM_DYNAMIC_FIELD_GEMS - UF::ITEM_DYNAMIC_START> Gems;
+
+        Compat::PlaceholderField<int64> CreateTime;
+        Compat::PlaceholderField<uint32> DynamicFlags2;
+        Compat::PlaceholderField<uint16> DEBUGItemLevel;
+
+        Compat::PlaceholderField<UF::ItemModList> Modifiers;
+        Compat::PlaceholderField<std::vector<int32>> BonusListIDs;
+        Compat::PlaceholderFieldDynamic<ArtifactPower> ArtifactPowers;
+
+        void WriteUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, Item const* owner, Player const* receiver) const;
+        void WriteDynamicUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, Item const* owner, Player const* receiver) const;
+        void ClearChangesMask();
+    };
+
+    struct ContainerData : public IsUpdateFieldStructureTag, public HasChangesMask<UF::CONTAINER_END - UF::CONTAINER_START>
+    {
+        Compat::UpdateFieldArray<ObjectGuid, 36, CONTAINER_FIELD_SLOT_1 - UF::CONTAINER_START> Slots;
+        Compat::UpdateField<uint32, CONTAINER_FIELD_NUM_SLOTS - UF::CONTAINER_START> NumSlots;
+
+        void WriteUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, Bag const* owner, Player const* receiver) const;
+        void WriteDynamicUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, Bag const* owner, Player const* receiver) const;
+        void ClearChangesMask();
+    };
+
+
+    struct UnitChannel : public IsUpdateFieldStructureTag
+    {
+        int32 SpellID;
+        int32 SpellXSpellVisualID;
+    };
+
+    struct VisibleItem : public IsUpdateFieldStructureTag
+    {
+        int32 ItemID;
+        uint16 ItemAppearanceModID;
+        uint16 ItemVisual;
+    };
+
+    struct PassiveSpellHistory : public IsUpdateFieldStructureTag
+    {
+        int32 SpellID;
+        int32 AuraSpellID;
+    };
+
+    struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<UF::UNIT_END - UF::UNIT_START>, public Compat::HasDynamicChangesMask<UF::UNIT_DYNAMIC_END - UF::UNIT_DYNAMIC_START>
+    {
+        Compat::UpdateField<ObjectGuid, UNIT_FIELD_CHARM - UNIT_START> Charm;
+        Compat::UpdateField<ObjectGuid, UNIT_FIELD_SUMMON - UNIT_START> Summon;
+        Compat::UpdateField<ObjectGuid, UNIT_FIELD_CRITTER - UNIT_START> Critter;
+        Compat::UpdateField<ObjectGuid, UNIT_FIELD_CHARMEDBY - UNIT_START> CharmedBy;
+        Compat::UpdateField<ObjectGuid, UNIT_FIELD_SUMMONEDBY - UNIT_START> SummonedBy;
+        Compat::UpdateField<ObjectGuid, UNIT_FIELD_CREATEDBY - UNIT_START> CreatedBy;
+        Compat::UpdateField<ObjectGuid, UNIT_FIELD_DEMON_CREATOR - UNIT_START> DemonCreator;
+        Compat::UpdateField<ObjectGuid, UNIT_FIELD_LOOK_AT_CONTROLLER_TARGET - UNIT_START> LookAtControllerTarget;
+        Compat::UpdateField<ObjectGuid, UNIT_FIELD_TARGET - UNIT_START> Target;
+        Compat::UpdateField<ObjectGuid, UNIT_FIELD_BATTLE_PET_COMPANION_GUID - UNIT_START> BattlePetCompanionGUID;
+        Compat::UpdateField<uint64, UNIT_FIELD_BATTLE_PET_DB_ID - UNIT_START> BattlePetDBID;
+        Compat::UpdateField<UF::UnitChannel, UNIT_FIELD_CHANNEL_DATA - UNIT_START> ChannelData;
+        Compat::UpdateField<uint32, UNIT_FIELD_SUMMONED_BY_HOME_REALM - UNIT_START> SummonedByHomeRealm;
+
+        Compat::UpdateField<uint8, UNIT_FIELD_BYTES_0 - UNIT_START, 0> Race;
+        Compat::UpdateField<uint8, UNIT_FIELD_BYTES_0 - UNIT_START, 1> ClassId;
+        Compat::UpdateField<uint8, UNIT_FIELD_BYTES_0 - UNIT_START, 2> PlayerClassId;
+        Compat::UpdateField<uint8, UNIT_FIELD_BYTES_0 - UNIT_START, 3> Sex;
+
+        Compat::UpdateField</*uint8*/ uint32, UNIT_FIELD_DISPLAY_POWER - UNIT_START> DisplayPower;
+        Compat::UpdateField<uint32, UNIT_FIELD_OVERRIDE_DISPLAY_POWER_ID - UNIT_START> OverrideDisplayPowerID;
+        Compat::UpdateField<int64, UNIT_FIELD_HEALTH - UNIT_START> Health;
+        Compat::UpdateFieldArray<int32, 6, UNIT_FIELD_POWER - UNIT_START> Power;
+        Compat::UpdateField<int64, UNIT_FIELD_MAXHEALTH - UNIT_START> MaxHealth;
+        Compat::UpdateFieldArray<int32, 6, UNIT_FIELD_MAXPOWER - UNIT_START> MaxPower;
+        Compat::UpdateFieldArray<float, 6, UNIT_FIELD_MOD_POWER_REGEN - UNIT_START> PowerRegenFlatModifier;
+        Compat::UpdateField<int32, UNIT_FIELD_LEVEL - UNIT_START> Level;
+        Compat::UpdateField<int32, UNIT_FIELD_EFFECTIVE_LEVEL  -UNIT_START> EffectiveLevel;
+        Compat::UpdateField<int32, UNIT_FIELD_CONTENT_TUNING_ID - UNIT_START> ContentTuningID;
+        Compat::UpdateField<int32, UNIT_FIELD_SCALING_LEVEL_MIN - UNIT_START> ScalingLevelMin;
+        Compat::UpdateField<int32, UNIT_FIELD_SCALING_LEVEL_MAX - UNIT_START> ScalingLevelMax;
+        Compat::UpdateField<int32, UNIT_FIELD_SCALING_LEVEL_DELTA - UNIT_START> ScalingLevelDelta;
+        Compat::UpdateField<int32, UNIT_FIELD_SCALING_FACTION_GROUP - UNIT_START> ScalingFactionGroup;
+        Compat::UpdateField<int32, UNIT_FIELD_SCALING_HEALTH_ITEM_LEVEL_CURVE_ID - UNIT_START> ScalingHealthItemLevelCurveID;
+        Compat::UpdateField<int32, UNIT_FIELD_SCALING_DAMAGE_ITEM_LEVEL_CURVE_ID - UNIT_START> ScalingDamageItemLevelCurveID;
+        Compat::UpdateField<int32, UNIT_FIELD_FACTIONTEMPLATE - UNIT_START> FactionTemplate;
+        struct FactionTemplateTag : ViewerDependentValueTag<int32> {};
+        Compat::UpdateFieldArray<UF::VisibleItem, 3, UNIT_VIRTUAL_ITEM_SLOT_ID - UNIT_START> VirtualItems;
+        Compat::UpdateField<uint32, UNIT_FIELD_FLAGS - UNIT_START> Flags;
+        struct FlagsTag : ViewerDependentValueTag<uint32> {};
+        Compat::UpdateField<uint32, UNIT_FIELD_FLAGS_2 - UNIT_START> Flags2;
+        Compat::UpdateField<uint32, UNIT_FIELD_FLAGS_3 - UNIT_START> Flags3;
+        Compat::UpdateField<uint32, UNIT_FIELD_AURASTATE - UNIT_START> AuraState;
+        struct AuraStateTag : ViewerDependentValueTag<uint32> {};
+        Compat::UpdateFieldArray<uint32, 2, UNIT_FIELD_BASEATTACKTIME - UNIT_START> AttackRoundBaseTime;
+        Compat::UpdateField<uint32, UNIT_FIELD_RANGEDATTACKTIME  -UNIT_START> RangedAttackRoundBaseTime;
+        Compat::UpdateField<float, UNIT_FIELD_BOUNDINGRADIUS - UNIT_START> BoundingRadius;
+        Compat::UpdateField<float, UNIT_FIELD_COMBATREACH - UNIT_START> CombatReach;
+        Compat::UpdateField<int32, UNIT_FIELD_DISPLAYID - UNIT_START> DisplayID;
+        struct DisplayIDTag : ViewerDependentValueTag<int32> {};
+        Compat::UpdateField<float, UNIT_FIELD_DISPLAY_SCALE - UNIT_START> DisplayScale;
+        Compat::UpdateField<int32, UNIT_FIELD_NATIVEDISPLAYID - UNIT_START> NativeDisplayID;
+        Compat::UpdateField<float, UNIT_FIELD_NATIVE_X_DISPLAY_SCALE - UNIT_START> NativeXDisplayScale;
+        Compat::UpdateField<int32, UNIT_FIELD_MOUNTDISPLAYID - UNIT_START> MountDisplayID;
+        Compat::UpdateField<float, UNIT_FIELD_MINDAMAGE - UNIT_START> MinDamage;
+        Compat::UpdateField<float, UNIT_FIELD_MAXDAMAGE - UNIT_START> MaxDamage;
+        Compat::UpdateField<float, UNIT_FIELD_MINOFFHANDDAMAGE - UNIT_START> MinOffHandDamage;
+        Compat::UpdateField<float, UNIT_FIELD_MAXOFFHANDDAMAGE - UNIT_START> MaxOffHandDamage;
+
+        Compat::UpdateField<uint8, UNIT_FIELD_BYTES_1 - UNIT_START, 0> StandState;
+        Compat::UpdateField<uint8, UNIT_FIELD_BYTES_1 - UNIT_START, 1> PetTalentPoints;
+        Compat::UpdateField<uint8, UNIT_FIELD_BYTES_1 - UNIT_START, 2> VisFlags;
+        Compat::UpdateField<uint8, UNIT_FIELD_BYTES_1 - UNIT_START, 3> AnimTier;
+
+        Compat::UpdateField<uint32, UNIT_FIELD_PETNUMBER - UNIT_START> PetNumber;
+        Compat::UpdateField<uint32, UNIT_FIELD_PET_NAME_TIMESTAMP - UNIT_START> PetNameTimestamp;
+        Compat::UpdateField<uint32, UNIT_FIELD_PETEXPERIENCE - UNIT_START> PetExperience;
+        Compat::UpdateField<uint32, UNIT_FIELD_PETNEXTLEVELXP - UNIT_START> PetNextLevelExperience;
+        Compat::UpdateField<float, UNIT_MOD_CAST_SPEED - UNIT_START> ModCastingSpeed;
+        Compat::UpdateField<float, UNIT_MOD_CAST_HASTE - UNIT_START> ModSpellHaste;
+        Compat::UpdateField<float, UNIT_FIELD_MOD_HASTE - UNIT_START> ModHaste;
+        Compat::UpdateField<float, UNIT_FIELD_MOD_RANGED_HASTE - UNIT_START> ModRangedHaste;
+        Compat::UpdateField<float, UNIT_FIELD_MOD_HASTE_REGEN - UNIT_START> ModHasteRegen;
+        Compat::UpdateField<float, UNIT_FIELD_MOD_TIME_RATE - UNIT_START> ModTimeRate;
+        Compat::UpdateField<int32, UNIT_CREATED_BY_SPELL - UNIT_START> CreatedBySpell;
+        Compat::UpdateFieldArray<uint32, 2, UNIT_NPC_FLAGS - UNIT_START> NpcFlags;
+        struct NpcFlagsTag : ViewerDependentValueTag<uint32> {};
+        Compat::UpdateField<int32, UNIT_NPC_EMOTESTATE - UNIT_START> EmoteState;
+        Compat::UpdateField<uint16, UNIT_FIELD_TRAINING_POINTS_TOTAL - UNIT_START, 0> TrainingPointsUsed;
+        Compat::UpdateField<uint16, UNIT_FIELD_TRAINING_POINTS_TOTAL - UNIT_START, 2> TrainingPointsTotal;
+        Compat::UpdateFieldArray<int32, 5, UNIT_FIELD_STAT - UNIT_START> Stats;
+        Compat::UpdateFieldArray<int32, 5, UNIT_FIELD_POSSTAT - UNIT_START> StatPosBuff;
+        Compat::UpdateFieldArray<int32, 5, UNIT_FIELD_NEGSTAT - UNIT_START> StatNegBuff;
+        Compat::UpdateFieldArray<int32, 7, UNIT_FIELD_RESISTANCES - UNIT_START> Resistances;
+        Compat::UpdateFieldArray<int32, 7, UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE - UNIT_START> ResistancePosBuff;
+        Compat::UpdateFieldArray<int32, 7, UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE - UNIT_START> ResistanceNegBuff;
+        Compat::UpdateField<int32, UNIT_FIELD_BASE_MANA - UNIT_START> BaseMana;
+        Compat::UpdateField<int32, UNIT_FIELD_BASE_HEALTH - UNIT_START> BaseHealth;
+
+        Compat::UpdateField<uint8, UNIT_FIELD_BYTES_2 - UNIT_START, 0> SheatheState;
+        Compat::UpdateField<uint8, UNIT_FIELD_BYTES_2 - UNIT_START, 1> PvpFlags;
+        struct PvpFlagsTag : ViewerDependentValueTag<uint8> {};
+        Compat::UpdateField<uint8, UNIT_FIELD_BYTES_2 - UNIT_START, 2> PetFlags;
+        Compat::UpdateField<uint8, UNIT_FIELD_BYTES_2 - UNIT_START, 3> ShapeshiftForm;
+
+        Compat::UpdateField<int32, UNIT_FIELD_ATTACK_POWER - UNIT_START> AttackPower;
+        Compat::UpdateField<int32, UNIT_FIELD_ATTACK_POWER_MOD_POS - UNIT_START> AttackPowerModPos;
+        Compat::UpdateField<int32, UNIT_FIELD_ATTACK_POWER_MOD_NEG - UNIT_START> AttackPowerModNeg;
+        Compat::UpdateField<float, UNIT_FIELD_ATTACK_POWER_MULTIPLIER - UNIT_START> AttackPowerMultiplier;
+        Compat::UpdateField<int32, UNIT_FIELD_RANGED_ATTACK_POWER - UNIT_START> RangedAttackPower;
+        Compat::UpdateField<int32, UNIT_FIELD_RANGED_ATTACK_POWER_MOD_POS - UNIT_START> RangedAttackPowerModPos;
+        Compat::UpdateField<int32, UNIT_FIELD_RANGED_ATTACK_POWER_MOD_NEG - UNIT_START> RangedAttackPowerModNeg;
+        Compat::UpdateField<float, UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER - UNIT_START> RangedAttackPowerMultiplier;
+        Compat::UpdateField<int32, UNIT_FIELD_ATTACK_SPEED_AURA - UNIT_START> SetAttackSpeedAura;
+        Compat::UpdateField<float, UNIT_FIELD_LIFESTEAL - UNIT_START> Lifesteal;
+        Compat::UpdateField<float, UNIT_FIELD_MINRANGEDDAMAGE - UNIT_START> MinRangedDamage;
+        Compat::UpdateField<float, UNIT_FIELD_MAXRANGEDDAMAGE - UNIT_START> MaxRangedDamage;
+        Compat::UpdateFieldArray<int32, 7, UNIT_FIELD_POWER_COST_MODIFIER - UNIT_START> PowerCostModifier;
+        Compat::UpdateFieldArray<float, 7, UNIT_FIELD_POWER_COST_MULTIPLIER - UNIT_START> PowerCostMultiplier;
+        Compat::UpdateField<float, UNIT_FIELD_MAXHEALTHMODIFIER - UNIT_START> MaxHealthModifier;
+        Compat::UpdateField<float, UNIT_FIELD_HOVERHEIGHT - UNIT_START> HoverHeight;
+        Compat::UpdateField<int32, UNIT_FIELD_MIN_ITEM_LEVEL_CUTOFF - UNIT_START> MinItemLevelCutoff;
+        Compat::UpdateField<int32, UNIT_FIELD_MIN_ITEM_LEVEL - UNIT_START> MinItemLevel;
+        Compat::UpdateField<int32, UNIT_FIELD_MAXITEMLEVEL - UNIT_START> MaxItemLevel;
+        Compat::UpdateField<int32, UNIT_FIELD_WILD_BATTLEPET_LEVEL - UNIT_START> WildBattlePetLevel;
+        Compat::UpdateField<uint32, UNIT_FIELD_BATTLEPET_COMPANION_NAME_TIMESTAMP - UNIT_START> BattlePetCompanionNameTimestamp;
+        Compat::UpdateField<int32, UNIT_FIELD_INTERACT_SPELLID - UNIT_START> InteractSpellID;
+        Compat::UpdateField<uint32, UNIT_FIELD_STATE_SPELL_VISUAL_ID - UNIT_START> StateSpellVisualID;
+        Compat::UpdateField<uint32, UNIT_FIELD_STATE_ANIM_ID - UNIT_START> StateAnimID;
+        Compat::UpdateField<uint32, UNIT_FIELD_STATE_ANIM_KIT_ID - UNIT_START> StateAnimKitID;
+        Compat::UpdateFieldArray<uint32, 4, UNIT_FIELD_STATE_WORLD_EFFECT_ID - UNIT_START> StateWorldEffectIDs;
+        Compat::UpdateField<int32, UNIT_FIELD_SCALE_DURATION - UNIT_START> ScaleDuration;
+        Compat::UpdateField<int32, UNIT_FIELD_LOOKS_LIKE_MOUNT_ID - UNIT_START> LooksLikeMountID;
+        Compat::UpdateField<int32, UNIT_FIELD_LOOKS_LIKE_CREATURE_ID - UNIT_START> LooksLikeCreatureID;
+        Compat::UpdateField<int32, UNIT_FIELD_LOOK_AT_CONTROLLER_ID - UNIT_START> LookAtControllerID;
+        Compat::UpdateField<ObjectGuid, UNIT_FIELD_GUILD_GUID - UNIT_START> GuildGUID;
+
+        Compat::DynamicUpdateField<UF::PassiveSpellHistory, UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS - UF::UNIT_DYNAMIC_START> PassiveSpells;
+        Compat::DynamicUpdateField<int32, UNIT_DYNAMIC_FIELD_WORLD_EFFECTS - UF::UNIT_DYNAMIC_START> WorldEffects;
+        Compat::DynamicUpdateField<ObjectGuid, UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS - UF::UNIT_DYNAMIC_START> ChannelObjects;
+
+
+        Compat::PlaceholderField<uint32> StateWorldEffectsQuestObjectiveID;
+        Compat::PlaceholderField<int32> CosmeticMountDisplayID;
+        Compat::PlaceholderField<int32> MainHandWeaponAttackPower;
+        Compat::PlaceholderField<int32> OffHandWeaponAttackPower;
+        Compat::PlaceholderField<int32> RangedWeaponAttackPower;
+        Compat::PlaceholderField<float> ManaCostModifierModifier;
+        Compat::PlaceholderField<int32> AzeriteItemLevel;
+        Compat::PlaceholderField<int32> SpellOverrideNameID;
+        Compat::PlaceholderField<int32> TaxiNodesID;
+        Compat::PlaceholderField<ObjectGuid> SkinningOwnerGUID;
+        Compat::PlaceholderFieldArray<float, 6> PowerRegenInterruptedFlatModifier;
+        Compat::PlaceholderFieldArray<int32, 7> BonusResistanceMods;
+        
+
+        void WriteUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, Unit const* owner, Player const* receiver) const;
+        void WriteDynamicUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, Unit const* owner, Player const* receiver) const;
+        void ClearChangesMask();
+    };
+
+    struct ChrCustomizationChoice : public IsUpdateFieldStructureTag
+    {
+        uint32 ChrCustomizationOptionID;
+        uint32 ChrCustomizationChoiceID;
+    };
+
+    struct QuestLog : public IsUpdateFieldStructureTag, public HasChangesMask<16>
+    {
+        Compat::UpdateField<int32, 0> QuestID;
+        Compat::UpdateField<uint32, 1> StateFlags;
+        Compat::UpdateFieldArray<uint16, 24, 2> ObjectiveProgress;
+        Compat::UpdateField<uint32, 14> EndTime;
+        Compat::UpdateField<uint32, 15> AcceptTime;
+
+        void WriteUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, Player const* owner, Player const* receiver) const;
+        void ClearChangesMask();
+    };
+
+    struct ArenaCooldown : public IsUpdateFieldStructureTag, public HasChangesMask<9>
+    {
+        //UNCONFIRMED
+        UpdateField<int32, 0, 1> SpellID;
+        UpdateField<int32, 0, 2> Charges;
+        UpdateField<int32, 0, 3> Unk254;
+        UpdateField<uint32, 0, 4> Flags;
+        UpdateField<uint32, 0, 5> StartTime;
+        UpdateField<uint32, 0, 6> EndTime;
+        UpdateField<uint32, 0, 7> NextChargeTime;
+        UpdateField<uint8, 0, 8> MaxCharges;
+    };
+
+
+    struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<UF::PLAYER_END - UF::PLAYER_START>, public Compat::HasDynamicChangesMask<UF::PLAYER_DYNAMIC_END - UF::PLAYER_DYNAMIC_START>
+    {
+        Compat::UpdateField<ObjectGuid, PLAYER_DUEL_ARBITER - PLAYER_START> DuelArbiter;
+        Compat::UpdateField<ObjectGuid, PLAYER_WOW_ACCOUNT - PLAYER_START> WowAccount;
+        Compat::UpdateField<ObjectGuid, PLAYER_LOOT_TARGET_GUID - PLAYER_START> LootTargetGUID;
+        Compat::UpdateField<uint32, PLAYER_FLAGS - PLAYER_START> PlayerFlags;
+        Compat::UpdateField<uint32, PLAYER_FLAGS_EX - PLAYER_START> PlayerFlagsEx;
+        Compat::UpdateField<uint32, PLAYER_GUILDRANK - PLAYER_START> GuildRankID;
+        Compat::UpdateField<uint32, PLAYER_GUILDDELETE_DATE - PLAYER_START> GuildDeleteDate;
+        Compat::UpdateField<int32, PLAYER_GUILDLEVEL - PLAYER_START> GuildLevel;
+        Compat::UpdateField<uint8, PLAYER_BYTES - PLAYER_START, 0> PartyType;
+        Compat::UpdateField<uint8, PLAYER_BYTES - PLAYER_START, 1> NumBankSlots;
+        Compat::UpdateField<uint8, PLAYER_BYTES - PLAYER_START, 2> NativeSex;
+        Compat::UpdateField<uint8, PLAYER_BYTES - PLAYER_START, 3> Inebriation;
+        Compat::UpdateField<uint8, PLAYER_BYTES_2 - PLAYER_START, 0> PvpTitle;
+        Compat::UpdateField<uint8, PLAYER_BYTES_2 - PLAYER_START, 1> ArenaFaction;
+        Compat::UpdateField<uint8, PLAYER_BYTES_2 - PLAYER_START, 2> PvpRank;
+        Compat::UpdateField<uint8, PLAYER_BYTES_2 - PLAYER_START, 3> Padding1;
+        Compat::UpdateField<uint32, PLAYER_DUEL_TEAM - PLAYER_START> DuelTeam;
+        Compat::UpdateField<int32, PLAYER_GUILD_TIMESTAMP - PLAYER_START> GuildTimeStamp;
+        Compat::UpdateFieldArray<UF::QuestLog, 25, PLAYER_QUEST_LOG - PLAYER_START> QuestLog;
+        Compat::UpdateFieldArray<UF::VisibleItem, 19, PLAYER_VISIBLE_ITEM -PLAYER_START> VisibleItems;
+        Compat::UpdateField<int32, PLAYER_CHOSEN_TITLE - PLAYER_START> PlayerTitle;
+        Compat::UpdateField<int32, PLAYER_FAKE_INEBRIATION - PLAYER_START> FakeInebriation;
+        Compat::UpdateField<uint32, PLAYER_FIELD_VIRTUAL_PLAYER_REALM - PLAYER_START> VirtualPlayerRealm;
+        Compat::UpdateField<uint32, PLAYER_FIELD_CURRENT_SPEC_ID - PLAYER_START> CurrentSpecID;
+        Compat::UpdateField<int32, PLAYER_FIELD_TAXI_MOUNT_ANIM_KIT_ID - PLAYER_START> TaxiMountAnimKitID;
+        Compat::UpdateFieldArray<float, 6, PLAYER_FIELD_AVG_ITEM_LEVEL - PLAYER_START> AvgItemLevel;
+        Compat::UpdateField</*uint8*/ uint32, PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY - PLAYER_START> CurrentBattlePetBreedQuality;
+        Compat::UpdateField<int32, PLAYER_FIELD_HONOR_LEVEL - PLAYER_START> HonorLevel;
+        Compat::UpdateFieldArray<UF::ChrCustomizationChoice, 32, PLAYER_FIELD_CUSTOMIZATION_CHOICES - PLAYER_START> Customizations;
+        
+        Compat::DynamicUpdateField<UF::ArenaCooldown, PLAYER_DYNAMIC_FIELD_ARENA_COOLDOWNS - UF::PLAYER_DYNAMIC_START> ArenaCooldowns;
+
+
+        void WriteUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, Player const* owner, Player const* receiver) const;
+        void WriteDynamicUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, Player const* owner, Player const* receiver) const;
+        void ClearChangesMask();
+    };
+
+    struct SkillInfo : public IsUpdateFieldStructureTag, public HasChangesMask<897>
+    {
+        Compat::UpdateFieldArray<uint16, 256, 0> SkillLineID;
+        Compat::UpdateFieldArray<uint16, 256, 128> SkillStep;
+        Compat::UpdateFieldArray<uint16, 256, 256> SkillRank;
+        Compat::UpdateFieldArray<uint16, 256, 384> SkillStartingRank;
+        Compat::UpdateFieldArray<uint16, 256, 512> SkillMaxRank;
+        Compat::UpdateFieldArray<int16, 256, 640> SkillTempBonus;
+        Compat::UpdateFieldArray<uint16, 256, 768> SkillPermBonus;
+
+        void WriteUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, Player const* owner, Player const* receiver) const;
+        void ClearChangesMask();
+    };
+
+    struct RestInfo : public IsUpdateFieldStructureTag
+    {
+        uint32 Threshold;
+        uint32 StateID;
+    };
+
+    struct PVPInfo : public IsUpdateFieldStructureTag, public HasChangesMask<12>
+    {
+        Compat::UpdateField<uint32, 0> WeeklyPlayed;
+        Compat::UpdateField<uint32, 1> WeeklyWon;
+        Compat::UpdateField<uint32, 2> SeasonPlayed;
+        Compat::UpdateField<uint32, 3> SeasonWon;
+        Compat::UpdateField<uint32, 4> Rating;
+        Compat::UpdateField<uint32, 5> WeeklyBestRating;
+        Compat::UpdateField<uint32, 6> SeasonBestRating;
+        Compat::UpdateField<uint32, 7> PvpTierID;
+        Compat::UpdateField<uint32, 8> WeeklyBestWinPvpTierID;
+        Compat::UpdateField<uint32, 9> Field_28;
+        Compat::UpdateField<uint32, 10> Field_2C;
+        Compat::UpdateField<uint32, 11> Disqualified;
+
+        void WriteUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, Player const* owner, Player const* receiver) const;
+        void ClearChangesMask();
+    };
+
+    struct CharacterRestriction : public IsUpdateFieldStructureTag
+    {
+        int32 Field_0;
+        int32 Field_4;
+        int32 Field_8;
+        uint32 Type;
+
+        bool operator==(CharacterRestriction const& right) const;
+        bool operator!=(CharacterRestriction const& right) const { return !(*this == right); }
+    };
+
+    struct SpellPctModByLabel : public IsUpdateFieldStructureTag
+    {
+        int32 ModIndex;
+        float ModifierValue;
+        int32 LabelID;
+
+        bool operator==(SpellPctModByLabel const& right) const;
+        bool operator!=(SpellPctModByLabel const& right) const { return !(*this == right); }
+    };
+
+    struct SpellFlatModByLabel : public IsUpdateFieldStructureTag
+    {
+        int32 ModIndex;
+        int32 ModifierValue;
+        int32 LabelID;
+
+        bool operator==(SpellFlatModByLabel const& right) const;
+        bool operator!=(SpellFlatModByLabel const& right) const { return !(*this == right); }
+    };
+
+    struct Research : public IsUpdateFieldStructureTag
+    {
+        int16 ResearchProjectID;
+
+        bool operator==(Research const& right) const;
+        bool operator!=(Research const& right) const { return !(*this == right); }
+    };
+
+    struct ReplayedQuest : public IsUpdateFieldStructureTag, public HasChangesMask<3>
+    {
+        //UNCONFIRMED
+        UpdateField<int32, 0, 1> QuestID;
+        UpdateField<uint32, 0, 2> ReplayTime;
+    };
+
+    struct QuestSession : public IsUpdateFieldStructureTag, public HasChangesMask<878>
+    {
+        //UNCONFIRMED
+        UpdateField<ObjectGuid, 0, 1> Owner;
+        UpdateFieldArray<uint64, 875, 2, 3> QuestCompleted;
+    };
+
+    struct GlyphInfo : public IsUpdateFieldStructureTag, public HasChangesMask<3>
+    {
+        //UNCONFIRMED
+        UpdateField<uint32, 0, 1> GlyphSlot;
+        UpdateField<uint32, 0, 2> Glyph;
+    };
+
+    struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<UF::ACTIVE_PLAYER_END - UF::ACTIVE_PLAYER_START>, public Compat::HasDynamicChangesMask<ACTIVE_PLAYER_DYNAMIC_END - UF::ACTIVE_PLAYER_DYNAMIC_START>
+    {
+        Compat::UpdateFieldArray<ObjectGuid, 129, ACTIVE_PLAYER_FIELD_INV_SLOT_HEAD - ACTIVE_PLAYER_START> InvSlots;
+        Compat::UpdateField<ObjectGuid, ACTIVE_PLAYER_FIELD_FARSIGHT - ACTIVE_PLAYER_START> FarsightObject;
+        Compat::UpdateField<ObjectGuid, ACTIVE_PLAYER_FIELD_COMBO_TARGET - ACTIVE_PLAYER_START> ComboTarget;
+        Compat::UpdateField<ObjectGuid, ACTIVE_PLAYER_FIELD_SUMMONED_BATTLE_PET_ID - ACTIVE_PLAYER_START> SummonedBattlePetGUID;
+        Compat::UpdateFieldArray<uint64, 6, ACTIVE_PLAYER_FIELD_KNOWN_TITLES - ACTIVE_PLAYER_START> KnownTitles;
+        Compat::UpdateField<uint64, ACTIVE_PLAYER_FIELD_COINAGE - ACTIVE_PLAYER_START> Coinage;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_XP - ACTIVE_PLAYER_START> XP;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_NEXT_LEVEL_XP - ACTIVE_PLAYER_START> NextLevelXP;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_TRIAL_XP - ACTIVE_PLAYER_START> TrialXP;
+        Compat::UpdateField<UF::SkillInfo, ACTIVE_PLAYER_FIELD_SKILL_LINEID - ACTIVE_PLAYER_START> Skill;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_CHARACTER_POINTS - ACTIVE_PLAYER_START> CharacterPoints;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_MAX_TALENT_TIERS - ACTIVE_PLAYER_START> MaxTalentTiers;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_TRACK_CREATURES - ACTIVE_PLAYER_START> TrackCreatureMask;
+        Compat::UpdateFieldArray<uint32, 2, ACTIVE_PLAYER_FIELD_TRACK_RESOURCES - ACTIVE_PLAYER_START> TrackResourceMask;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_EXPERTISE - ACTIVE_PLAYER_START> MainhandExpertise;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_OFFHAND_EXPERTISE - ACTIVE_PLAYER_START> OffhandExpertise;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_RANGED_EXPERTISE - ACTIVE_PLAYER_START> RangedExpertise;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_COMBAT_RATING_EXPERTISE - ACTIVE_PLAYER_START> CombatRatingExpertise;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_BLOCK_PERCENTAGE - ACTIVE_PLAYER_START> BlockPercentage;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_DODGE_PERCENTAGE - ACTIVE_PLAYER_START> DodgePercentage;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_DODGE_PERCENTAGE_FROM_ATTRIBUTE - ACTIVE_PLAYER_START> DodgePercentageFromAttribute;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_PARRY_PERCENTAGE - ACTIVE_PLAYER_START> ParryPercentage;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_PARRY_PERCENTAGE_FROM_ATTRIBUTE - ACTIVE_PLAYER_START> ParryPercentageFromAttribute;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_CRIT_PERCENTAGE - ACTIVE_PLAYER_START> CritPercentage;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_RANGED_CRIT_PERCENTAGE - ACTIVE_PLAYER_START> RangedCritPercentage;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE - ACTIVE_PLAYER_START> OffhandCritPercentage;
+        Compat::UpdateFieldArray<float, 7, ACTIVE_PLAYER_FIELD_SPELL_CRIT_PERCENTAGE1 - ACTIVE_PLAYER_START> SpellCritPercentage;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_SHIELD_BLOCK - ACTIVE_PLAYER_START> ShieldBlock;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_MASTERY - ACTIVE_PLAYER_START> Mastery;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_SPEED - ACTIVE_PLAYER_START> Speed;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_AVOIDANCE - ACTIVE_PLAYER_START> Avoidance;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_STURDINESS - ACTIVE_PLAYER_START> Sturdiness;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_VERSATILITY - ACTIVE_PLAYER_START> Versatility;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_VERSATILITY_BONUS - ACTIVE_PLAYER_START> VersatilityBonus;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_PVP_POWER_DAMAGE - ACTIVE_PLAYER_START> PvpPowerDamage;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_PVP_POWER_HEALING - ACTIVE_PLAYER_START> PvpPowerHealing;
+        Compat::UpdateFieldArray<uint64, 240, ACTIVE_PLAYER_FIELD_EXPLORED_ZONES - ACTIVE_PLAYER_START> ExploredZones;
+        Compat::UpdateFieldArray<UF::RestInfo, 2, ACTIVE_PLAYER_FIELD_REST_INFO - ACTIVE_PLAYER_START> RestInfo;
+        Compat::UpdateFieldArray<int32, 7, ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_POS - ACTIVE_PLAYER_START> ModDamageDonePos;
+        Compat::UpdateFieldArray<int32, 7, ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_NEG - ACTIVE_PLAYER_START> ModDamageDoneNeg;
+        Compat::UpdateFieldArray<float, 7, ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_PCT - ACTIVE_PLAYER_START> ModDamageDonePercent;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_MOD_HEALING_DONE_POS - ACTIVE_PLAYER_START> ModHealingDonePos;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_MOD_HEALING_PCT - ACTIVE_PLAYER_START> ModHealingPercent;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_MOD_HEALING_DONE_PCT - ACTIVE_PLAYER_START> ModHealingDonePercent;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_MOD_PERIODIC_HEALING_DONE_PERCENT - ACTIVE_PLAYER_START> ModPeriodicHealingDonePercent;
+        Compat::UpdateFieldArray<float, 3, ACTIVE_PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS - ACTIVE_PLAYER_START> WeaponDmgMultipliers;
+        Compat::UpdateFieldArray<float, 3, ACTIVE_PLAYER_FIELD_WEAPON_ATK_SPEED_MULTIPLIERS - ACTIVE_PLAYER_START> WeaponAtkSpeedMultipliers;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_MOD_SPELL_POWER_PCT - ACTIVE_PLAYER_START> ModSpellPowerPercent;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_MOD_RESILIENCE_PERCENT - ACTIVE_PLAYER_START> ModResiliencePercent;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_OVERRIDE_SPELL_POWER_BY_AP_PCT - ACTIVE_PLAYER_START> OverrideSpellPowerByAPPercent;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_OVERRIDE_AP_BY_SPELL_POWER_PERCENT - ACTIVE_PLAYER_START> OverrideAPBySpellPowerPercent;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_MOD_TARGET_RESISTANCE - ACTIVE_PLAYER_START> ModTargetResistance;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_MOD_TARGET_PHYSICAL_RESISTANCE - ACTIVE_PLAYER_START> ModTargetPhysicalResistance;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_LOCAL_FLAGS - ACTIVE_PLAYER_START> LocalFlags;
+        Compat::UpdateField<uint8, ACTIVE_PLAYER_FIELD_BYTES - ACTIVE_PLAYER_START, 0> GrantableLevels;
+        Compat::UpdateField<uint8, ACTIVE_PLAYER_FIELD_BYTES - ACTIVE_PLAYER_START, 1> MultiActionBars;
+        Compat::UpdateField<uint8, ACTIVE_PLAYER_FIELD_BYTES - ACTIVE_PLAYER_START, 2> LifetimeMaxRank;
+        Compat::UpdateField<uint8, ACTIVE_PLAYER_FIELD_BYTES - ACTIVE_PLAYER_START, 3> NumRespecs;
+        Compat::UpdateField<uint32, ACTIVE_PLAYER_FIELD_AMMO_ID - ACTIVE_PLAYER_START> AmmoID;
+        Compat::UpdateField<uint32, ACTIVE_PLAYER_FIELD_PVP_MEDALS - ACTIVE_PLAYER_START> PvpMedals;
+        Compat::UpdateFieldArray<uint32, 12, ACTIVE_PLAYER_FIELD_BUYBACK_PRICE - ACTIVE_PLAYER_START> BuybackPrice;
+        Compat::UpdateFieldArray<uint32, 12, ACTIVE_PLAYER_FIELD_BUYBACK_TIMESTAMP - ACTIVE_PLAYER_START> BuybackTimestamp;
+        Compat::UpdateField<uint16, ACTIVE_PLAYER_FIELD_BYTES_2  -ACTIVE_PLAYER_START> TodayHonorableKills;
+        Compat::UpdateField<uint16, ACTIVE_PLAYER_FIELD_BYTES_2 - ACTIVE_PLAYER_START, 2> TodayDishonorableKills;
+        Compat::UpdateField<uint16, ACTIVE_PLAYER_FIELD_BYTES_3 - ACTIVE_PLAYER_START> YesterdayHonorableKills;
+        Compat::UpdateField<uint16, ACTIVE_PLAYER_FIELD_BYTES_3 - ACTIVE_PLAYER_START, 2> YesterdayDishonorableKills;
+        Compat::UpdateField<uint16, ACTIVE_PLAYER_FIELD_BYTES_4 - ACTIVE_PLAYER_START> LastWeekHonorableKills;
+        Compat::UpdateField<uint16, ACTIVE_PLAYER_FIELD_BYTES_4 - ACTIVE_PLAYER_START, 2> LastWeekDishonorableKills;
+        Compat::UpdateField<uint16, ACTIVE_PLAYER_FIELD_BYTES_5 - ACTIVE_PLAYER_START> ThisWeekHonorableKills;
+        Compat::UpdateField<uint16, ACTIVE_PLAYER_FIELD_BYTES_5 - ACTIVE_PLAYER_START, 2> ThisWeekDishonorableKills;
+        Compat::UpdateField<uint32, ACTIVE_PLAYER_FIELD_THIS_WEEK_CONTRIBUTION - ACTIVE_PLAYER_START> ThisWeekHonorContribution;
+        Compat::UpdateField<uint32, ACTIVE_PLAYER_FIELD_LIFETIME_HONORABLE_KILLS - ACTIVE_PLAYER_START> LifetimeHonorableKills;
+        Compat::UpdateField<uint32, ACTIVE_PLAYER_FIELD_LIFETIME_DISHONORABLE_KILLS - ACTIVE_PLAYER_START> LifetimeDishonorableKills;
+        Compat::UpdateField<uint32, ACTIVE_PLAYER_FIELD_YESTERDAY_CONTRIBUTION - ACTIVE_PLAYER_START> YesterdayHonorContribution;
+        Compat::UpdateField<uint32, ACTIVE_PLAYER_FIELD_YESTERDAY_CONTRIBUTION - ACTIVE_PLAYER_START> LastWeekHonorContribution;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_LAST_WEEK_RANK - ACTIVE_PLAYER_START> LastWeekPvpRank;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_WATCHED_FACTION_INDEX - ACTIVE_PLAYER_START> WatchedFactionIndex;
+        Compat::UpdateFieldArray<int32, 32, ACTIVE_PLAYER_FIELD_COMBAT_RATING - ACTIVE_PLAYER_START> CombatRatings;
+        Compat::UpdateFieldArray<UF::PVPInfo, 6, ACTIVE_PLAYER_FIELD_ARENA_TEAM_INFO - ACTIVE_PLAYER_START> PvpInfo;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_MAX_LEVEL - ACTIVE_PLAYER_START> MaxLevel;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA - ACTIVE_PLAYER_START> ScalingPlayerLevelDelta;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_MAX_CREATURE_SCALING_LEVEL - ACTIVE_PLAYER_START> MaxCreatureScalingLevel;
+        Compat::UpdateFieldArray<uint32, 4, ACTIVE_PLAYER_FIELD_NO_REAGENT_COST - ACTIVE_PLAYER_START> NoReagentCostMask;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_PET_SPELL_POWER - ACTIVE_PLAYER_START> PetSpellPower;
+        Compat::UpdateFieldArray<int32, 2, ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE - ACTIVE_PLAYER_START> ProfessionSkillLine;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_UI_HIT_MODIFIER - ACTIVE_PLAYER_START> UiHitModifier;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_UI_SPELL_HIT_MODIFIER - ACTIVE_PLAYER_START> UiSpellHitModifier;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_HOME_REALM_TIME_OFFSET - ACTIVE_PLAYER_START> HomeRealmTimeOffset;
+        Compat::UpdateField<float, ACTIVE_PLAYER_FIELD_MOD_PET_HASTE - ACTIVE_PLAYER_START> ModPetHaste;
+        Compat::UpdateField<uint8, ACTIVE_PLAYER_FIELD_BYTES_6 - ACTIVE_PLAYER_START, 0> LocalRegenFlags;
+        Compat::UpdateField<uint8, ACTIVE_PLAYER_FIELD_BYTES_6 - ACTIVE_PLAYER_START, 1> AuraVision;
+        Compat::UpdateField<uint8, ACTIVE_PLAYER_FIELD_BYTES_6 - ACTIVE_PLAYER_START, 2> NumBackpackSlots;
+        Compat::UpdateField<uint8, ACTIVE_PLAYER_FIELD_BYTES_6 - ACTIVE_PLAYER_START, 3> Padding1;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_OVERRIDE_SPELLS_ID - ACTIVE_PLAYER_START> OverrideSpellsID;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_LFG_BONUS_FACTION_ID - ACTIVE_PLAYER_START> LfgBonusFactionID;
+        Compat::UpdateField<uint32, ACTIVE_PLAYER_FIELD_LOOT_SPEC_ID - ACTIVE_PLAYER_START> LootSpecID;
+        Compat::UpdateField<uint32, ACTIVE_PLAYER_FIELD_OVERRIDE_ZONE_PVP_TYPE - ACTIVE_PLAYER_START> OverrideZonePVPType;
+        Compat::UpdateFieldArray<uint32, 4, ACTIVE_PLAYER_FIELD_BAG_SLOT_FLAGS -ACTIVE_PLAYER_START> BagSlotFlags;
+        Compat::UpdateFieldArray<uint32, 6, ACTIVE_PLAYER_FIELD_BANK_BAG_SLOT_FLAGS - ACTIVE_PLAYER_START> BankBagSlotFlags;
+        Compat::UpdateFieldArray<uint64, 875, ACTIVE_PLAYER_FIELD_QUEST_COMPLETED - ACTIVE_PLAYER_START> QuestCompleted;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_HONOR - ACTIVE_PLAYER_START> Honor;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_HONOR_NEXT_LEVEL - ACTIVE_PLAYER_START> HonorNextLevel;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_PVP_TIER_MAX_FROM_WINS - ACTIVE_PLAYER_START> PvpTierMaxFromWins;
+        Compat::UpdateField<int32, ACTIVE_PLAYER_FIELD_PVP_LAST_WEEKS_TIER_MAX_FROM_WINS - ACTIVE_PLAYER_START> PvpLastWeeksTierMaxFromWins;
+        Compat::UpdateField<bool, ACTIVE_PLAYER_FIELD_BYTES_7 - ACTIVE_PLAYER_START, 0> InsertItemsLeftToRight;
+        Compat::UpdateField<uint8, ACTIVE_PLAYER_FIELD_BYTES_7 - ACTIVE_PLAYER_START, 1> PvpRankProgress;
+        Compat::UpdateField<uint8, ACTIVE_PLAYER_FIELD_BYTES_7 - ACTIVE_PLAYER_START, 2> Padding2;
+        Compat::UpdateField<uint8, ACTIVE_PLAYER_FIELD_BYTES_7 - ACTIVE_PLAYER_START, 3> Padding3;
+
+        Compat::PlaceholderFieldArray<DynamicUpdateFieldBase<UF::Research>, 1> Research;
+        Compat::DynamicUpdateField<uint16, ACTIVE_PLAYER_DYNAMIC_FIELD_RESEARCH_SITES - ACTIVE_PLAYER_DYNAMIC_START> ResearchSites;
+        Compat::DynamicUpdateField<uint32, ACTIVE_PLAYER_DYNAMIC_FIELD_RESEARCH_SITE_PROGRESS - ACTIVE_PLAYER_DYNAMIC_START> ResearchSiteProgress;
+        Compat::DynamicUpdateField<int32, ACTIVE_PLAYER_DYNAMIC_FIELD_DAILY_QUESTS_COMPLETED - ACTIVE_PLAYER_DYNAMIC_START> DailyQuestsCompleted;
+        Compat::DynamicUpdateField<int32, ACTIVE_PLAYER_DYNAMIC_FIELD_AVAILABLE_QUEST_LINE_X_QUEST_IDS - ACTIVE_PLAYER_DYNAMIC_START> AvailableQuestLineXQuestIDs;
+        Compat::DynamicUpdateField<int32, ACTIVE_PLAYER_DYNAMIC_FIELD_HEIRLOOMS - ACTIVE_PLAYER_DYNAMIC_START> Heirlooms;
+        Compat::DynamicUpdateField<uint32, ACTIVE_PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS - ACTIVE_PLAYER_DYNAMIC_START> HeirloomFlags;
+        Compat::DynamicUpdateField<int32, ACTIVE_PLAYER_DYNAMIC_FIELD_TOYS - ACTIVE_PLAYER_DYNAMIC_START> Toys;
+        Compat::DynamicUpdateField<uint32, ACTIVE_PLAYER_DYNAMIC_FIELD_TRANSMOG - ACTIVE_PLAYER_DYNAMIC_START> Transmog;
+        Compat::DynamicUpdateField<int32, ACTIVE_PLAYER_DYNAMIC_FIELD_CONDITIONAL_TRANSMOG - ACTIVE_PLAYER_DYNAMIC_START> ConditionalTransmog;
+        Compat::DynamicUpdateField<int32, ACTIVE_PLAYER_DYNAMIC_FIELD_SELF_RES_SPELLS - ACTIVE_PLAYER_DYNAMIC_START> SelfResSpells;
+        Compat::DynamicUpdateField<UF::CharacterRestriction, ACTIVE_PLAYER_DYNAMIC_FIELD_CHARACTER_RESTRICTIONS - ACTIVE_PLAYER_DYNAMIC_START> CharacterRestrictions;
+        Compat::DynamicUpdateField<UF::SpellFlatModByLabel, ACTIVE_PLAYER_DYNAMIC_FIELD_SPELL_FLAT_MOD_BY_LABEL - ACTIVE_PLAYER_DYNAMIC_START> SpellFlatModByLabel;
+        Compat::DynamicUpdateField<UF::SpellPctModByLabel, ACTIVE_PLAYER_DYNAMIC_FIELD_SPELL_PCT_MOD_BY_LABEL - ACTIVE_PLAYER_DYNAMIC_START> SpellPctModByLabel;
+
+        void WriteUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, Player const* owner, Player const* receiver) const;
+        void WriteDynamicUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, Player const* owner, Player const* receiver) const;
+        void ClearChangesMask();
+
+        Compat::PlaceholderField<bool> BackpackAutoSortDisabled;
+        Compat::PlaceholderField<bool> BankAutoSortDisabled;
+        Compat::PlaceholderField<bool> SortBagsRightToLeft;
+       
+
+        Compat::PlaceholderFieldDynamic<uint32> ToyFlags;
+        Compat::PlaceholderFieldDynamic<UF::ReplayedQuest> ReplayedQuests;
+        Compat::PlaceholderFieldDynamic<int32> DisabledSpells;
+       
+
+        Compat::PlaceholderField<float> ShieldBlockCritPercentage;
+        Compat::PlaceholderField<int32> PvpRewardAchieved;
+        Compat::PlaceholderField<int32> PvpLastWeeksRewardAchieved;
+        Compat::PlaceholderField<int32> PvpLastWeeksRewardClaimed;
+        Compat::PlaceholderField<uint8> NumBankSlots;
+        OptionalUpdateField<UF::QuestSession, 98, 103> QuestSession;    //TODOFROST placeholder
+
+    };
+
+    struct GameObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<UF::GAMEOBJECT_END - UF::GAMEOBJECT_START>, public Compat::HasDynamicChangesMask<UF::GAMEOBJECT_DYNAMIC_END - UF::GAMEOBJECT_DYNAMIC_START>
+    {
+        Compat::UpdateField<ObjectGuid, GAMEOBJECT_FIELD_CREATED_BY - GAMEOBJECT_START> CreatedBy;
+        Compat::UpdateField<ObjectGuid, GAMEOBJECT_FIELD_GUILD_GUID - GAMEOBJECT_START> GuildGUID;
+        Compat::UpdateField<int32, GAMEOBJECT_DISPLAYID - GAMEOBJECT_START> DisplayID;
+        Compat::UpdateField<uint32, GAMEOBJECT_FLAGS - GAMEOBJECT_START> Flags;
+        struct FlagsTag : ViewerDependentValueTag<uint32> {};
+        Compat::UpdateField<QuaternionData, GAMEOBJECT_PARENTROTATION - GAMEOBJECT_START> ParentRotation;
+        Compat::UpdateField<int32, GAMEOBJECT_FACTION -GAMEOBJECT_START> FactionTemplate;
+        Compat::UpdateField<int32, GAMEOBJECT_LEVEL - GAMEOBJECT_START> Level;
+        Compat::UpdateField<int8, GAMEOBJECT_BYTES_1 - GAMEOBJECT_START, 0> State;
+        Compat::UpdateField<int8, GAMEOBJECT_BYTES_1 - GAMEOBJECT_START, 1> TypeID;
+        Compat::UpdateField<uint8, GAMEOBJECT_BYTES_1 - GAMEOBJECT_START, 2> ArtKit;
+        Compat::UpdateField<uint8, GAMEOBJECT_BYTES_1 - GAMEOBJECT_START, 3> PercentHealth;
+        Compat::UpdateField<uint32, GAMEOBJECT_SPELL_VISUAL_ID - GAMEOBJECT_START> SpellVisualID;
+        Compat::UpdateField<uint32, GAMEOBJECT_STATE_SPELL_VISUAL_ID - GAMEOBJECT_START> StateSpellVisualID;
+        Compat::UpdateField<uint32, GAMEOBJECT_STATE_ANIM_ID - GAMEOBJECT_START> SpawnTrackingStateAnimID;
+        Compat::UpdateField<uint32, GAMEOBJECT_STATE_ANIM_KIT_ID - GAMEOBJECT_START> SpawnTrackingStateAnimKitID;
+        Compat::UpdateFieldArray<uint32, 4, GAMEOBJECT_STATE_WORLD_EFFECT_ID - GAMEOBJECT_START> StateWorldEffectIDs;
+        Compat::UpdateField<uint32, GAMEOBJECT_FIELD_CUSTOM_PARAM - GAMEOBJECT_START> CustomParam;
+        
+        Compat::DynamicUpdateField<int32, GAMEOBJECT_DYNAMIC_ENABLE_DOODAD_SETS - UF::GAMEOBJECT_DYNAMIC_END> EnableDoodadSets;
+
+        void WriteUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, GameObject const* owner, Player const* receiver) const;
+        void WriteDynamicUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, GameObject const* owner, Player const* receiver) const;
+        void ClearChangesMask();
+    };
+
+    struct DynamicObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<UF::DYNAMICOBJECT_END - UF::DYNAMICOBJECT_START>
+    {
+        Compat::UpdateField<ObjectGuid, DYNAMICOBJECT_CASTER - DYNAMICOBJECT_START> Caster;
+        Compat::UpdateField</*uint8*/ uint32, DYNAMICOBJECT_TYPE -DYNAMICOBJECT_START> Type;
+        Compat::UpdateField<int32, DYNAMICOBJECT_SPELL_X_SPELL_VISUAL_ID - DYNAMICOBJECT_START> SpellXSpellVisualID;
+        Compat::UpdateField<int32, DYNAMICOBJECT_SPELLID - DYNAMICOBJECT_START> SpellID;
+        Compat::UpdateField<float, DYNAMICOBJECT_RADIUS - DYNAMICOBJECT_START> Radius;
+        Compat::UpdateField<uint32, DYNAMICOBJECT_CASTTIME - DYNAMICOBJECT_START> CastTime;
+
+        void WriteUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, DynamicObject const* owner, Player const* receiver) const;
+        void WriteDynamicUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, DynamicObject const* owner, Player const* receiver) const;
+        void ClearChangesMask();
+    };
+
+    struct CorpseData : public IsUpdateFieldStructureTag, public HasChangesMask<UF::CORPSE_END - UF::CORPSE_START>
+    {
+        Compat::UpdateField<ObjectGuid, CORPSE_FIELD_OWNER - CORPSE_START> Owner;
+        Compat::UpdateField<ObjectGuid, CORPSE_FIELD_PARTY_GUID - CORPSE_START> PartyGUID;
+        Compat::UpdateField<ObjectGuid, CORPSE_FIELD_GUILD_GUID - CORPSE_START> GuildGUID;
+        Compat::UpdateField<uint32, CORPSE_FIELD_DISPLAY_ID - CORPSE_START> DisplayID;
+        Compat::UpdateFieldArray<uint32, 19, CORPSE_FIELD_ITEMS - CORPSE_START> Items;
+        Compat::UpdateField<uint8, CORPSE_FIELD_BYTES_1 - CORPSE_START, 0> RaceID;
+        Compat::UpdateField<uint8, CORPSE_FIELD_BYTES_1 - CORPSE_START, 1> Sex;
+        Compat::UpdateField<uint8, CORPSE_FIELD_BYTES_1 - CORPSE_START, 2> Class;
+        Compat::UpdateField<uint8, CORPSE_FIELD_BYTES_1 - CORPSE_START, 3> Padding1;
+        Compat::UpdateField<uint32, CORPSE_FIELD_FLAGS - CORPSE_START> Flags;
+        Compat::UpdateField<uint32, CORPSE_FIELD_DYNAMIC_FLAGS - CORPSE_START> DynamicFlags;
+        Compat::UpdateField<int32, CORPSE_FIELD_FACTION_TEMPLATE - CORPSE_START> FactionTemplate;
+        Compat::UpdateFieldArray<ChrCustomizationChoice, 36, CORPSE_FIELD_CUSTOMIZATION_CHOICES - CORPSE_START> Customizations;
+
+        void WriteUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, Corpse const* owner, Player const* receiver) const;
+        void WriteDynamicUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, Corpse const* owner, Player const* receiver) const;
+        void ClearChangesMask();
+    };
+
+    struct ScaleCurve : public IsUpdateFieldStructureTag, public HasChangesMask<17>
+    {
+        Compat::UpdateField<bool, 0, 0> OverrideActive;
+        Compat::UpdateField<uint8, 0, 1> Padding1;
+        Compat::UpdateField<uint8, 0, 2> Padding2;
+        Compat::UpdateField<uint8, 0, 3> Padding3;
+        Compat::UpdateField<uint32, 1> StartTimeOffset;
+        Compat::UpdateField<uint32, 2> ParameterCurve;
+        Compat::UpdateFieldArray<TaggedPosition<Position::XY>, 2, 3> Points;
+        void WriteUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, AreaTrigger const* owner, Player const* receiver) const;
+        void ClearChangesMask();
+    };
+
+    struct VisualAnim : public IsUpdateFieldStructureTag
+    {
+        bool Field_C;
+        uint32 AnimationDataID;
+        uint32 AnimKitID;
+        uint32 AnimProgress;
+    };
+
+    struct AreaTriggerData : public IsUpdateFieldStructureTag, public HasChangesMask<UF::AREATRIGGER_END - UF::AREATRIGGER_START>
+    {
+        Compat::UpdateField<UF::ScaleCurve, UF::AREATRIGGER_OVERRIDE_SCALE_CURVE - UF::AREATRIGGER_START> OverrideScaleCurve;
+        Compat::UpdateField<UF::ScaleCurve, UF::AREATRIGGER_EXTRA_SCALE_CURVE - UF::AREATRIGGER_START> ExtraScaleCurve;
+        Compat::UpdateField<ObjectGuid, UF::AREATRIGGER_CASTER - UF::AREATRIGGER_START> Caster;
+        Compat::UpdateField<uint32, UF::AREATRIGGER_DURATION - UF::AREATRIGGER_START> Duration;
+        Compat::UpdateField<uint32, UF::AREATRIGGER_TIME_TO_TARGET - UF::AREATRIGGER_START> TimeToTarget;
+        Compat::UpdateField<uint32, UF::AREATRIGGER_TIME_TO_TARGET_SCALE - UF::AREATRIGGER_START> TimeToTargetScale;
+        Compat::UpdateField<uint32, UF::AREATRIGGER_TIME_TO_TARGET_EXTRA_SCALE - UF::AREATRIGGER_START> TimeToTargetExtraScale;
+        Compat::UpdateField<int32, UF::AREATRIGGER_SPELLID - UF::AREATRIGGER_START> SpellID;
+        Compat::UpdateField<int32, UF::AREATRIGGER_SPELL_FOR_VISUALS - UF::AREATRIGGER_START> SpellForVisuals;
+        Compat::UpdateField<int32, UF::AREATRIGGER_SPELL_X_SPELL_VISUAL_ID - UF::AREATRIGGER_START> SpellXSpellVisualID;
+        Compat::UpdateField<float, UF::AREATRIGGER_BOUNDS_RADIUS_2D - UF::AREATRIGGER_START> BoundsRadius2D;
+        Compat::UpdateField<uint32, UF::AREATRIGGER_DECAL_PROPERTIES_ID - UF::AREATRIGGER_START> DecalPropertiesID;
+        Compat::UpdateField<ObjectGuid, UF::AREATRIGGER_CREATING_EFFECT_GUID - UF::AREATRIGGER_START> CreatingEffectGUID;
+
+        Compat::PlaceholderField<ObjectGuid> Field_80;
+        Compat::PlaceholderField<UF::VisualAnim> VisualAnim;
+
+        void WriteUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, AreaTrigger const* owner, Player const* receiver) const;
+        void WriteDynamicUpdate(ObjectUpdateType updatetype, ByteBuffer& data, Compat::UpdateMaskBuf& mask, Compat::UpdateFlags const& flags, AreaTrigger const* owner, Player const* receiver) const;
+        void ClearChangesMask();
+    };
+
+
+
+/*
 struct ObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<4>
 {
     UpdateField<int32, 0, 1> EntryID;
@@ -191,7 +1357,7 @@ struct PassiveSpellHistory : public IsUpdateFieldStructureTag
     bool operator!=(PassiveSpellHistory const& right) const { return !(*this == right); }
 };
 
-struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<192>
+struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<193>
 {
     UpdateField<std::vector<uint32>, 0, 1> StateWorldEffectIDs;
     DynamicUpdateField<UF::PassiveSpellHistory, 0, 2> PassiveSpells;
@@ -344,6 +1510,7 @@ struct ChrCustomizationChoice : public IsUpdateFieldStructureTag
     bool operator!=(ChrCustomizationChoice const& right) const { return !(*this == right); }
 };
 
+
 struct QuestLog : public IsUpdateFieldStructureTag, public HasChangesMask<30>
 {
     UpdateField<int32, 0, 1> QuestID;
@@ -373,48 +1540,38 @@ struct ArenaCooldown : public IsUpdateFieldStructureTag, public HasChangesMask<9
     void ClearChangesMask();
 };
 
-struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<192>
+
+struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<80>
 {
-    DynamicUpdateField<UF::ChrCustomizationChoice, 0, 1> Customizations;    //TODOFROST fix fields.
-    UpdateField<bool, 0, 1> HasQuestSession;
-    UpdateField<bool, 0, 2> HasLevelLink;
-    DynamicUpdateField<UF::QuestLog, 0, 3> QuestSessionQuestLog;
-    DynamicUpdateField<UF::ArenaCooldown, 0, 4> ArenaCooldowns;
-    UpdateField<ObjectGuid, 0, 5> DuelArbiter;
-    UpdateField<ObjectGuid, 0, 6> WowAccount;
-    UpdateField<ObjectGuid, 0, 7> LootTargetGUID;
-    UpdateField<uint32, 0, 8> PlayerFlags;
-    UpdateField<uint32, 0, 9> PlayerFlagsEx;
-    UpdateField<uint32, 0, 10> GuildRankID;
-    UpdateField<uint32, 0, 11> GuildDeleteDate;
-    UpdateField<int32, 0, 12> GuildLevel;
-    UpdateField<uint8, 0, 13> SkinID;
-    UpdateField<uint8, 0, 14> FaceID;
-    UpdateField<uint8, 0, 15> HairStyleID;
-    UpdateField<uint8, 0, 16> HairColorID;
-    UpdateField<uint8, 0, 17> FacialHairStyleID;
-    UpdateField<uint8, 0, 18> PartyType;
-    UpdateField<uint8, 0, 19> NativeSex;
-    UpdateField<uint8, 0, 20> Inebriation;
-    UpdateField<uint8, 0, 21> PvpTitle;
-    UpdateField<uint8, 0, 22> ArenaFaction;
-    UpdateField<uint32, 0, 23> DuelTeam;
-    UpdateField<int32, 0, 24> GuildTimeStamp;
-    UpdateField<int32, 0, 25> PlayerTitle;
-    UpdateField<int32, 0, 26> FakeInebriation;
-    UpdateField<uint32, 0, 27> VirtualPlayerRealm;
-    UpdateField<uint32, 0, 28> CurrentSpecID;
-    UpdateField<int32, 0, 29> TaxiMountAnimKitID;
-    UpdateField<uint8, 0, 30> CurrentBattlePetBreedQuality;
-    UpdateField<int32, 0, 31> HonorLevel;
-    UpdateField<int32, 32, 33> Field_B0;
-    UpdateField<int32, 32, 34> Field_B4;
-    UpdateField<ObjectGuid, 32, 35> Field_F8;
-    UpdateField<int32, 32, 36> Field_108;
-    UpdateFieldArray<uint8, 3, 37, 38> CustomDisplayOption;
-    UpdateFieldArray<UF::QuestLog, 125, 41, 42> QuestLog;
-    UpdateFieldArray<UF::VisibleItem, 19, 167, 168> VisibleItems;
-    UpdateFieldArray<float, 4, 187, 188> AvgItemLevel;
+    DynamicUpdateField<UF::ChrCustomizationChoice, 0, 1> Customizations;
+    DynamicUpdateField<UF::ArenaCooldown, 0, 2> ArenaCooldowns;
+    UpdateField<ObjectGuid, 0, 3> DuelArbiter;
+    UpdateField<ObjectGuid, 0, 4> WowAccount;
+    UpdateField<ObjectGuid, 0, 5> LootTargetGUID;
+    UpdateField<uint32, 0, 6> PlayerFlags;
+    UpdateField<uint32, 0, 7> PlayerFlagsEx;
+    UpdateField<uint32, 0, 8> GuildRankID;
+    UpdateField<uint32, 0, 9> GuildDeleteDate;
+    UpdateField<int32, 0, 10> GuildLevel;
+    UpdateField<uint8, 0, 11> PartyType;
+    UpdateField<uint8, 0, 12> NativeSex;
+    UpdateField<uint8, 0, 13> Inebriation;
+    UpdateField<uint8, 0, 14> PvpTitle;
+    UpdateField<uint8, 0, 15> ArenaFaction;
+    UpdateField<uint8, 0, 16> PvpRank;
+    UpdateField<uint8, 0, 17> Unk254;
+    UpdateField<uint32, 0, 18> DuelTeam;
+    UpdateField<int32, 0, 19> GuildTimeStamp;
+    UpdateField<int32, 0, 20> PlayerTitle;
+    UpdateField<int32, 0, 21> FakeInebriation;
+    UpdateField<uint32, 0, 22> VirtualPlayerRealm;
+    UpdateField<uint32, 0, 23> CurrentSpecID;
+    UpdateField<int32, 0, 24> TaxiMountAnimKitID;
+    UpdateField<uint8, 0, 25> CurrentBattlePetBreedQuality;
+    UpdateField<int32, 0, 26> HonorLevel;
+    UpdateFieldArray<UF::QuestLog, 25, 27, 28> QuestLog;
+    UpdateFieldArray<UF::VisibleItem, 19, 53, 54> VisibleItems;
+    UpdateFieldArray<float, 6, 73, 74> AvgItemLevel;
 
     void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
@@ -647,7 +1804,7 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
     UpdateField<int32, 98, 101> PvpLastWeeksRewardClaimed;
     UpdateField<uint8, 98, 102> NumBankSlots;
     OptionalUpdateField<UF::QuestSession, 98, 103> QuestSession;
-    UpdateFieldArray<ObjectGuid, 199, 104, 105> InvSlots;
+    UpdateFieldArray<ObjectGuid, 129, 104, 105> InvSlots;
     UpdateFieldArray<uint32, 2, 304, 305> TrackResourceMask;
     UpdateFieldArray<uint64, 240, 307, 308> ExploredZones;
     UpdateFieldArray<UF::RestInfo, 2, 788, 789> RestInfo;
@@ -783,6 +1940,8 @@ struct AreaTriggerData : public IsUpdateFieldStructureTag, public HasChangesMask
     void WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, AreaTrigger const* owner, Player const* receiver) const;
     void ClearChangesMask();
 };
+*/
+
 
 struct SceneObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<5>
 {
@@ -839,447 +1998,6 @@ struct ConversationData : public IsUpdateFieldStructureTag, public HasChangesMas
     void WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Conversation const* owner, Player const* receiver) const;
     void ClearChangesMask();
 };
-
-enum ObjectFields
-{
-    OBJECT_FIELD_GUID = 0x000, // Size: 4, Flags: PUBLIC
-    OBJECT_FIELD_ENTRY = 0x004, // Size: 1, Flags: DYNAMIC
-    OBJECT_DYNAMIC_FLAGS = 0x005, // Size: 1, Flags: DYNAMIC, URGENT
-    OBJECT_FIELD_SCALE_X = 0x006, // Size: 1, Flags: PUBLIC
-    OBJECT_END = 0x007,
-};
-
-enum ObjectDynamicFields
-{
-    OBJECT_DYNAMIC_END = 0x000,
-};
-
-enum ItemFields
-{
-    ITEM_FIELD_OWNER = OBJECT_END + 0x000, // Size: 4, Flags: PUBLIC
-    ITEM_FIELD_CONTAINED = OBJECT_END + 0x004, // Size: 4, Flags: PUBLIC
-    ITEM_FIELD_CREATOR = OBJECT_END + 0x008, // Size: 4, Flags: PUBLIC
-    ITEM_FIELD_GIFTCREATOR = OBJECT_END + 0x00C, // Size: 4, Flags: PUBLIC
-    ITEM_FIELD_STACK_COUNT = OBJECT_END + 0x010, // Size: 1, Flags: OWNER
-    ITEM_FIELD_DURATION = OBJECT_END + 0x011, // Size: 1, Flags: OWNER
-    ITEM_FIELD_SPELL_CHARGES = OBJECT_END + 0x012, // Size: 5, Flags: OWNER
-    ITEM_FIELD_FLAGS = OBJECT_END + 0x017, // Size: 1, Flags: PUBLIC
-    ITEM_FIELD_ENCHANTMENT = OBJECT_END + 0x018, // Size: 39, Flags: PUBLIC
-    ITEM_FIELD_PROPERTY_SEED = OBJECT_END + 0x03F, // Size: 1, Flags: PUBLIC
-    ITEM_FIELD_RANDOM_PROPERTIES_ID = OBJECT_END + 0x040, // Size: 1, Flags: PUBLIC
-    ITEM_FIELD_DURABILITY = OBJECT_END + 0x041, // Size: 1, Flags: OWNER
-    ITEM_FIELD_MAXDURABILITY = OBJECT_END + 0x042, // Size: 1, Flags: OWNER
-    ITEM_FIELD_CREATE_PLAYED_TIME = OBJECT_END + 0x043, // Size: 1, Flags: PUBLIC
-    ITEM_FIELD_MODIFIERS_MASK = OBJECT_END + 0x044, // Size: 1, Flags: OWNER
-    ITEM_FIELD_CONTEXT = OBJECT_END + 0x045, // Size: 1, Flags: PUBLIC
-    ITEM_FIELD_ARTIFACT_XP = OBJECT_END + 0x046, // Size: 2, Flags: OWNER
-    ITEM_FIELD_APPEARANCE_MOD_ID = OBJECT_END + 0x048, // Size: 1, Flags: OWNER
-    ITEM_END = OBJECT_END + 0x049,
-};
-
-enum ItemDynamicFields
-{
-    ITEM_DYNAMIC_FIELD_MODIFIERS = OBJECT_DYNAMIC_END + 0x000, // Flags: OWNER
-    ITEM_DYNAMIC_FIELD_BONUSLIST_IDS = OBJECT_DYNAMIC_END + 0x001, // Flags: OWNER, 0x100
-    ITEM_DYNAMIC_FIELD_ARTIFACT_POWERS = OBJECT_DYNAMIC_END + 0x002, // Flags: OWNER
-    ITEM_DYNAMIC_FIELD_GEMS = OBJECT_DYNAMIC_END + 0x003, // Flags: OWNER
-    ITEM_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x004,
-};
-
-enum ContainerFields
-{
-    CONTAINER_FIELD_SLOT_1 = ITEM_END + 0x000, // Size: 144, Flags: PUBLIC
-    CONTAINER_FIELD_NUM_SLOTS = ITEM_END + 0x090, // Size: 1, Flags: PUBLIC
-    CONTAINER_END = ITEM_END + 0x091,
-};
-
-enum ContainerDynamicFields
-{
-    CONTAINER_DYNAMIC_END = ITEM_DYNAMIC_END + 0x000,
-};
-
-enum UnitFields
-{
-    UNIT_FIELD_CHARM = OBJECT_END + 0x000, // Size: 4, Flags: PUBLIC
-    UNIT_FIELD_SUMMON = OBJECT_END + 0x004, // Size: 4, Flags: PUBLIC
-    UNIT_FIELD_CRITTER = OBJECT_END + 0x008, // Size: 4, Flags: PRIVATE
-    UNIT_FIELD_CHARMEDBY = OBJECT_END + 0x00C, // Size: 4, Flags: PUBLIC
-    UNIT_FIELD_SUMMONEDBY = OBJECT_END + 0x010, // Size: 4, Flags: PUBLIC
-    UNIT_FIELD_CREATEDBY = OBJECT_END + 0x014, // Size: 4, Flags: PUBLIC
-    UNIT_FIELD_DEMON_CREATOR = OBJECT_END + 0x018, // Size: 4, Flags: PUBLIC
-    UNIT_FIELD_LOOK_AT_CONTROLLER_TARGET = OBJECT_END + 0x01C, // Size: 4, Flags: PUBLIC
-    UNIT_FIELD_TARGET = OBJECT_END + 0x020, // Size: 4, Flags: PUBLIC
-    UNIT_FIELD_BATTLE_PET_COMPANION_GUID = OBJECT_END + 0x024, // Size: 4, Flags: PUBLIC
-    UNIT_FIELD_BATTLE_PET_DB_ID = OBJECT_END + 0x028, // Size: 2, Flags: PUBLIC
-    UNIT_FIELD_CHANNEL_DATA = OBJECT_END + 0x02A, // Size: 2, Flags: PUBLIC, URGENT
-    UNIT_FIELD_SUMMONED_BY_HOME_REALM = OBJECT_END + 0x02C, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_BYTES_0 = OBJECT_END + 0x02D, // Size: 1, Flags: PUBLIC Nested: (Race, ClassId, PlayerClassId, Sex)
-    UNIT_FIELD_DISPLAY_POWER = OBJECT_END + 0x02E, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_OVERRIDE_DISPLAY_POWER_ID = OBJECT_END + 0x02F, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_HEALTH = OBJECT_END + 0x030, // Size: 2, Flags: DYNAMIC
-    UNIT_FIELD_POWER = OBJECT_END + 0x032, // Size: 6, Flags: PUBLIC, URGENT_SELF_ONLY
-    UNIT_FIELD_MAXHEALTH = OBJECT_END + 0x038, // Size: 2, Flags: DYNAMIC
-    UNIT_FIELD_MAXPOWER = OBJECT_END + 0x03A, // Size: 6, Flags: PUBLIC
-    UNIT_FIELD_MOD_POWER_REGEN = OBJECT_END + 0x040, // Size: 6, Flags: PRIVATE, OWNER, UNIT_ALL
-    UNIT_FIELD_LEVEL = OBJECT_END + 0x046, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_EFFECTIVE_LEVEL = OBJECT_END + 0x047, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_CONTENT_TUNING_ID = OBJECT_END + 0x048, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_SCALING_LEVEL_MIN = OBJECT_END + 0x049, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_SCALING_LEVEL_MAX = OBJECT_END + 0x04A, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_SCALING_LEVEL_DELTA = OBJECT_END + 0x04B, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_SCALING_FACTION_GROUP = OBJECT_END + 0x04C, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_SCALING_HEALTH_ITEM_LEVEL_CURVE_ID = OBJECT_END + 0x04D, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_SCALING_DAMAGE_ITEM_LEVEL_CURVE_ID = OBJECT_END + 0x04E, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_FACTIONTEMPLATE = OBJECT_END + 0x04F, // Size: 1, Flags: PUBLIC
-    UNIT_VIRTUAL_ITEM_SLOT_ID = OBJECT_END + 0x050, // Size: 6, Flags: PUBLIC
-    UNIT_FIELD_FLAGS = OBJECT_END + 0x056, // Size: 1, Flags: PUBLIC, URGENT
-    UNIT_FIELD_FLAGS_2 = OBJECT_END + 0x057, // Size: 1, Flags: PUBLIC, URGENT
-    UNIT_FIELD_FLAGS_3 = OBJECT_END + 0x058, // Size: 1, Flags: PUBLIC, URGENT
-    UNIT_FIELD_AURASTATE = OBJECT_END + 0x059, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_BASEATTACKTIME = OBJECT_END + 0x05A, // Size: 2, Flags: PUBLIC
-    UNIT_FIELD_RANGEDATTACKTIME = OBJECT_END + 0x05C, // Size: 1, Flags: PRIVATE
-    UNIT_FIELD_BOUNDINGRADIUS = OBJECT_END + 0x05D, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_COMBATREACH = OBJECT_END + 0x05E, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_DISPLAYID = OBJECT_END + 0x05F, // Size: 1, Flags: DYNAMIC, URGENT
-    UNIT_FIELD_DISPLAY_SCALE = OBJECT_END + 0x060, // Size: 1, Flags: DYNAMIC, URGENT
-    UNIT_FIELD_NATIVEDISPLAYID = OBJECT_END + 0x061, // Size: 1, Flags: PUBLIC, URGENT
-    UNIT_FIELD_NATIVE_X_DISPLAY_SCALE = OBJECT_END + 0x062, // Size: 1, Flags: PUBLIC, URGENT
-    UNIT_FIELD_MOUNTDISPLAYID = OBJECT_END + 0x063, // Size: 1, Flags: PUBLIC, URGENT
-    UNIT_FIELD_MINDAMAGE = OBJECT_END + 0x064, // Size: 1, Flags: PRIVATE, OWNER, SPECIAL_INFO
-    UNIT_FIELD_MAXDAMAGE = OBJECT_END + 0x065, // Size: 1, Flags: PRIVATE, OWNER, SPECIAL_INFO
-    UNIT_FIELD_MINOFFHANDDAMAGE = OBJECT_END + 0x066, // Size: 1, Flags: PRIVATE, OWNER, SPECIAL_INFO
-    UNIT_FIELD_MAXOFFHANDDAMAGE = OBJECT_END + 0x067, // Size: 1, Flags: PRIVATE, OWNER, SPECIAL_INFO
-    UNIT_FIELD_BYTES_1 = OBJECT_END + 0x068, // Size: 1, Flags: PUBLIC Nested: (StandState, PetLoyaltyIndex, VisFlags, AnimTier)
-    UNIT_FIELD_PETNUMBER = OBJECT_END + 0x069, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_PET_NAME_TIMESTAMP = OBJECT_END + 0x06A, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_PETEXPERIENCE = OBJECT_END + 0x06B, // Size: 1, Flags: OWNER
-    UNIT_FIELD_PETNEXTLEVELXP = OBJECT_END + 0x06C, // Size: 1, Flags: OWNER
-    UNIT_MOD_CAST_SPEED = OBJECT_END + 0x06D, // Size: 1, Flags: PUBLIC
-    UNIT_MOD_CAST_HASTE = OBJECT_END + 0x06E, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_MOD_HASTE = OBJECT_END + 0x06F, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_MOD_RANGED_HASTE = OBJECT_END + 0x070, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_MOD_HASTE_REGEN = OBJECT_END + 0x071, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_MOD_TIME_RATE = OBJECT_END + 0x072, // Size: 1, Flags: PUBLIC
-    UNIT_CREATED_BY_SPELL = OBJECT_END + 0x073, // Size: 1, Flags: PUBLIC
-    UNIT_NPC_FLAGS = OBJECT_END + 0x074, // Size: 2, Flags: PUBLIC, DYNAMIC
-    UNIT_NPC_EMOTESTATE = OBJECT_END + 0x076, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_TRAINING_POINTS_TOTAL = OBJECT_END + 0x077, // Size: 1, Flags: OWNER Nested: (TrainingPointsUsed, TrainingPointsTotal)
-    UNIT_FIELD_STAT = OBJECT_END + 0x078, // Size: 5, Flags: PRIVATE, OWNER
-    UNIT_FIELD_POSSTAT = OBJECT_END + 0x07D, // Size: 5, Flags: PRIVATE, OWNER
-    UNIT_FIELD_NEGSTAT = OBJECT_END + 0x082, // Size: 5, Flags: PRIVATE, OWNER
-    UNIT_FIELD_RESISTANCES = OBJECT_END + 0x087, // Size: 7, Flags: PRIVATE, OWNER, SPECIAL_INFO
-    UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE = OBJECT_END + 0x08E, // Size: 7, Flags: PRIVATE, OWNER
-    UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE = OBJECT_END + 0x095, // Size: 7, Flags: PRIVATE, OWNER
-    UNIT_FIELD_BASE_MANA = OBJECT_END + 0x09C, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_BASE_HEALTH = OBJECT_END + 0x09D, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_BYTES_2 = OBJECT_END + 0x09E, // Size: 1, Flags: PUBLIC Nested: (SheatheState, PvpFlags, PetFlags, ShapeshiftForm)
-    UNIT_FIELD_ATTACK_POWER = OBJECT_END + 0x09F, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_ATTACK_POWER_MOD_POS = OBJECT_END + 0x0A0, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_ATTACK_POWER_MOD_NEG = OBJECT_END + 0x0A1, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_ATTACK_POWER_MULTIPLIER = OBJECT_END + 0x0A2, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_RANGED_ATTACK_POWER = OBJECT_END + 0x0A3, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_RANGED_ATTACK_POWER_MOD_POS = OBJECT_END + 0x0A4, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_RANGED_ATTACK_POWER_MOD_NEG = OBJECT_END + 0x0A5, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER = OBJECT_END + 0x0A6, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_ATTACK_SPEED_AURA = OBJECT_END + 0x0A7, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_LIFESTEAL = OBJECT_END + 0x0A8, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_MINRANGEDDAMAGE = OBJECT_END + 0x0A9, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_MAXRANGEDDAMAGE = OBJECT_END + 0x0AA, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_POWER_COST_MODIFIER = OBJECT_END + 0x0AB, // Size: 7, Flags: PRIVATE, OWNER
-    UNIT_FIELD_POWER_COST_MULTIPLIER = OBJECT_END + 0x0B2, // Size: 7, Flags: PRIVATE, OWNER
-    UNIT_FIELD_MAXHEALTHMODIFIER = OBJECT_END + 0x0B9, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_HOVERHEIGHT = OBJECT_END + 0x0BA, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_MIN_ITEM_LEVEL_CUTOFF = OBJECT_END + 0x0BB, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_MIN_ITEM_LEVEL = OBJECT_END + 0x0BC, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_MAXITEMLEVEL = OBJECT_END + 0x0BD, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_WILD_BATTLEPET_LEVEL = OBJECT_END + 0x0BE, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_BATTLEPET_COMPANION_NAME_TIMESTAMP = OBJECT_END + 0x0BF, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_INTERACT_SPELLID = OBJECT_END + 0x0C0, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_STATE_SPELL_VISUAL_ID = OBJECT_END + 0x0C1, // Size: 1, Flags: DYNAMIC, URGENT
-    UNIT_FIELD_STATE_ANIM_ID = OBJECT_END + 0x0C2, // Size: 1, Flags: DYNAMIC, URGENT
-    UNIT_FIELD_STATE_ANIM_KIT_ID = OBJECT_END + 0x0C3, // Size: 1, Flags: DYNAMIC, URGENT
-    UNIT_FIELD_STATE_WORLD_EFFECT_ID = OBJECT_END + 0x0C4, // Size: 4, Flags: DYNAMIC, URGENT
-    UNIT_FIELD_SCALE_DURATION = OBJECT_END + 0x0C8, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_LOOKS_LIKE_MOUNT_ID = OBJECT_END + 0x0C9, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_LOOKS_LIKE_CREATURE_ID = OBJECT_END + 0x0CA, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_LOOK_AT_CONTROLLER_ID = OBJECT_END + 0x0CB, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_GUILD_GUID = OBJECT_END + 0x0CC, // Size: 4, Flags: PUBLIC
-    UNIT_END = OBJECT_END + 0x0D0,
-};
-
-enum UnitDynamicFields
-{
-    UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS = OBJECT_DYNAMIC_END + 0x000, // Flags: PUBLIC, URGENT
-    UNIT_DYNAMIC_FIELD_WORLD_EFFECTS = OBJECT_DYNAMIC_END + 0x001, // Flags: PUBLIC, URGENT
-    UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS = OBJECT_DYNAMIC_END + 0x002, // Flags: PUBLIC, URGENT
-    UNIT_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x003,
-};
-
-enum PlayerFields
-{
-    PLAYER_DUEL_ARBITER = UNIT_END + 0x000, // Size: 4, Flags: PUBLIC
-    PLAYER_WOW_ACCOUNT = UNIT_END + 0x004, // Size: 4, Flags: PUBLIC
-    PLAYER_LOOT_TARGET_GUID = UNIT_END + 0x008, // Size: 4, Flags: PUBLIC
-    PLAYER_FLAGS = UNIT_END + 0x00C, // Size: 1, Flags: PUBLIC
-    PLAYER_FLAGS_EX = UNIT_END + 0x00D, // Size: 1, Flags: PUBLIC
-    PLAYER_GUILDRANK = UNIT_END + 0x00E, // Size: 1, Flags: PUBLIC
-    PLAYER_GUILDDELETE_DATE = UNIT_END + 0x00F, // Size: 1, Flags: PUBLIC
-    PLAYER_GUILDLEVEL = UNIT_END + 0x010, // Size: 1, Flags: PUBLIC
-    PLAYER_BYTES = UNIT_END + 0x011, // Size: 1, Flags: PUBLIC Nested: (PartyType, NumBankSlots, NativeSex, Inebriation)
-    PLAYER_BYTES_2 = UNIT_END + 0x012, // Size: 1, Flags: PUBLIC Nested: (PvpTitle, ArenaFaction, PvpRank)
-    PLAYER_DUEL_TEAM = UNIT_END + 0x013, // Size: 1, Flags: PUBLIC
-    PLAYER_GUILD_TIMESTAMP = UNIT_END + 0x014, // Size: 1, Flags: PUBLIC
-    PLAYER_QUEST_LOG = UNIT_END + 0x015, // Size: 400, Flags: GROUP_ONLY
-    PLAYER_VISIBLE_ITEM = UNIT_END + 0x1A5, // Size: 38, Flags: PUBLIC
-    PLAYER_CHOSEN_TITLE = UNIT_END + 0x1CB, // Size: 1, Flags: PUBLIC
-    PLAYER_FAKE_INEBRIATION = UNIT_END + 0x1CC, // Size: 1, Flags: PUBLIC
-    PLAYER_FIELD_VIRTUAL_PLAYER_REALM = UNIT_END + 0x1CD, // Size: 1, Flags: PUBLIC
-    PLAYER_FIELD_CURRENT_SPEC_ID = UNIT_END + 0x1CE, // Size: 1, Flags: PUBLIC
-    PLAYER_FIELD_TAXI_MOUNT_ANIM_KIT_ID = UNIT_END + 0x1CF, // Size: 1, Flags: PUBLIC
-    PLAYER_FIELD_AVG_ITEM_LEVEL = UNIT_END + 0x1D0, // Size: 6, Flags: PUBLIC
-    PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY = UNIT_END + 0x1D6, // Size: 1, Flags: PUBLIC
-    PLAYER_FIELD_HONOR_LEVEL = UNIT_END + 0x1D7, // Size: 1, Flags: PUBLIC
-    PLAYER_FIELD_CUSTOMIZATION_CHOICES = UNIT_END + 0x1D8, // Size: 72, Flags: PUBLIC
-    PLAYER_END = UNIT_END + 0x220,
-};
-
-enum PlayerDynamicFields
-{
-    PLAYER_DYNAMIC_FIELD_ARENA_COOLDOWNS = UNIT_DYNAMIC_END + 0x000, // Flags: PUBLIC
-    PLAYER_DYNAMIC_END = UNIT_DYNAMIC_END + 0x001,
-};
-
-enum ActivePlayerFields
-{
-    ACTIVE_PLAYER_FIELD_INV_SLOT_HEAD = PLAYER_END + 0x000, // Size: 516, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_FARSIGHT = PLAYER_END + 0x204, // Size: 4, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_COMBO_TARGET = PLAYER_END + 0x208, // Size: 4, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_SUMMONED_BATTLE_PET_ID = PLAYER_END + 0x20C, // Size: 4, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_KNOWN_TITLES = PLAYER_END + 0x210, // Size: 12, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_COINAGE = PLAYER_END + 0x21C, // Size: 2, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_XP = PLAYER_END + 0x21E, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_NEXT_LEVEL_XP = PLAYER_END + 0x21F, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_TRIAL_XP = PLAYER_END + 0x220, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_SKILL_LINEID = PLAYER_END + 0x221, // Size: 896, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_CHARACTER_POINTS = PLAYER_END + 0x5A1, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_MAX_TALENT_TIERS = PLAYER_END + 0x5A2, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_TRACK_CREATURES = PLAYER_END + 0x5A3, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_TRACK_RESOURCES = PLAYER_END + 0x5A4, // Size: 2, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_EXPERTISE = PLAYER_END + 0x5A6, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_OFFHAND_EXPERTISE = PLAYER_END + 0x5A7, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_RANGED_EXPERTISE = PLAYER_END + 0x5A8, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_COMBAT_RATING_EXPERTISE = PLAYER_END + 0x5A9, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_BLOCK_PERCENTAGE = PLAYER_END + 0x5AA, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_DODGE_PERCENTAGE = PLAYER_END + 0x5AB, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_DODGE_PERCENTAGE_FROM_ATTRIBUTE = PLAYER_END + 0x5AC, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_PARRY_PERCENTAGE = PLAYER_END + 0x5AD, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_PARRY_PERCENTAGE_FROM_ATTRIBUTE = PLAYER_END + 0x5AE, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_CRIT_PERCENTAGE = PLAYER_END + 0x5AF, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_RANGED_CRIT_PERCENTAGE = PLAYER_END + 0x5B0, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE = PLAYER_END + 0x5B1, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_SPELL_CRIT_PERCENTAGE1 = PLAYER_END + 0x5B2, // Size: 7, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_SHIELD_BLOCK = PLAYER_END + 0x5B9, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_MASTERY = PLAYER_END + 0x5BA, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_SPEED = PLAYER_END + 0x5BB, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_AVOIDANCE = PLAYER_END + 0x5BC, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_STURDINESS = PLAYER_END + 0x5BD, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_VERSATILITY = PLAYER_END + 0x5BE, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_VERSATILITY_BONUS = PLAYER_END + 0x5BF, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_PVP_POWER_DAMAGE = PLAYER_END + 0x5C0, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_PVP_POWER_HEALING = PLAYER_END + 0x5C1, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_EXPLORED_ZONES = PLAYER_END + 0x5C2, // Size: 480, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_REST_INFO = PLAYER_END + 0x7A2, // Size: 4, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_POS = PLAYER_END + 0x7A6, // Size: 7, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_NEG = PLAYER_END + 0x7AD, // Size: 7, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_PCT = PLAYER_END + 0x7B4, // Size: 7, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_MOD_HEALING_DONE_POS = PLAYER_END + 0x7BB, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_MOD_HEALING_PCT = PLAYER_END + 0x7BC, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_MOD_HEALING_DONE_PCT = PLAYER_END + 0x7BD, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_MOD_PERIODIC_HEALING_DONE_PERCENT = PLAYER_END + 0x7BE, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS = PLAYER_END + 0x7BF, // Size: 3, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_WEAPON_ATK_SPEED_MULTIPLIERS = PLAYER_END + 0x7C2, // Size: 3, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_MOD_SPELL_POWER_PCT = PLAYER_END + 0x7C5, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_MOD_RESILIENCE_PERCENT = PLAYER_END + 0x7C6, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_OVERRIDE_SPELL_POWER_BY_AP_PCT = PLAYER_END + 0x7C7, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_OVERRIDE_AP_BY_SPELL_POWER_PERCENT = PLAYER_END + 0x7C8, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_MOD_TARGET_RESISTANCE = PLAYER_END + 0x7C9, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_MOD_TARGET_PHYSICAL_RESISTANCE = PLAYER_END + 0x7CA, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_LOCAL_FLAGS = PLAYER_END + 0x7CB, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_BYTES = PLAYER_END + 0x7CC, // Size: 1, Flags: PUBLIC Nested: (GrantableLevels, MultiActionBars, LifetimeMaxRank, NumRespecs)
-    ACTIVE_PLAYER_FIELD_AMMO_ID = PLAYER_END + 0x7CD, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_PVP_MEDALS = PLAYER_END + 0x7CE, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_BUYBACK_PRICE = PLAYER_END + 0x7CF, // Size: 12, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_BUYBACK_TIMESTAMP = PLAYER_END + 0x7DB, // Size: 12, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_BYTES_2 = PLAYER_END + 0x7E7, // Size: 1, Flags: (All) Nested: (TodayHonorableKills, TodayDishonorableKills)
-    ACTIVE_PLAYER_FIELD_BYTES_3 = PLAYER_END + 0x7E8, // Size: 1, Flags: (All) Nested: (YesterdayHonorableKills, YesterdayDishonorableKills)
-    ACTIVE_PLAYER_FIELD_BYTES_4 = PLAYER_END + 0x7E9, // Size: 1, Flags: (All) Nested: (LastWeekHonorableKills, LastWeekDishonorableKills)
-    ACTIVE_PLAYER_FIELD_BYTES_5 = PLAYER_END + 0x7EA, // Size: 1, Flags: (All) Nested: (ThisWeekHonorableKills, ThisWeekDishonorableKills)
-    ACTIVE_PLAYER_FIELD_THIS_WEEK_CONTRIBUTION = PLAYER_END + 0x7EB, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_LIFETIME_HONORABLE_KILLS = PLAYER_END + 0x7EC, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_LIFETIME_DISHONORABLE_KILLS = PLAYER_END + 0x7ED, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_YESTERDAY_CONTRIBUTION = PLAYER_END + 0x7EE, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_LAST_WEEK_CONTRIBUTION = PLAYER_END + 0x7EF, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_LAST_WEEK_RANK = PLAYER_END + 0x7F0, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_WATCHED_FACTION_INDEX = PLAYER_END + 0x7F1, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_COMBAT_RATING = PLAYER_END + 0x7F2, // Size: 32, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_ARENA_TEAM_INFO = PLAYER_END + 0x812, // Size: 72, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_MAX_LEVEL = PLAYER_END + 0x85A, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA = PLAYER_END + 0x85B, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_MAX_CREATURE_SCALING_LEVEL = PLAYER_END + 0x85C, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_NO_REAGENT_COST = PLAYER_END + 0x85D, // Size: 4, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_PET_SPELL_POWER = PLAYER_END + 0x861, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE = PLAYER_END + 0x862, // Size: 2, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_UI_HIT_MODIFIER = PLAYER_END + 0x864, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_UI_SPELL_HIT_MODIFIER = PLAYER_END + 0x865, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_HOME_REALM_TIME_OFFSET = PLAYER_END + 0x866, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_MOD_PET_HASTE = PLAYER_END + 0x867, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_BYTES_6 = PLAYER_END + 0x868, // Size: 1, Flags: PUBLIC Nested: (LocalRegenFlags, AuraVision, NumBackpackSlots)
-    ACTIVE_PLAYER_FIELD_OVERRIDE_SPELLS_ID = PLAYER_END + 0x869, // Size: 1, Flags: PUBLIC, URGENT_SELF_ONLY
-    ACTIVE_PLAYER_FIELD_LFG_BONUS_FACTION_ID = PLAYER_END + 0x86A, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_LOOT_SPEC_ID = PLAYER_END + 0x86B, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_OVERRIDE_ZONE_PVP_TYPE = PLAYER_END + 0x86C, // Size: 1, Flags: PUBLIC, URGENT_SELF_ONLY
-    ACTIVE_PLAYER_FIELD_BAG_SLOT_FLAGS = PLAYER_END + 0x86D, // Size: 4, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_BANK_BAG_SLOT_FLAGS = PLAYER_END + 0x871, // Size: 6, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_QUEST_COMPLETED = PLAYER_END + 0x877, // Size: 1750, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_HONOR = PLAYER_END + 0xF4D, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_HONOR_NEXT_LEVEL = PLAYER_END + 0xF4E, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_PVP_TIER_MAX_FROM_WINS = PLAYER_END + 0xF4F, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_PVP_LAST_WEEKS_TIER_MAX_FROM_WINS = PLAYER_END + 0xF50, // Size: 1, Flags: PUBLIC
-    ACTIVE_PLAYER_FIELD_BYTES_7 = PLAYER_END + 0xF51, // Size: 1, Flags: PUBLIC Nested: (InsertItemsLeftToRight, PvpRankProgress)
-    ACTIVE_PLAYER_END = PLAYER_END + 0xF52,
-};
-
-enum ActivePlayerDynamicFields
-{
-    ACTIVE_PLAYER_DYNAMIC_FIELD_RESEARCH = PLAYER_DYNAMIC_END + 0x000, // Flags: PUBLIC
-    ACTIVE_PLAYER_DYNAMIC_FIELD_RESEARCH_SITES = PLAYER_DYNAMIC_END + 0x001, // Flags: PUBLIC
-    ACTIVE_PLAYER_DYNAMIC_FIELD_RESEARCH_SITE_PROGRESS = PLAYER_DYNAMIC_END + 0x002, // Flags: PUBLIC
-    ACTIVE_PLAYER_DYNAMIC_FIELD_DAILY_QUESTS_COMPLETED = PLAYER_DYNAMIC_END + 0x003, // Flags: PUBLIC
-    ACTIVE_PLAYER_DYNAMIC_FIELD_AVAILABLE_QUEST_LINE_X_QUEST_IDS = PLAYER_DYNAMIC_END + 0x004, // Flags: PUBLIC
-    ACTIVE_PLAYER_DYNAMIC_FIELD_HEIRLOOMS = PLAYER_DYNAMIC_END + 0x005, // Flags: PUBLIC
-    ACTIVE_PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS = PLAYER_DYNAMIC_END + 0x006, // Flags: PUBLIC
-    ACTIVE_PLAYER_DYNAMIC_FIELD_TOYS = PLAYER_DYNAMIC_END + 0x007, // Flags: PUBLIC
-    ACTIVE_PLAYER_DYNAMIC_FIELD_TRANSMOG = PLAYER_DYNAMIC_END + 0x008, // Flags: PUBLIC
-    ACTIVE_PLAYER_DYNAMIC_FIELD_CONDITIONAL_TRANSMOG = PLAYER_DYNAMIC_END + 0x009, // Flags: PUBLIC
-    ACTIVE_PLAYER_DYNAMIC_FIELD_SELF_RES_SPELLS = PLAYER_DYNAMIC_END + 0x00A, // Flags: PUBLIC
-    ACTIVE_PLAYER_DYNAMIC_FIELD_CHARACTER_RESTRICTIONS = PLAYER_DYNAMIC_END + 0x00B, // Flags: PUBLIC
-    ACTIVE_PLAYER_DYNAMIC_FIELD_SPELL_FLAT_MOD_BY_LABEL = PLAYER_DYNAMIC_END + 0x00C, // Flags: PUBLIC
-    ACTIVE_PLAYER_DYNAMIC_FIELD_SPELL_PCT_MOD_BY_LABEL = PLAYER_DYNAMIC_END + 0x00D, // Flags: PUBLIC
-    ACTIVE_PLAYER_DYNAMIC_END = PLAYER_DYNAMIC_END + 0x00E,
-};
-
-enum GameObjectFields
-{
-    GAMEOBJECT_FIELD_CREATED_BY = OBJECT_END + 0x000, // Size: 4, Flags: PUBLIC
-    GAMEOBJECT_FIELD_GUILD_GUID = OBJECT_END + 0x004, // Size: 4, Flags: PUBLIC
-    GAMEOBJECT_DISPLAYID = OBJECT_END + 0x008, // Size: 1, Flags: DYNAMIC, URGENT
-    GAMEOBJECT_FLAGS = OBJECT_END + 0x009, // Size: 1, Flags: PUBLIC, URGENT
-    GAMEOBJECT_PARENTROTATION = OBJECT_END + 0x00A, // Size: 4, Flags: PUBLIC
-    GAMEOBJECT_FACTION = OBJECT_END + 0x00E, // Size: 1, Flags: PUBLIC
-    GAMEOBJECT_LEVEL = OBJECT_END + 0x00F, // Size: 1, Flags: PUBLIC
-    GAMEOBJECT_BYTES_1 = OBJECT_END + 0x010, // Size: 1, Flags: PUBLIC, URGENT
-    GAMEOBJECT_SPELL_VISUAL_ID = OBJECT_END + 0x011, // Size: 1, Flags: PUBLIC, DYNAMIC, URGENT
-    GAMEOBJECT_STATE_SPELL_VISUAL_ID = OBJECT_END + 0x012, // Size: 1, Flags: DYNAMIC, URGENT
-    GAMEOBJECT_STATE_ANIM_ID = OBJECT_END + 0x013, // Size: 1, Flags: DYNAMIC, URGENT
-    GAMEOBJECT_STATE_ANIM_KIT_ID = OBJECT_END + 0x014, // Size: 1, Flags: DYNAMIC, URGENT
-    GAMEOBJECT_STATE_WORLD_EFFECT_ID = OBJECT_END + 0x015, // Size: 4, Flags: DYNAMIC, URGENT
-    GAMEOBJECT_FIELD_CUSTOM_PARAM = OBJECT_END + 0x019, // Size: 1, Flags: PUBLIC, URGENT
-    GAMEOBJECT_END = OBJECT_END + 0x01A,
-};
-
-enum GameObjectDynamicFields
-{
-    GAMEOBJECT_DYNAMIC_ENABLE_DOODAD_SETS = OBJECT_DYNAMIC_END + 0x000, // Flags: PUBLIC
-    GAMEOBJECT_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x001,
-};
-
-enum DynamicObjectFields
-{
-    DYNAMICOBJECT_CASTER = OBJECT_END + 0x000, // Size: 4, Flags: PUBLIC
-    DYNAMICOBJECT_TYPE = OBJECT_END + 0x004, // Size: 1, Flags: PUBLIC
-    DYNAMICOBJECT_SPELL_X_SPELL_VISUAL_ID = OBJECT_END + 0x005, // Size: 1, Flags: PUBLIC
-    DYNAMICOBJECT_SPELLID = OBJECT_END + 0x006, // Size: 1, Flags: PUBLIC
-    DYNAMICOBJECT_RADIUS = OBJECT_END + 0x007, // Size: 1, Flags: PUBLIC
-    DYNAMICOBJECT_CASTTIME = OBJECT_END + 0x008, // Size: 1, Flags: PUBLIC
-    DYNAMICOBJECT_END = OBJECT_END + 0x009,
-};
-
-enum DynamicObjectDynamicFields
-{
-    DYNAMICOBJECT_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x000,
-};
-
-enum CorpseFields
-{
-    CORPSE_FIELD_OWNER = OBJECT_END + 0x000, // Size: 4, Flags: PUBLIC
-    CORPSE_FIELD_PARTY_GUID = OBJECT_END + 0x004, // Size: 4, Flags: PUBLIC
-    CORPSE_FIELD_GUILD_GUID = OBJECT_END + 0x008, // Size: 4, Flags: PUBLIC
-    CORPSE_FIELD_DISPLAY_ID = OBJECT_END + 0x00C, // Size: 1, Flags: PUBLIC
-    CORPSE_FIELD_ITEMS = OBJECT_END + 0x00D, // Size: 19, Flags: PUBLIC
-    CORPSE_FIELD_BYTES_1 = OBJECT_END + 0x020, // Size: 1, Flags: PUBLIC Nested: (RaceID, Sex, ClassID, Padding)
-    CORPSE_FIELD_FLAGS = OBJECT_END + 0x021, // Size: 1, Flags: PUBLIC
-    CORPSE_FIELD_DYNAMIC_FLAGS = OBJECT_END + 0x022, // Size: 1, Flags: DYNAMIC
-    CORPSE_FIELD_FACTION_TEMPLATE = OBJECT_END + 0x023, // Size: 1, Flags: PUBLIC
-    CORPSE_FIELD_CUSTOMIZATION_CHOICES = OBJECT_END + 0x024, // Size: 72, Flags: PUBLIC
-    CORPSE_END = OBJECT_END + 0x06C,
-};
-
-enum CorpseDynamicFields
-{
-    CORPSE_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x000,
-};
-
-enum AreaTriggerFields
-{
-    AREATRIGGER_OVERRIDE_SCALE_CURVE = OBJECT_END + 0x000, // Size: 7, Flags: PUBLIC, URGENT
-    AREATRIGGER_EXTRA_SCALE_CURVE = OBJECT_END + 0x007, // Size: 7, Flags: PUBLIC, URGENT
-    AREATRIGGER_CASTER = OBJECT_END + 0x00E, // Size: 4, Flags: PUBLIC
-    AREATRIGGER_DURATION = OBJECT_END + 0x012, // Size: 1, Flags: PUBLIC
-    AREATRIGGER_TIME_TO_TARGET = OBJECT_END + 0x013, // Size: 1, Flags: PUBLIC, URGENT
-    AREATRIGGER_TIME_TO_TARGET_SCALE = OBJECT_END + 0x014, // Size: 1, Flags: PUBLIC, URGENT
-    AREATRIGGER_TIME_TO_TARGET_EXTRA_SCALE = OBJECT_END + 0x015, // Size: 1, Flags: PUBLIC, URGENT
-    AREATRIGGER_SPELLID = OBJECT_END + 0x016, // Size: 1, Flags: PUBLIC
-    AREATRIGGER_SPELL_FOR_VISUALS = OBJECT_END + 0x017, // Size: 1, Flags: PUBLIC
-    AREATRIGGER_SPELL_X_SPELL_VISUAL_ID = OBJECT_END + 0x018, // Size: 1, Flags: PUBLIC
-    AREATRIGGER_BOUNDS_RADIUS_2D = OBJECT_END + 0x019, // Size: 1, Flags: DYNAMIC, URGENT
-    AREATRIGGER_DECAL_PROPERTIES_ID = OBJECT_END + 0x01A, // Size: 1, Flags: PUBLIC
-    AREATRIGGER_CREATING_EFFECT_GUID = OBJECT_END + 0x01B, // Size: 4, Flags: PUBLIC
-    AREATRIGGER_END = OBJECT_END + 0x01F,
-};
-
-enum AreaTriggerDynamicFields
-{
-    AREATRIGGER_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x000,
-};
-
-enum SceneObjectFields
-{
-    SCENEOBJECT_FIELD_SCRIPT_PACKAGE_ID = OBJECT_END + 0x000, // Size: 1, Flags: PUBLIC
-    SCENEOBJECT_FIELD_RND_SEED_VAL = OBJECT_END + 0x001, // Size: 1, Flags: PUBLIC
-    SCENEOBJECT_FIELD_CREATEDBY = OBJECT_END + 0x002, // Size: 4, Flags: PUBLIC
-    SCENEOBJECT_FIELD_SCENE_TYPE = OBJECT_END + 0x006, // Size: 1, Flags: PUBLIC
-    SCENEOBJECT_END = OBJECT_END + 0x007,
-};
-
-enum SceneObjectDynamicFields
-{
-    SCENEOBJECT_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x000,
-};
-
-enum ConversationFields
-{
-    CONVERSATION_LAST_LINE_END_TIME = OBJECT_END + 0x000, // Size: 1, Flags: DYNAMIC
-    CONVERSATION_END = OBJECT_END + 0x001,
-};
-
-enum ConversationDynamicFields
-{
-    CONVERSATION_DYNAMIC_FIELD_ACTORS = OBJECT_DYNAMIC_END + 0x000, // Flags: PUBLIC
-    CONVERSATION_DYNAMIC_FIELD_LINES = OBJECT_DYNAMIC_END + 0x001, // Flags: 0x100
-    CONVERSATION_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x002,
-};
-
-
 
 }
 

@@ -53,6 +53,7 @@ void ItemInstance::Initialize(::Item const* item)
     ItemID = item->GetEntry();
     RandomPropertiesSeed = item->GetItemSuffixFactor();
     RandomPropertiesID = item->GetItemRandomPropertyId();
+
     std::vector<int32> const& bonusListIds = item->m_itemData->BonusListIDs;
     if (!bonusListIds.empty())
     {
@@ -70,6 +71,7 @@ void ItemInstance::Initialize(UF::SocketedGem const* gem)
     ItemID = gem->ItemID;
 
     ItemBonuses bonus;
+
     bonus.Context = ItemContext(*gem->Context);
     for (uint16 bonusListId : gem->BonusListIDs)
         if (bonusListId)

@@ -3187,14 +3187,12 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             return false;
         case ModifierTreeType::PlayerHasCustomizationChoice: // 323
         {
-            return false;
-            //TODOFROST
-            //int32 customizationChoiceIndex = referencePlayer->m_playerData->Customizations.FindIndexIf([reqValue](UF::ChrCustomizationChoice const& choice)
-            //{
-            //    return choice.ChrCustomizationChoiceID == reqValue;
-            //});
-            //if (customizationChoiceIndex < 0)
-            //    return false;
+            int32 customizationChoiceIndex = referencePlayer->m_playerData->Customizations.FindIndexIf([reqValue](UF::ChrCustomizationChoice const& choice)
+            {
+                return choice.ChrCustomizationChoiceID == reqValue;
+            });
+            if (customizationChoiceIndex < 0)
+                return false;
             break;
         }
         case ModifierTreeType::PlayerBestWeeklyWinPvpTier: // 324

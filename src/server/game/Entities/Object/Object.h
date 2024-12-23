@@ -32,6 +32,7 @@
 #include "SharedDefines.h"
 #include "SpellDefines.h"
 #include "UpdateFields.h"
+#include "UpdateData.h"
 #include <list>
 #include <unordered_map>
 
@@ -186,8 +187,7 @@ class TC_GAME_API Object
         uint32 GetEntry() const { return m_objectData->EntryID; }
         void SetEntry(uint32 entry) {
             SetUInt32Value(UF::OBJECT_FIELD_ENTRY, entry);
-            SetUpdateFieldValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::EntryID), entry);
-        }
+            SetUpdateFieldValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::EntryID), entry);        }
 
         float GetObjectScale() const { return m_objectData->Scale; }
         virtual void SetObjectScale(float scale) {
@@ -518,22 +518,25 @@ class TC_GAME_API Object
         }
 
 
-        uint32 GetUpdateFieldData(Player const* target, uint32*& flags) const;
-        uint32 GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const;
+        UF::Compat::UpdateFieldFlag GetUpdateFieldData(Player const* target, uint32*& flags) const;
+        UF::Compat::UpdateFieldFlag GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const;
 
         void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player* target) const;
         virtual UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const;
         virtual void BuildValuesCreate(ByteBuffer* data, Player const* target) const = 0;   
         virtual void BuildValuesUpdate(ByteBuffer* data, Player const* target) const = 0;
-        virtual void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const* target) const;
-        virtual void BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const* target) const;
+        virtual UF::Compat::UpdateFieldFlag GetUpdateFieldFlagsForCompat(Player const* target, bool dynamic) const;
+        virtual void BuildValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const = 0;
+        virtual void BuildDynamicValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const = 0;
+        virtual void BuildValuesUpdate(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const;
+        virtual void BuildDynamicValuesUpdate(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const;
 
     public:
         virtual void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const;
 
         // legacy update system
-        void SetFieldNotifyFlag(uint16 flag) { m_fieldNotifyFlags |= flag; }
-        void RemoveFieldNotifyFlag(uint16 flag) { m_fieldNotifyFlags &= uint16(~flag); }
+        void SetFieldNotifyFlag(UF::Compat::UpdateFieldFlag flag) { m_fieldNotifyFlags |= flag; }
+        void RemoveFieldNotifyFlag(UF::Compat::UpdateFieldFlag flag) { m_fieldNotifyFlags &= ~flag; }
         //
 
     protected:
@@ -557,7 +560,7 @@ class TC_GAME_API Object
         std::vector<uint8>* m_dynamicChangesArrayMask;
         uint16 m_valuesCount;
         uint16 m_dynamicValuesCount;
-        uint16 m_fieldNotifyFlags;
+        UF::Compat::UpdateFieldFlag m_fieldNotifyFlags;
         //
 
         virtual bool AddToObjectUpdate() = 0;

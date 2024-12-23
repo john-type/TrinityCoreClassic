@@ -5906,7 +5906,7 @@ void Unit::SetOwnerGUID(ObjectGuid owner)
     if (!player || !player->HaveAtClient(this)) // if player cannot see this unit yet, he will receive needed data with create object
         return;
 
-    SetFieldNotifyFlag(UF::UF_FLAG_OWNER);
+    SetFieldNotifyFlag(UF::Compat::UpdateFieldFlag::Owner);
 
     UpdateData udata(GetMapId());
     WorldPacket packet;
@@ -5914,7 +5914,7 @@ void Unit::SetOwnerGUID(ObjectGuid owner)
     udata.BuildPacket(&packet);
     player->SendDirectMessage(&packet);
 
-    RemoveFieldNotifyFlag(UF::UF_FLAG_OWNER);
+    RemoveFieldNotifyFlag(UF::Compat::UpdateFieldFlag::Owner);
 }
 
 Player* Unit::GetControllingPlayer() const
@@ -6799,9 +6799,8 @@ float Unit::SpellCritChanceDone(Spell* spell, AuraEffect const* aurEff, SpellSch
             if (schoolMask & SPELL_SCHOOL_MASK_NORMAL)
                 crit_chance = 0.0f;
             // For other schools
-            //TODOFROST
-           /* else if (Player const* thisPlayer = ToPlayer())
-                crit_chance = thisPlayer->m_activePlayerData->SpellCritPercentage[GetFirstSchoolInMask(schoolMask)];*/
+           else if (Player const* thisPlayer = ToPlayer())
+                crit_chance = thisPlayer->m_activePlayerData->SpellCritPercentage[GetFirstSchoolInMask(schoolMask)];
             else
                 crit_chance = (float)m_baseSpellCritChance;
             break;
@@ -13344,6 +13343,7 @@ UF::UpdateFieldFlag Unit::GetUpdateFieldFlagsFor(Player const* target) const
 
 void Unit::BuildValuesCreate(ByteBuffer* data, Player const* target) const
 {
+    /*
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = data->wpos();
     *data << uint32(0); // placeholder for data size.
@@ -13351,10 +13351,12 @@ void Unit::BuildValuesCreate(ByteBuffer* data, Player const* target) const
     m_objectData->WriteCreate(*data, flags, this, target);
     m_unitData->WriteCreate(*data, flags, this, target);
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+    */
 }
 
 void Unit::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
 {
+    /*
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = data->wpos();
     *data << uint32(0); // placeholder for data size.
@@ -13367,9 +13369,80 @@ void Unit::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
         m_unitData->WriteUpdate(*data, flags, this, target);
 
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+    */
 }
 
-void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player const* target) const
+UF::Compat::UpdateFieldFlag Unit::GetUpdateFieldFlagsForCompat(Player const* target, bool dynamic) const
+{
+    if (!dynamic)
+    {
+        UF::Compat::UpdateFieldFlag visibleFlag = UF::Compat::UpdateFieldFlag::Public;
+
+        if (target == this) {
+            visibleFlag |= UF::Compat::UpdateFieldFlag::Private;
+        }
+
+        Player* plr = GetCharmerOrOwnerPlayerOrPlayerItself();
+        if (GetOwnerGUID() == target->GetGUID())
+            visibleFlag |= UF::Compat::UpdateFieldFlag::Owner;
+
+        if (HasFlag(UF::OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
+            if (HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
+                visibleFlag |= UF::Compat::UpdateFieldFlag::SpecialInfo;
+
+        if (plr && plr->IsInSameRaidWith(target))
+            visibleFlag |= UF::Compat::UpdateFieldFlag::PartyMember;
+
+        return visibleFlag;
+    }
+    else
+    {
+        return Object::GetUpdateFieldFlagsForCompat(target, dynamic);
+    }
+}
+
+void Unit::BuildValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const
+{
+    constexpr std::size_t bitCount = UF::ObjectData::Mask::BitCount + UF::UnitData::Mask::BitCount;
+    constexpr std::size_t blockCount = UF::Compat::GetBlockCount(bitCount);
+
+    *data << uint8(blockCount);
+    const std::size_t maskPos = data->wpos();
+    data->resize(data->size() + (blockCount * sizeof(UF::Compat::BlockType)));
+
+    UF::Compat::UpdateMaskBuf mask{ data, maskPos };
+    UF::Compat::UpdateFlags flags{
+        .visibilityFlags = GetUpdateFieldFlagsForCompat(target, false),
+        .notifyFlags = m_fieldNotifyFlags
+    };
+
+    m_objectData->WriteUpdate(updatetype, *data, mask, flags, this, target);
+    mask.Offset(UF::ObjectData::Mask::BitCount);
+
+    m_unitData->WriteUpdate(updatetype, *data, mask, flags, this, target);
+    mask.Offset(UF::UnitData::Mask::BitCount);
+
+    assert(mask.GetOffset() == bitCount);
+}
+void Unit::BuildDynamicValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const
+{
+    constexpr std::size_t bitCount = UF::UnitData::DyMask::BitCount;
+    constexpr std::size_t blockCount = UF::Compat::GetBlockCount(bitCount);
+
+    *data << uint8(blockCount);
+    const std::size_t maskPos = data->wpos();
+    data->resize(data->size() + (blockCount * sizeof(UF::Compat::BlockType)));
+
+    UF::Compat::UpdateMaskBuf mask{ data, maskPos };
+    UF::Compat::UpdateFlags flags{
+        .visibilityFlags = GetUpdateFieldFlagsForCompat(target, true),
+        .notifyFlags = m_fieldNotifyFlags
+    };
+
+    m_unitData->WriteDynamicUpdate(updatetype, *data, mask, flags, this, target);
+}
+
+void Unit::BuildValuesUpdate(ObjectUpdateType updateType, ByteBuffer* data, Player const* target) const
 {
     if (!target)
         return;
@@ -13412,9 +13485,9 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player const* t
 
     for (uint16 index = 0; index < valCount; ++index)
     {
-        if (m_fieldNotifyFlags & flags[index] ||
+        if (std::to_underlying(m_fieldNotifyFlags) & flags[index] ||
             ((flags[index] & visibleFlag) & UF::UF_FLAG_SPECIAL_INFO) ||
-            ((updateType == UPDATETYPE_VALUES ? m_changesMask[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)) ||
+            ((updateType == ObjectUpdateType::Values ? m_changesMask[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)) ||
             (index == UF::UNIT_FIELD_AURASTATE && HasFlag(UF::UNIT_FIELD_AURASTATE, PER_CASTER_AURA_STATE_MASK)))
         {
             LegacyUpdateMask::SetUpdateBit(data->contents() + maskPos, index);
@@ -13531,6 +13604,7 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player const* t
 
 void Unit::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
+    /*
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     valuesMask.Set(TYPEID_UNIT);
 
@@ -13543,11 +13617,13 @@ void Unit::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags
     m_unitData->WriteUpdate(*data, mask, true, this, target);
 
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+    */
 }
 
 void Unit::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
     UF::UnitData::Mask const& requestedUnitMask, Player const* target) const
 {
+    /*
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     if (requestedObjectMask.IsAnySet())
@@ -13572,6 +13648,7 @@ void Unit::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
     data->AddUpdateBlock(buffer);
+    */
 }
 
 void Unit::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const

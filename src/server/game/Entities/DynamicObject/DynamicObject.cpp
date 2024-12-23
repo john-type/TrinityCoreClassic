@@ -262,6 +262,7 @@ SpellInfo const* DynamicObject::GetSpellInfo() const
 
 void DynamicObject::BuildValuesCreate(ByteBuffer* data, Player const* target) const
 {
+    /*
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = data->wpos();
     *data << uint32(0); // placeholder for data size.
@@ -269,10 +270,12 @@ void DynamicObject::BuildValuesCreate(ByteBuffer* data, Player const* target) co
     m_objectData->WriteCreate(*data, flags, this, target);
     m_dynamicObjectData->WriteCreate(*data, flags, this, target);
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+    */
 }
 
 void DynamicObject::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
 {
+    /*
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = data->wpos();
     *data << uint32(0); // placeholder for data size.
@@ -285,11 +288,41 @@ void DynamicObject::BuildValuesUpdate(ByteBuffer* data, Player const* target) co
         m_dynamicObjectData->WriteUpdate(*data, flags, this, target);
 
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+    */
+}
+
+void DynamicObject::BuildValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const
+{
+    constexpr std::size_t bitCount = UF::ObjectData::Mask::BitCount + UF::DynamicObjectData::Mask::BitCount;
+    constexpr std::size_t blockCount = UF::Compat::GetBlockCount(bitCount);
+
+    *data << uint8(blockCount);
+    const std::size_t maskPos = data->wpos();
+    data->resize(data->size() + (blockCount * sizeof(UF::Compat::BlockType)));
+
+    UF::Compat::UpdateMaskBuf mask{ data, maskPos };
+    UF::Compat::UpdateFlags flags{
+        .visibilityFlags = GetUpdateFieldFlagsForCompat(target, false),
+        .notifyFlags = m_fieldNotifyFlags
+    };
+
+    m_objectData->WriteUpdate(updatetype, *data, mask, flags, this, target);
+    mask.Offset(UF::ObjectData::Mask::BitCount);
+
+    m_dynamicObjectData->WriteUpdate(updatetype, *data, mask, flags, this, target);
+    mask.Offset(UF::DynamicObjectData::Mask::BitCount);
+
+    assert(mask.GetOffset() == bitCount);
+}
+void DynamicObject::BuildDynamicValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const
+{
+    *data << uint8(0);
 }
 
 void DynamicObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
     UF::DynamicObjectData::Mask const& requestedDynamicObjectMask, Player const* target) const
 {
+    /*
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     if (requestedObjectMask.IsAnySet())
         valuesMask.Set(TYPEID_OBJECT);
@@ -311,6 +344,7 @@ void DynamicObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Obj
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
     data->AddUpdateBlock(buffer);
+    */
 }
 
 void DynamicObject::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const

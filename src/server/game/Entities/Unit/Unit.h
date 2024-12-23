@@ -1638,7 +1638,7 @@ class TC_GAME_API Unit : public WorldObject
         {
             int32 index = m_unitData->ChannelObjects.FindIndex(guid);
             if (index >= 0) {
-                ClearDynamicValue(UF::UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS);//TODOFROST CHECK - how should index be handled?
+                ClearDynamicValue(UF::UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS);
                 RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects), index);
             }
         }
@@ -1812,6 +1812,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetNativeDisplayId(uint32 displayId, float displayScale = 1.f)
         {
             SetUInt32Value(UF::UNIT_FIELD_NATIVEDISPLAYID, displayId);
+            SetFloatValue(UF::UNIT_FIELD_NATIVE_X_DISPLAY_SCALE, displayScale);
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NativeDisplayID), displayId);
             SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NativeXDisplayScale), displayScale);
         }
@@ -2057,7 +2058,10 @@ class TC_GAME_API Unit : public WorldObject
         UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const override;
         void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
         void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
-        virtual void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const* target) const;
+        UF::Compat::UpdateFieldFlag GetUpdateFieldFlagsForCompat(Player const* target, bool dynamic) const override;
+        void BuildValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const override;
+        void BuildDynamicValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const override;
+        virtual void BuildValuesUpdate(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const;
 
     public:
         void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;

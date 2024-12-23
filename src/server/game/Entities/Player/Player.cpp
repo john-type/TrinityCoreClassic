@@ -2536,9 +2536,9 @@ void Player::InitStatsForLevel(bool reapplyMods)
         SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModDamageDonePercent, i), 1.0f);
     }
 
-    SetInt32Value(UF::ACTIVE_PLAYER_FIELD_MOD_HEALING_DONE_PCT, 1);
+    SetFloatValue(UF::ACTIVE_PLAYER_FIELD_MOD_HEALING_DONE_PCT, 1.0f);
     SetFloatValue(UF::ACTIVE_PLAYER_FIELD_MOD_SPELL_POWER_PCT, 1.0f);
-    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModHealingDonePercent), 1);
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModHealingDonePercent), 1.0f);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModSpellPowerPercent), 1.0f);
 
     //reset attack power, damage and attack speed fields
@@ -3727,6 +3727,7 @@ UF::UpdateFieldFlag Player::GetUpdateFieldFlagsFor(Player const* target) const
 
 void Player::BuildValuesCreate(ByteBuffer* data, Player const* target) const
 {
+    /*
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = data->wpos();
     *data << uint32(0); // placeholder for data size.
@@ -3738,10 +3739,12 @@ void Player::BuildValuesCreate(ByteBuffer* data, Player const* target) const
         m_activePlayerData->WriteCreate(*data, flags, this, target);
 
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+    */
 }
 
 void Player::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
 {
+    /*
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = data->wpos();
     *data << uint32(0); // placeholder for data size.
@@ -3760,10 +3763,82 @@ void Player::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
         m_activePlayerData->WriteUpdate(*data, flags, this, target);
 
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+    */
+}
+
+void Player::BuildValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const
+{
+    std::size_t bitCount = UF::ObjectData::Mask::BitCount + UF::UnitData::Mask::BitCount + UF::PlayerData::Mask::BitCount;
+    if (target == this)
+    {
+        bitCount += UF::ActivePlayerData::Mask::BitCount;
+    }
+    std::size_t blockCount = UF::Compat::GetBlockCount(bitCount);
+
+    *data << uint8(blockCount);
+    const std::size_t maskPos = data->wpos();
+    data->resize(data->size() + (blockCount * sizeof(UF::Compat::BlockType)));
+
+    UF::Compat::UpdateMaskBuf mask{ data, maskPos };
+    UF::Compat::UpdateFlags flags{
+        .visibilityFlags = GetUpdateFieldFlagsForCompat(target, false),
+        .notifyFlags = m_fieldNotifyFlags
+    };
+
+    m_objectData->WriteUpdate(updatetype, *data, mask, flags, this, target);
+    mask.Offset(UF::ObjectData::Mask::BitCount);
+
+    m_unitData->WriteUpdate(updatetype, *data, mask, flags, this, target);
+    mask.Offset(UF::UnitData::Mask::BitCount);
+
+    m_playerData->WriteUpdate(updatetype, *data, mask, flags, this, target);
+    mask.Offset(UF::PlayerData::Mask::BitCount);
+
+    if (target == this)
+    {
+        m_activePlayerData->WriteUpdate(updatetype, *data, mask, flags, this, target);
+        mask.Offset(UF::ActivePlayerData::Mask::BitCount);
+    }
+
+    assert(mask.GetOffset() == bitCount);
+}
+void Player::BuildDynamicValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const
+{
+    std::size_t bitCount = UF::UnitData::DyMask::BitCount + UF::PlayerData::DyMask::BitCount;
+    if (target == this)
+    {
+        bitCount += UF::ActivePlayerData::DyMask::BitCount;
+    }
+    std::size_t blockCount = UF::Compat::GetBlockCount(bitCount);
+
+    *data << uint8(blockCount);
+    const std::size_t maskPos = data->wpos();
+    data->resize(data->size() + (blockCount * sizeof(UF::Compat::BlockType)));
+
+    UF::Compat::UpdateMaskBuf mask{ data, maskPos };
+    UF::Compat::UpdateFlags flags{
+        .visibilityFlags = GetUpdateFieldFlagsForCompat(target, true),
+        .notifyFlags = m_fieldNotifyFlags
+    };
+    
+    m_unitData->WriteDynamicUpdate(updatetype, *data, mask, flags, this, target);
+    mask.Offset(UF::UnitData::DyMask::BitCount);
+
+    m_playerData->WriteDynamicUpdate(updatetype, *data, mask, flags, this, target);
+    mask.Offset(UF::PlayerData::DyMask::BitCount);
+
+    if (target == this)
+    {
+        m_activePlayerData->WriteDynamicUpdate(updatetype, *data, mask, flags, this, target);
+        mask.Offset(UF::ActivePlayerData::DyMask::BitCount);
+    }
+
+    assert(mask.GetOffset() == bitCount);
 }
 
 void Player::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
+    /*
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     valuesMask.Set(TYPEID_UNIT);
     valuesMask.Set(TYPEID_PLAYER);
@@ -3781,12 +3856,14 @@ void Player::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag fla
     m_playerData->WriteUpdate(*data, mask2, true, this, target);
 
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+    */
 }
 
 void Player::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
     UF::UnitData::Mask const& requestedUnitMask, UF::PlayerData::Mask const& requestedPlayerMask,
     UF::ActivePlayerData::Mask const& requestedActivePlayerMask, Player const* target) const
 {
+    /*
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     if (requestedObjectMask.IsAnySet())
@@ -3825,6 +3902,7 @@ void Player::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
     data->AddUpdateBlock(buffer);
+    */
 }
 
 void Player::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
@@ -7116,6 +7194,7 @@ void Player::ResetHonorStats()
 
 void Player::_InitHonorLevelOnLoadFromDB(uint32 honor, uint32 honorLevel)
 {
+    SetUInt32Value(UF::PLAYER_FIELD_HONOR_LEVEL, honorLevel);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::HonorLevel), honorLevel);
     UpdateHonorNextLevel();
 
@@ -8258,7 +8337,10 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
 
     if (int16 shieldBlockValue = proto->GetShieldBlockValue(proto->GetItemLevel()))
         if (proto->GetClass() == ITEM_CLASS_ARMOR && proto->GetSubClass() == ITEM_SUBCLASS_ARMOR_SHIELD)
+        {
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ShieldBlock), apply ? shieldBlockValue : 0);
+            SetInt32Value(UF::ACTIVE_PLAYER_FIELD_SHIELD_BLOCK, apply ? shieldBlockValue : 0);
+        }
 
 
     WeaponAttackType attType = Player::GetAttackBySlot(slot, proto->GetInventoryType());
@@ -16806,7 +16888,6 @@ void Player::RemoveQuestSlotState(uint16 slot, uint32 state)
 
 void Player::SetQuestSlotEndTime(uint16 slot, time_t endTime)
 {
-    //TODOFROST
     SetUInt32Value(UF::PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_TIME_OFFSET, 0);
 
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData)
@@ -16816,7 +16897,6 @@ void Player::SetQuestSlotEndTime(uint16 slot, time_t endTime)
 
 void Player::SetQuestSlotAcceptTime(uint16 slot, time_t acceptTime)
 {
-    //TODOFROST
     SetUInt32Value(UF::PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_TIME_OFFSET, 0);
 
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData)
@@ -24201,11 +24281,11 @@ void Player::UpdateTriggerVisibility()
             if (!creature || (!creature->IsTrigger() && !creature->HasAuraType(SPELL_AURA_TRANSFORM) && !creature->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE)))
                 continue;
 
-            creature->SetFieldNotifyFlag(UF::UF_FLAG_PUBLIC);
+            creature->SetFieldNotifyFlag(UF::Compat::UpdateFieldFlag::Public);
             creature->ForceUpdateFieldChange(creature->m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DisplayID));
             creature->ForceUpdateFieldChange(creature->m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags));
             creature->BuildValuesUpdateBlockForPlayer(&udata, this);
-            creature->RemoveFieldNotifyFlag(UF::UF_FLAG_PUBLIC);
+            creature->RemoveFieldNotifyFlag(UF::Compat::UpdateFieldFlag::Public);
         }
         else if (itr->IsAnyTypeGameObject())
         {
@@ -24213,10 +24293,10 @@ void Player::UpdateTriggerVisibility()
             if (!go)
                 continue;
 
-            go->SetFieldNotifyFlag(UF::UF_FLAG_PUBLIC);
+            go->SetFieldNotifyFlag(UF::Compat::UpdateFieldFlag::Public);
             go->ForceUpdateFieldChange(go->m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags));
             go->BuildValuesUpdateBlockForPlayer(&udata, this);
-            go->RemoveFieldNotifyFlag(UF::UF_FLAG_PUBLIC);
+            go->RemoveFieldNotifyFlag(UF::Compat::UpdateFieldFlag::Public);
         }
     }
 

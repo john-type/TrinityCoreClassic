@@ -267,6 +267,7 @@ uint32 Conversation::GetScriptId() const
 
 void Conversation::BuildValuesCreate(ByteBuffer* data, Player const* target) const
 {
+    /*
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = data->wpos();
     *data << uint32(0); // placeholder for data size.
@@ -274,10 +275,12 @@ void Conversation::BuildValuesCreate(ByteBuffer* data, Player const* target) con
     m_objectData->WriteCreate(*data, flags, this, target);
     m_conversationData->WriteCreate(*data, flags, this, target);
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+    */
 }
 
 void Conversation::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
 {
+    /*
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = data->wpos();
     *data << uint32(0); // placeholder for data size.
@@ -290,11 +293,22 @@ void Conversation::BuildValuesUpdate(ByteBuffer* data, Player const* target) con
         m_conversationData->WriteUpdate(*data, flags, this, target);
 
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+    */
+}
+
+void Conversation::BuildValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const
+{
+    ABORT_MSG("Not implemented Conversation BuildValues");
+}
+void Conversation::BuildDynamicValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const
+{
+    ABORT_MSG("Not implemented Conversation BuildValues");
 }
 
 void Conversation::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
     UF::ConversationData::Mask const& requestedConversationMask, Player const* target) const
 {
+    /*
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     if (requestedObjectMask.IsAnySet())
         valuesMask.Set(TYPEID_OBJECT);
@@ -316,6 +330,7 @@ void Conversation::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Obje
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
     data->AddUpdateBlock(buffer);
+    */
 }
 
 void Conversation::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const

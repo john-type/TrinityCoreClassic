@@ -36,7 +36,6 @@ enum ConnectionType : int8
 
 enum OpcodeMisc : uint16
 {
-    //TODOFROST ENSURE THESE ARE STILL CORRECT
     MAX_OPCODE                                        = 0x3FFF,
     NUM_OPCODE_HANDLERS                               = (MAX_OPCODE + 1),
     UNKNOWN_OPCODE                                    = 0xFFFF,

@@ -38,6 +38,8 @@ public:
 protected:
     void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
     void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
+    void BuildValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const override;
+    void BuildDynamicValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const override;
     void ClearUpdateMask(bool remove) override;
 
 public:

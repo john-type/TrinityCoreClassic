@@ -3221,6 +3221,7 @@ GameObject* GameObject::GetLinkedTrap()
 
 void GameObject::BuildValuesCreate(ByteBuffer* data, Player const* target) const
 {
+    /*
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = data->wpos();
     *data << uint32(0); // placeholder for data size.
@@ -3228,10 +3229,12 @@ void GameObject::BuildValuesCreate(ByteBuffer* data, Player const* target) const
     m_objectData->WriteCreate(*data, flags, this, target);
     m_gameObjectData->WriteCreate(*data, flags, this, target);
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+    */
 }
 
 void GameObject::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
 {
+    /*
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = data->wpos();
     *data << uint32(0); // placeholder for data size.
@@ -3244,14 +3247,70 @@ void GameObject::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
         m_gameObjectData->WriteUpdate(*data, flags, this, target);
 
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+    */
+}
+UF::Compat::UpdateFieldFlag GameObject::GetUpdateFieldFlagsForCompat(Player const* target, bool dynamic) const
+{
+    if (!dynamic) {
+        UF::Compat::UpdateFieldFlag visibleFlag = UF::Compat::UpdateFieldFlag::Public;
+        if (GetOwnerGUID() == target->GetGUID())
+            visibleFlag |= UF::Compat::UpdateFieldFlag::Owner;
+        return visibleFlag;
+    }
+    else {
+        return Object::GetUpdateFieldFlagsForCompat(target, dynamic);
+    }
 }
 
-void GameObject::BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const* target) const
+
+void GameObject::BuildValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const
+{
+    constexpr std::size_t bitCount = UF::ObjectData::Mask::BitCount + UF::GameObjectData::Mask::BitCount;
+    constexpr std::size_t blockCount = UF::Compat::GetBlockCount(bitCount);
+
+    *data << uint8(blockCount);
+    const std::size_t maskPos = data->wpos();
+    data->resize(data->size() + (blockCount * sizeof(UF::Compat::BlockType)));
+
+    UF::Compat::UpdateMaskBuf mask{ data, maskPos };
+    UF::Compat::UpdateFlags flags{
+        .visibilityFlags = GetUpdateFieldFlagsForCompat(target, false),
+        .notifyFlags = m_fieldNotifyFlags
+    };
+
+    m_objectData->WriteUpdate(updatetype, *data, mask, flags, this, target);
+    mask.Offset(UF::ObjectData::Mask::BitCount);
+
+    m_gameObjectData->WriteUpdate(updatetype, *data, mask, flags, this, target);
+    mask.Offset(UF::GameObjectData::Mask::BitCount);
+
+    assert(mask.GetOffset() == bitCount);
+}
+
+void GameObject::BuildDynamicValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const
+{
+    constexpr std::size_t bitCount = UF::GameObjectData::DyMask::BitCount;
+    constexpr std::size_t blockCount = UF::Compat::GetBlockCount(bitCount);
+
+    *data << uint8(blockCount);
+    const std::size_t maskPos = data->wpos();
+    data->resize(data->size() + (blockCount * sizeof(UF::Compat::BlockType)));
+
+    UF::Compat::UpdateMaskBuf mask{ data, maskPos };
+    UF::Compat::UpdateFlags flags{
+        .visibilityFlags = GetUpdateFieldFlagsForCompat(target, true),
+        .notifyFlags = m_fieldNotifyFlags
+    };
+
+    m_gameObjectData->WriteDynamicUpdate(updatetype, *data, mask, flags, this, target);
+}
+
+void GameObject::BuildValuesUpdate(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const
 {
     if (!target)
         return;
 
-    bool isStoppableTransport = false; //TODOFROST GetGoType() == GAMEOBJECT_TYPE_TRANSPORT && !m_goValue.Transport.StopFrames->empty();
+    bool isStoppableTransport = false; // GetGoType() == GAMEOBJECT_TYPE_TRANSPORT && !m_goValue.Transport.StopFrames->empty();
     bool forcedFlags = GetGoType() == GAMEOBJECT_TYPE_CHEST && GetGOInfo()->chest.usegrouplootrules && HasLootRecipient();
     bool targetIsGM = target->IsGameMaster();
 
@@ -3268,8 +3327,8 @@ void GameObject::BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player co
 
     for (uint16 index = 0; index < m_valuesCount; ++index)
     {
-        if (m_fieldNotifyFlags & flags[index] ||
-            ((updatetype == UPDATETYPE_VALUES ? m_changesMask[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)) ||
+        if (std::to_underlying(m_fieldNotifyFlags) & flags[index] ||
+            ((updatetype == ObjectUpdateType::Values ? m_changesMask[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)) ||
             (index == UF::GAMEOBJECT_FLAGS && forcedFlags))
         {
             LegacyUpdateMask::SetUpdateBit(data->contents() + maskPos, index);
@@ -3298,7 +3357,6 @@ void GameObject::BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player co
                 case GAMEOBJECT_TYPE_TRANSPORT:
                 case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
                 {
-                    //TODOFROST
             /*        if (uint32 transportPeriod = GetTransportPeriod())
                     {
                         float timer = float(m_goValue.Transport.PathProgress % transportPeriod);
@@ -3324,7 +3382,6 @@ void GameObject::BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player co
             }
             else if (index == UF::GAMEOBJECT_LEVEL)
             {
-                //TODOFROST
          /*       if (isStoppableTransport)
                     *data << uint32(m_goValue.Transport.PathProgress);
                 else*/
@@ -3335,7 +3392,6 @@ void GameObject::BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player co
                 uint32 bytes1 = m_uint32Values[index];
                 if (isStoppableTransport && GetGoState() == GO_STATE_TRANSPORT_ACTIVE)
                 {
-                    //TODOFROST
            /*         if ((m_goValue.Transport.StateUpdateTimer / 20000) & 1)
                     {
                         bytes1 &= 0xFFFFFF00;
@@ -3355,6 +3411,7 @@ void GameObject::BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player co
 void GameObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
     UF::GameObjectData::Mask const& requestedGameObjectMask, Player const* target) const
 {
+    /*
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     if (requestedObjectMask.IsAnySet())
         valuesMask.Set(TYPEID_OBJECT);
@@ -3376,6 +3433,7 @@ void GameObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Object
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
     data->AddUpdateBlock(buffer);
+    */
 }
 
 void GameObject::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const

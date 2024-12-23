@@ -131,7 +131,10 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
     protected:
         void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
         void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
-        void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const* target) const override;
+        UF::Compat::UpdateFieldFlag GetUpdateFieldFlagsForCompat(Player const* target, bool dynamic) const override;
+        void BuildValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const override;
+        void BuildDynamicValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const override;
+        void BuildValuesUpdate(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
 
     public:

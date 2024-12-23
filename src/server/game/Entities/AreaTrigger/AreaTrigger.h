@@ -48,6 +48,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
     protected:
         void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
         void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
+        void BuildValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const override;
+        void BuildDynamicValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
 
     public:

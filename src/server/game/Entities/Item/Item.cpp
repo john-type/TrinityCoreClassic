@@ -333,6 +333,7 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext contex
 
     _bonusData.Initialize(itemProto);
     SetCount(1);
+    SetUInt32Value(UF::ITEM_FIELD_MAXDURABILITY, itemProto->MaxDurability);
     SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::MaxDurability), itemProto->MaxDurability);
     SetDurability(itemProto->MaxDurability);
 
@@ -684,6 +685,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     uint32 durability = fields[11].GetUInt16();
     SetDurability(durability);
     // update max durability (and durability) if need
+    SetUInt32Value(UF::ITEM_FIELD_MAXDURABILITY, proto->MaxDurability);
     SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::MaxDurability), proto->MaxDurability);
 
     // do not overwrite durability for wrapped items
@@ -763,6 +765,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     {
         for (uint32 i = 0; i < MAX_ENCHANTMENT_SLOT; ++i)
         {
+
             auto enchantmentField = m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Enchantment, i);
             SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::ID), Trinity::StringTo<int32>(enchantmentTokens[i * MAX_ENCHANTMENT_OFFSET + 0]).value_or(0));
             SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Duration), Trinity::StringTo<uint32>(enchantmentTokens[i * MAX_ENCHANTMENT_OFFSET + 1]).value_or(0));
@@ -773,7 +776,9 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     m_randomEnchantment.Type = ItemRandomEnchantmentType(fields[9].GetUInt8());
     m_randomEnchantment.Id = fields[10].GetUInt32();
     if (m_randomEnchantment.Type == ItemRandomEnchantmentType::Property)
+    {
         SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::RandomPropertiesID), m_randomEnchantment.Id);
+    }
     else if (m_randomEnchantment.Type == ItemRandomEnchantmentType::Suffix)
     {
         SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::RandomPropertiesID), -int32(m_randomEnchantment.Id));
@@ -1298,6 +1303,7 @@ void Item::SetGem(uint16 slot, ItemDynamicFieldGems const* gem, uint32 gemScalin
     auto gemField = m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Gems, slot);
     SetUpdateFieldValue(gemField.ModifyValue(&UF::SocketedGem::ItemID), gem->ItemId);
     SetUpdateFieldValue(gemField.ModifyValue(&UF::SocketedGem::Context), gem->Context);
+
     for (uint32 i = 0; i < 16; ++i)
         SetUpdateFieldValue(gemField.ModifyValue(&UF::SocketedGem::BonusListIDs, i), gem->BonusListIDs[i]);
 }
@@ -1457,6 +1463,7 @@ UF::UpdateFieldFlag Item::GetUpdateFieldFlagsFor(Player const* target) const
 
 void Item::BuildValuesCreate(ByteBuffer* data, Player const* target) const
 {
+    /*
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = data->wpos();
     *data << uint32(0); // placeholder for data size.
@@ -1464,10 +1471,12 @@ void Item::BuildValuesCreate(ByteBuffer* data, Player const* target) const
     m_objectData->WriteCreate(*data, flags, this, target);
     m_itemData->WriteCreate(*data, flags, this, target);
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+    */
 }
 
 void Item::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
 {
+    /*
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = data->wpos();
     *data << uint32(0);
@@ -1480,17 +1489,60 @@ void Item::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
         m_itemData->WriteUpdate(*data, flags, this, target);
 
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+    */
 }
 
-void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player const* target) const
+void Item::BuildValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const
+{
+    constexpr std::size_t bitCount = UF::ObjectData::Mask::BitCount + UF::ItemData::Mask::BitCount;
+    constexpr std::size_t blockCount = UF::Compat::GetBlockCount(bitCount);
+
+    *data << uint8(blockCount);
+    const std::size_t maskPos = data->wpos();
+    data->resize(data->size() + (blockCount * sizeof(UF::Compat::BlockType)));
+
+    UF::Compat::UpdateMaskBuf mask{ data, maskPos };
+    UF::Compat::UpdateFlags flags{
+        .visibilityFlags = GetUpdateFieldFlagsForCompat(target, false),
+        .notifyFlags = m_fieldNotifyFlags
+    };
+
+    m_objectData->WriteUpdate(updatetype, *data, mask, flags, this, target);
+    mask.Offset(UF::ObjectData::Mask::BitCount);
+
+    m_itemData->WriteUpdate(updatetype, *data, mask, flags, this, target);
+    mask.Offset(UF::ItemData::Mask::BitCount);
+
+    assert(mask.GetOffset() == bitCount);
+}
+
+void Item::BuildDynamicValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const
+{
+    constexpr std::size_t blockCount = UF::Compat::GetBlockCount(UF::ItemData::DyMask::BitCount);
+
+    *data << uint8(blockCount);
+    const std::size_t maskPos = data->wpos();
+    data->resize(data->size() + (blockCount * sizeof(UF::Compat::BlockType)));
+
+    UF::Compat::UpdateMaskBuf mask{ data, maskPos };
+    UF::Compat::UpdateFlags flags{
+        .visibilityFlags = GetUpdateFieldFlagsForCompat(target, false),
+        .notifyFlags = m_fieldNotifyFlags
+    };
+
+    m_itemData->WriteDynamicUpdate(updatetype, *data, mask, flags, this, target);
+}
+
+void Item::BuildDynamicValuesUpdate(ObjectUpdateType updateType, ByteBuffer* data, Player const* target) const
 {
     if (!target)
         return;
 
     std::size_t blockCount = LegacyUpdateMask::GetBlockCount(m_dynamicValuesCount);
 
+
     uint32* flags = nullptr;
-    uint32 visibleFlag = GetDynamicUpdateFieldData(target, flags);
+    UF::Compat::UpdateFieldFlag visibleFlag = GetDynamicUpdateFieldData(target, flags);
 
     *data << uint8(blockCount);
     std::size_t maskPos = data->wpos();
@@ -1501,14 +1553,14 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player c
     for (uint16 index = 0; index < m_dynamicValuesCount; ++index)
     {
         std::vector<uint32> const& values = m_dynamicValues[index];
-        if (m_fieldNotifyFlags & flags[index] ||
-            ((updateType == UPDATETYPE_VALUES ? m_dynamicChangesMask[index] != LegacyUpdateMask::UNCHANGED : !values.empty()) && (flags[index] & visibleFlag)))
+        if (std::to_underlying(m_fieldNotifyFlags) & flags[index] ||
+            ((updateType == ObjectUpdateType::Values ? m_dynamicChangesMask[index] != LegacyUpdateMask::UNCHANGED : !values.empty()) && (flags[index] & std::to_underlying(visibleFlag))))
         {
             LegacyUpdateMask::SetUpdateBit(data->contents() + maskPos, index);
 
             std::size_t arrayBlockCount = LegacyUpdateMask::GetBlockCount(values.size());
             *data << DynamicFieldChangeTypeUT(LegacyUpdateMask::EncodeDynamicFieldChangeType(arrayBlockCount, m_dynamicChangesMask[index], updateType));
-            if (updateType == UPDATETYPE_VALUES && m_dynamicChangesMask[index] == LegacyUpdateMask::VALUE_AND_SIZE_CHANGED)
+            if (updateType == ObjectUpdateType::Values && m_dynamicChangesMask[index] == LegacyUpdateMask::VALUE_AND_SIZE_CHANGED)
                 *data << uint32(values.size());
 
             std::size_t arrayMaskPos = data->wpos();
@@ -1517,7 +1569,7 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player c
             {
                 for (std::size_t v = 0; v < values.size(); ++v)
                 {
-                    if (updateType != UPDATETYPE_VALUES || m_dynamicChangesArrayMask[index][v])
+                    if (updateType != ObjectUpdateType::Values || m_dynamicChangesArrayMask[index][v])
                     {
                         LegacyUpdateMask::SetUpdateBit(data->contents() + arrayMaskPos, v);
                         *data << uint32(values[v]);
@@ -1529,7 +1581,7 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player c
                 uint32 m = 0;
 
                 // work around stupid item modifier field requirements - push back values mask by sizeof(m) bytes if size was not appended yet
-                if (updateType == UPDATETYPE_VALUES && m_dynamicChangesMask[index] != LegacyUpdateMask::VALUE_AND_SIZE_CHANGED && m_changesMask[UF::ITEM_FIELD_MODIFIERS_MASK])
+                if (updateType == ObjectUpdateType::Values && m_dynamicChangesMask[index] != LegacyUpdateMask::VALUE_AND_SIZE_CHANGED && m_changesMask[UF::ITEM_FIELD_MODIFIERS_MASK])
                 {
                     data->put(arrayMaskPos - sizeof(DynamicFieldChangeTypeUT), data->read<uint16>(arrayMaskPos - sizeof(DynamicFieldChangeTypeUT)) | LegacyUpdateMask::VALUE_AND_SIZE_CHANGED);
                     *data << m;
@@ -1547,7 +1599,7 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player c
                     }
                 }
 
-                if (updateType == UPDATETYPE_VALUES && m_changesMask[UF::ITEM_FIELD_MODIFIERS_MASK])
+                if (updateType == ObjectUpdateType::Values && m_changesMask[UF::ITEM_FIELD_MODIFIERS_MASK])
                     data->put(arrayMaskPos - sizeof(m), m);
             }
         }
@@ -1557,6 +1609,7 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player c
 
 void Item::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
+    /*
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     valuesMask.Set(TYPEID_ITEM);
 
@@ -1569,11 +1622,13 @@ void Item::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags
     m_itemData->WriteUpdate(*data, mask, true, this, target);
 
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+    */
 }
 
 void Item::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
     UF::ItemData::Mask const& requestedItemMask, Player const* target) const
 {
+    /*
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     if (requestedObjectMask.IsAnySet())
@@ -1598,6 +1653,7 @@ void Item::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
     data->AddUpdateBlock(buffer);
+    */
 }
 
 void Item::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const

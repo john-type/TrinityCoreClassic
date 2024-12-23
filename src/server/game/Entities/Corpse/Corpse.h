@@ -58,6 +58,8 @@ class TC_GAME_API Corpse : public WorldObject, public GridObject<Corpse>
     protected:
         void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
         void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
+        void BuildValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const override;
+        void BuildDynamicValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
 
     public:
@@ -123,11 +125,11 @@ class TC_GAME_API Corpse : public WorldObject, public GridObject<Corpse>
             SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::RaceID), race);
         }
         void SetClass(uint8 playerClass) {
-            SetByteValue(UF::CORPSE_FIELD_BYTES_1, 1, playerClass);
+            SetByteValue(UF::CORPSE_FIELD_BYTES_1, 2, playerClass);
             SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Class), playerClass);
         }
         void SetSex(uint8 sex) {
-            SetByteValue(UF::CORPSE_FIELD_BYTES_1, 2, sex);
+            SetByteValue(UF::CORPSE_FIELD_BYTES_1, 1, sex);
             SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Sex), sex);
         }
         void ReplaceAllFlags(uint32 flags) {
@@ -148,13 +150,20 @@ class TC_GAME_API Corpse : public WorldObject, public GridObject<Corpse>
         template<typename Iter>
         void SetCustomizations(Trinity::IteratorPair<Iter> customizations)
         {
-            //TODOFROST - CORPSE_FIELD_CUSTOMIZATION_CHOICES
-            ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Customizations));
+            uint32 index = 0;
             for (auto&& customization : customizations)
             {
-                UF::ChrCustomizationChoice& newChoice = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Customizations));
-                newChoice.ChrCustomizationOptionID = customization.ChrCustomizationOptionID;
-                newChoice.ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID;
+                auto custom = m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Customizations, index);
+                SetUpdateFieldFlagValue(custom.ModifyValue(&UF::ChrCustomizationChoice::ChrCustomizationOptionID), customization.ChrCustomizationOptionID);
+                SetUpdateFieldFlagValue(custom.ModifyValue(&UF::ChrCustomizationChoice::ChrCustomizationChoiceID), customization.ChrCustomizationChoiceID);
+                index++;
+            }
+
+            for (; index < m_corpseData->Customizations.size(); index++)
+            {
+                auto custom = m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Customizations, index);
+                SetUpdateFieldFlagValue(custom.ModifyValue(&UF::ChrCustomizationChoice::ChrCustomizationOptionID), 0);
+                SetUpdateFieldFlagValue(custom.ModifyValue(&UF::ChrCustomizationChoice::ChrCustomizationChoiceID), 0);
             }
         }
 

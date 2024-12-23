@@ -658,7 +658,7 @@ enum PlayerSlots
     // first slot for item stored (in any way in player m_items data)
     PLAYER_SLOT_START           = 0,
     // last+1 slot for item stored (in any way in player m_items data)
-    PLAYER_SLOT_END             = 199,
+    PLAYER_SLOT_END             = 129,
     PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
 };
 
@@ -1397,6 +1397,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetInventorySlotCount(uint8 slots);
         uint8 GetBankBagSlotCount() const { return m_activePlayerData->NumBankSlots; }
         void SetBankBagSlotCount(uint8 count) {
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::NumBankSlots), count);
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NumBankSlots), count);
             SetByteValue(UF::PLAYER_BYTES, 1, count);
         }
@@ -1866,7 +1867,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         time_t GetTalentResetTime() const { return _specializationInfo.ResetTalentsTime; }
         void SetTalentResetTime(time_t time_)  { _specializationInfo.ResetTalentsTime = time_; }
         uint32 GetPrimarySpecialization() const { return m_playerData->CurrentSpecID; }
-        void SetPrimarySpecialization(uint32 spec) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CurrentSpecID), spec); }
+        void SetPrimarySpecialization(uint32 spec) {
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CurrentSpecID), spec);
+            SetUInt32Value(UF::PLAYER_FIELD_CURRENT_SPEC_ID, spec);
+        }
         uint8 GetActiveTalentGroup() const { return _specializationInfo.ActiveGroup; }
         void SetActiveTalentGroup(uint8 group){ _specializationInfo.ActiveGroup = group; }
         uint32 GetUsedTalentCount() const { return _specializationInfo.UsedTalentCount; }
@@ -2075,11 +2079,20 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetPowerIndex(Powers power) const override;
         void ApplyFeralAPBonus(int32 amount, bool apply);
         void UpdateAttackPowerAndDamage(bool ranged = false) override;
-        void UpdateShieldBlockValue() { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ShieldBlock), GetShieldBlockValue()); }
+        void UpdateShieldBlockValue() {
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ShieldBlock), GetShieldBlockValue());
+            SetInt32Value(UF::ACTIVE_PLAYER_FIELD_SHIELD_BLOCK, GetShieldBlockValue());
+        }
         void ApplySpellPowerBonus(int32 amount, bool apply);
         void UpdateSpellDamageAndHealingBonus();
-        void ApplyModDamageDonePos(SpellSchools school, int32 mod, bool apply) { ApplyModUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModDamageDonePos, school), mod, apply); }
-        void ApplyModDamageDoneNeg(SpellSchools school, int32 mod, bool apply) { ApplyModUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModDamageDoneNeg, school), mod, apply); }
+        void ApplyModDamageDonePos(SpellSchools school, int32 mod, bool apply) {
+            ApplyModUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModDamageDonePos, school), mod, apply);
+            ApplyModInt32Value(UF::ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_POS + school, mod, apply);
+        }
+        void ApplyModDamageDoneNeg(SpellSchools school, int32 mod, bool apply) {
+            ApplyModUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModDamageDoneNeg, school), mod, apply);
+            ApplyModInt32Value(UF::ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + school, mod, apply);
+        }
         void ApplyModDamageDonePercent(SpellSchools school, float pct, bool apply) { ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModDamageDonePercent, school), pct, apply); }
         void SetModDamageDonePercent(uint8 school, float pct) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModDamageDonePercent, school), pct); }
         void ApplyRatingMod(CombatRating cr, int32 value, bool apply);
@@ -2143,6 +2156,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const override;
         void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
         void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
+        void BuildValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const override;
+        void BuildDynamicValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
 
     public:
@@ -2773,6 +2788,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         RestMgr& GetRestMgr() const { return *_restMgr; }
         void SetRestState(RestTypes type, PlayerRestState state)
         {
+            SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_REST_INFO + type * 2, state);
+            
             SetUpdateFieldValue(m_values
                 .ModifyValue(&Player::m_activePlayerData)
                 .ModifyValue(&UF::ActivePlayerData::RestInfo, type)
@@ -2780,6 +2797,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         }
         void SetRestThreshold(RestTypes type, uint32 threshold)
         {
+            SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_REST_INFO + type * 2 + 1, uint32(threshold));
+
             SetUpdateFieldValue(m_values
                 .ModifyValue(&Player::m_activePlayerData)
                 .ModifyValue(&UF::ActivePlayerData::RestInfo, type)
@@ -2842,18 +2861,24 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             if (markChanged)
                 m_customizationsChanged = true;
 
-
-            ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
-            
             int offset = 0;
+            uint32 index = 0;
             for (auto&& customization : customizations)
             {
-                UF::ChrCustomizationChoice& newChoice = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations));
-                newChoice.ChrCustomizationOptionID = customization.ChrCustomizationOptionID;
-                newChoice.ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID;
+                auto custom = m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations, index);
+                SetUpdateFieldFlagValue(custom.ModifyValue(&UF::ChrCustomizationChoice::ChrCustomizationOptionID), customization.ChrCustomizationOptionID);
+                SetUpdateFieldFlagValue(custom.ModifyValue(&UF::ChrCustomizationChoice::ChrCustomizationChoiceID), customization.ChrCustomizationChoiceID);
 
                 SetUInt32Value(UF::PLAYER_FIELD_CUSTOMIZATION_CHOICES + offset++, customization.ChrCustomizationOptionID);
                 SetUInt32Value(UF::PLAYER_FIELD_CUSTOMIZATION_CHOICES + offset++, customization.ChrCustomizationChoiceID);
+                index++;
+            }
+
+            for (; index < m_playerData->Customizations.size(); index++)
+            {
+                auto custom = m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Customizations, index);
+                SetUpdateFieldFlagValue(custom.ModifyValue(&UF::ChrCustomizationChoice::ChrCustomizationOptionID), 0);
+                SetUpdateFieldFlagValue(custom.ModifyValue(&UF::ChrCustomizationChoice::ChrCustomizationChoiceID), 0);
             }
         }
         void SetPvpTitle(uint8 pvpTitle)

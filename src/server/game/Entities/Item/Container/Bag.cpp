@@ -188,6 +188,7 @@ void Bag::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) cons
 
 void Bag::BuildValuesCreate(ByteBuffer* data, Player const* target) const
 {
+    /*
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = data->wpos();
     *data << uint32(0);
@@ -196,10 +197,12 @@ void Bag::BuildValuesCreate(ByteBuffer* data, Player const* target) const
     m_itemData->WriteCreate(*data, flags, this, target);
     m_containerData->WriteCreate(*data, flags, this, target);
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+    */
 }
 
 void Bag::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
 {
+    /*
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = data->wpos();
     *data << uint32(0);
@@ -215,11 +218,58 @@ void Bag::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
         m_containerData->WriteUpdate(*data, flags, this, target);
 
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+    */
+}
+
+void Bag::BuildValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const
+{
+    constexpr std::size_t bitCount = UF::ObjectData::Mask::BitCount +
+        UF::ItemData::Mask::BitCount +
+        UF::ContainerData::Mask::BitCount;
+    constexpr std::size_t blockCount = UF::Compat::GetBlockCount(bitCount);
+
+    *data << uint8(blockCount);
+    const std::size_t maskPos = data->wpos();
+    data->resize(data->size() + (blockCount * sizeof(UF::Compat::BlockType)));
+
+    UF::Compat::UpdateMaskBuf mask{ data, maskPos };
+    UF::Compat::UpdateFlags flags{
+        .visibilityFlags = GetUpdateFieldFlagsForCompat(target, false),
+        .notifyFlags = m_fieldNotifyFlags
+    };
+
+    m_objectData->WriteUpdate(updatetype, *data, mask, flags, this, target);
+    mask.Offset(UF::ObjectData::Mask::BitCount);
+
+    m_itemData->WriteUpdate(updatetype, *data, mask, flags, this, target);
+    mask.Offset(UF::ItemData::Mask::BitCount);
+
+    m_containerData->WriteUpdate(updatetype, *data, mask, flags, this, target);
+    mask.Offset(UF::ContainerData::Mask::BitCount);
+
+    assert(mask.GetOffset() == bitCount);
+}
+void Bag::BuildDynamicValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const
+{
+    constexpr std::size_t blockCount = UF::Compat::GetBlockCount(UF::ItemData::DyMask::BitCount);
+
+    *data << uint8(blockCount);
+    const std::size_t maskPos = data->wpos();
+    data->resize(data->size() + (blockCount * sizeof(UF::Compat::BlockType)));
+
+    UF::Compat::UpdateMaskBuf mask{ data, maskPos };
+    UF::Compat::UpdateFlags flags{
+        .visibilityFlags = GetUpdateFieldFlagsForCompat(target, false),
+        .notifyFlags = m_fieldNotifyFlags
+    };
+
+    m_itemData->WriteDynamicUpdate(updatetype, *data, mask, flags, this, target);
 }
 
 void Bag::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
     UF::ItemData::Mask const& requestedItemMask, UF::ContainerData::Mask const& requestedContainerMask, Player const* target) const
 {
+    /*
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     if (requestedObjectMask.IsAnySet())
@@ -250,6 +300,7 @@ void Bag::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::M
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
     data->AddUpdateBlock(buffer);
+    */
 }
 
 void Bag::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const

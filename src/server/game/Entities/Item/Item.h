@@ -193,15 +193,12 @@ class TC_GAME_API Item : public Object
             return (*m_itemData->DynamicFlags2 & flag) != 0;
         }
         void SetItemFlag2(ItemFieldFlags2 flags) {
-            //TODOFROST
             SetUpdateFieldFlagValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags2), flags);
         }
         void RemoveItemFlag2(ItemFieldFlags2 flags) {
-            //TODOFROST
             RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags2), flags);
         }
         void ReplaceAllItemFlags2(ItemFieldFlags2 flags) {
-            //TODOFROST
             SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags2), flags);
         }
 
@@ -378,7 +375,9 @@ class TC_GAME_API Item : public Object
         UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const override;
         void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
         void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
-        void BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const* target) const override;
+        void BuildValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const override;
+        void BuildDynamicValuesUpdateCompat(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const override;
+        void BuildDynamicValuesUpdate(ObjectUpdateType updatetype, ByteBuffer* data, Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
 
     public:
@@ -429,8 +428,12 @@ class TC_GAME_API Item : public Object
             SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Context), int32(context));
         }
 
-        void SetPetitionId(uint32 petitionId) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Enchantment, 0).ModifyValue(&UF::ItemEnchantment::ID), petitionId); }
-        void SetPetitionNumSignatures(uint32 signatures) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Enchantment, 0).ModifyValue(&UF::ItemEnchantment::Duration), signatures); }
+        void SetPetitionId(uint32 petitionId) {
+            SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Enchantment, 0).ModifyValue(&UF::ItemEnchantment::ID), petitionId);
+        }
+        void SetPetitionNumSignatures(uint32 signatures) {
+            SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Enchantment, 0).ModifyValue(&UF::ItemEnchantment::Duration), signatures);
+        }
 
         std::string GetDebugInfo() const override;
 
