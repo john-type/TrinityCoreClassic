@@ -202,8 +202,41 @@ class TC_SHARED_API ByteBuffer
 
         void WriteBits(std::size_t value, int32 bits)
         {
-            for (int32 i = bits - 1; i >= 0; --i)
-                WriteBit((value >> i) & 1);
+            // remove bits that don't fit
+            value &= (UI64LIT(1) << bits) - 1;
+
+            if (bits > int32(_bitpos))
+            {
+                // first write to fill bit buffer
+                _curbitval |= value >> (bits - _bitpos);
+                bits -= _bitpos;
+                _bitpos = 8; // required "unneccessary" write to avoid double flushing
+                append(&_curbitval, sizeof(_curbitval));
+
+                // then append as many full bytes as possible
+                while (bits >= 8)
+                {
+                    bits -= 8;
+                    append<uint8>(value >> bits);
+                }
+
+                // store remaining bits in the bit buffer
+                _bitpos = 8 - bits;
+                _curbitval = (value & ((UI64LIT(1) << bits) - 1)) << _bitpos;
+            }
+            else
+            {
+                // entire value fits in the bit buffer
+                _bitpos -= bits;
+                _curbitval |= value << _bitpos;
+
+                if (_bitpos == 0)
+                {
+                    _bitpos = 8;
+                    append(&_curbitval, sizeof(_curbitval));
+                    _curbitval = 0;
+                }
+            }
         }
 
         uint32 ReadBits(int32 bits)
