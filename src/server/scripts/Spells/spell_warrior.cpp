@@ -543,7 +543,7 @@ class spell_warr_last_stand : public SpellScript
     {
         Unit* caster = GetCaster();
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-        args.AddSpellBP0(caster->CountPctFromMaxHealth(GetEffectValue()));
+        args.AddSpellBP0(caster->CountPctFromMaxHealth(30.f));
         caster->CastSpell(caster, SPELL_WARRIOR_LAST_STAND_TRIGGERED, args);
     }
 
