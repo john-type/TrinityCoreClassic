@@ -20808,11 +20808,13 @@ void SavePlayerCustomizations(CharacterDatabaseTransaction trans, ObjectGuid::Lo
 
     for (auto&& customization : customizations)
     {
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_CUSTOMIZATION);
-        stmt->setUInt64(0, guid);
-        stmt->setUInt32(1, customization.ChrCustomizationOptionID);
-        stmt->setUInt32(2, customization.ChrCustomizationChoiceID);
-        trans->Append(stmt);
+        if (customization.ChrCustomizationOptionID != 0 && customization.ChrCustomizationChoiceID != 0) {
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_CUSTOMIZATION);
+            stmt->setUInt64(0, guid);
+            stmt->setUInt32(1, customization.ChrCustomizationOptionID);
+            stmt->setUInt32(2, customization.ChrCustomizationChoiceID);
+            trans->Append(stmt);
+        }
     }
 }
 
