@@ -10015,13 +10015,10 @@ Item* Player::GetWeaponForAttack(WeaponAttackType attackType, bool useable /*= f
     if (!item || item->GetTemplate()->GetClass() != ITEM_CLASS_WEAPON)
         return nullptr;
 
-    if ((attackType == RANGED_ATTACK) != item->GetTemplate()->IsRangedWeapon())
-        return nullptr;
-
     if (useable && !CanUseEquippedWeapon(attackType))
         return nullptr;
 
-    if (item->IsBroken())
+    if (item->IsBroken() || IsInFeralForm())
         return nullptr;
 
     return item;
