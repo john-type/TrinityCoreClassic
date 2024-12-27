@@ -446,15 +446,20 @@ namespace UF
             ModifyValue(Compat::UpdateFieldArray<V, Size, Index, Offset>(T::* field), uint32 index)
         {
             constexpr auto size = sizeof(Compat::UpdateFieldArray<V, Size, Index, Offset>::value_type);
+            constexpr auto block_size = sizeof(Compat::BlockType);
             constexpr auto blocks = Compat::GetBlockCount(size * 8);
-            const auto start_block = Compat::GetBlockCount(size * 8 * index);
             constexpr bool has_mask = std::is_base_of<HasChangesMaskTag, V>::value;
 
             if constexpr (!has_mask)
             {
+                static_assert((size % block_size) == 0 || (block_size % size) == 0);
+                constexpr auto values_per_block = size <= block_size ? block_size / size : 1;
+                constexpr auto blocks_per_value = size > block_size ? size / block_size : 1;
+                const auto block_start_index = size <= block_size ? (index / values_per_block) : (index * blocks_per_value);
+
                 for (auto i = 0; i < blocks; i++)
                 {
-                    _value._changesMask.Set(Index + start_block + i);
+                    _value._changesMask.Set(Index + block_start_index + i);
                 }
             }
 
