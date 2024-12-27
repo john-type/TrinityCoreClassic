@@ -1758,7 +1758,19 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
     // Ignore Absorption Auras
     float auraAbsorbMod = 0.f;
     if (Unit* attacker = damageInfo.GetAttacker())
+    {
         auraAbsorbMod = attacker->GetMaxPositiveAuraModifierByMiscMask(SPELL_AURA_MOD_TARGET_ABSORB_SCHOOL, damageInfo.GetSchoolMask());
+        auraAbsorbMod = std::max(auraAbsorbMod, static_cast<float>(attacker->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_TARGET_ABILITY_ABSORB_SCHOOL, [&damageInfo](AuraEffect const* aurEff) -> bool
+            {
+                if (!(aurEff->GetMiscValue() & damageInfo.GetSchoolMask()))
+                    return false;
+
+                if (!aurEff->IsAffectingSpell(damageInfo.GetSpellInfo()))
+                    return false;
+
+                return true;
+            })));
+    }
 
     RoundToInterval(auraAbsorbMod, 0.0f, 100.0f);
 
@@ -1920,6 +1932,50 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
     // split damage auras - only when not damaging self
     if (damageInfo.GetVictim() != damageInfo.GetAttacker())
     {
+        // We're going to call functions which can modify content of the list during iteration over it's elements
+// Let's copy the list so we can prevent iterator invalidation
+        AuraEffectList vSplitDamageFlatCopy(damageInfo.GetVictim()->GetAuraEffectsByType(SPELL_AURA_SPLIT_DAMAGE_FLAT));
+        for (AuraEffectList::iterator itr = vSplitDamageFlatCopy.begin(); (itr != vSplitDamageFlatCopy.end()) && (damageInfo.GetDamage() > 0); ++itr)
+        {
+            // Check if aura was removed during iteration - we don't need to work on such auras
+            if (!((*itr)->GetBase()->IsAppliedOnTarget(damageInfo.GetVictim()->GetGUID())))
+                continue;
+            // check damage school mask
+            if (!((*itr)->GetMiscValue() & damageInfo.GetSchoolMask()))
+                continue;
+
+            // Damage can be splitted only if aura has an alive caster
+            Unit* caster = (*itr)->GetCaster();
+            if (!caster || (caster == damageInfo.GetVictim()) || !caster->IsInWorld() || !caster->IsAlive())
+                continue;
+
+            int32 splitDamage = (*itr)->GetAmount();
+
+            // absorb must be smaller than the damage itself
+            splitDamage = RoundToInterval(splitDamage, 0, int32(damageInfo.GetDamage()));
+
+            damageInfo.AbsorbDamage(splitDamage);
+
+            // check if caster is immune to damage
+            if (caster->IsImmunedToDamage(damageInfo.GetSchoolMask()))
+            {
+                damageInfo.GetVictim()->SendSpellMiss(caster, (*itr)->GetSpellInfo()->Id, SPELL_MISS_IMMUNE);
+                continue;
+            }
+
+            uint32 splitted = splitDamage;
+            uint32 splitted_absorb = 0;
+            Unit::DealDamageMods(damageInfo.GetAttacker(), caster, splitted, &splitted_absorb);
+
+            SpellNonMeleeDamage log(damageInfo.GetAttacker(), caster, (*itr)->GetSpellInfo(), (*itr)->GetBase()->GetSpellVisual(), damageInfo.GetSchoolMask(), (*itr)->GetBase()->GetCastId());
+            CleanDamage cleanDamage = CleanDamage(splitDamage, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
+            Unit::DealDamage(damageInfo.GetAttacker(), caster, splitDamage, &cleanDamage, DIRECT_DAMAGE, damageInfo.GetSchoolMask(), (*itr)->GetSpellInfo(), false);
+            log.damage = splitDamage;
+            log.originalDamage = splitDamage;
+            log.absorb = splitted_absorb;
+            caster->SendSpellNonMeleeDamageLog(&log);
+        }
+
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
         AuraEffectList vSplitDamagePctCopy(damageInfo.GetVictim()->GetAuraEffectsByType(SPELL_AURA_SPLIT_DAMAGE_PCT));
@@ -6334,7 +6390,7 @@ bool Unit::IsMagnet() const
 
 Unit* Unit::GetMeleeHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo /*= nullptr*/)
 {
-    AuraEffectList const& interceptAuras = victim->GetAuraEffectsByType(SPELL_AURA_INTERCEPT_MELEE_RANGED_ATTACKS);
+    AuraEffectList const& interceptAuras = victim->GetAuraEffectsByType(SPELL_AURA_ADD_CASTER_HIT_TRIGGER);
     for (AuraEffectList::const_iterator i = interceptAuras.begin(); i != interceptAuras.end(); ++i)
     {
         if (Unit* magnet = (*i)->GetBase()->GetCaster())
@@ -6824,6 +6880,11 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
             }
         }
 
+        if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE)
+        {
+            // ... and attack power
+            DoneAdvertisedBenefit += static_cast<int32>(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER, schoolMask)));
+        }
     }
 
     return DoneAdvertisedBenefit;
@@ -6872,7 +6933,7 @@ float Unit::SpellCritChanceDone(Spell* spell, AuraEffect const* aurEff, SpellSch
     return std::max(crit_chance, 0.0f);
 }
 
-float Unit::SpellCritChanceTaken(Unit const* caster, Spell* spell, AuraEffect const* aurEff, SpellSchoolMask /*schoolMask*/, float doneChance, WeaponAttackType attackType /*= BASE_ATTACK*/) const
+float Unit::SpellCritChanceTaken(Unit const* caster, Spell* spell, AuraEffect const* aurEff, SpellSchoolMask schoolMask, float doneChance, WeaponAttackType attackType /*= BASE_ATTACK*/) const
 {
     SpellInfo const* spellInfo = spell ? spell->GetSpellInfo() : aurEff->GetSpellInfo();
     // not critting spell
@@ -6887,6 +6948,9 @@ float Unit::SpellCritChanceTaken(Unit const* caster, Spell* spell, AuraEffect co
             // taken
             if (!spellInfo->IsPositive())
             {
+                // Modify critical chance by victim SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE
+                crit_chance += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE, schoolMask);
+
                 // Modify critical chance by victim SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE
                 crit_chance += GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE);
             }
@@ -10361,6 +10425,10 @@ void Unit::GainSpellComboPoints(Unit* target, int8 count)
 
 void Unit::ClearComboPoints()
 {
+    // remove Premed-like effects
+    // (NB: this Aura retains the CP while it's active - now that CP have reset, it shouldn't be there anymore)
+    RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
+
     SetPower(POWER_COMBO_POINTS, 0);
     if (IsPlayer()) {
         SetGuidValue(UF::ACTIVE_PLAYER_FIELD_COMBO_TARGET, ObjectGuid::Empty);

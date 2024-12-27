@@ -265,6 +265,16 @@ void Player::UpdateArmor()
     float baseValue = value;
 
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE);        // bonus armor from auras and items
+
+    //add dynamic flat mods
+    AuraEffectList const& mResbyIntellect = GetAuraEffectsByType(SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT);
+    for (AuraEffectList::const_iterator i = mResbyIntellect.begin(); i != mResbyIntellect.end(); ++i)
+    {
+        if ((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
+            value += CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount());
+    }
+
+
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
     value *= GetTotalAuraMultiplier(SPELL_AURA_MOD_BONUS_ARMOR_PCT);
 
@@ -490,22 +500,22 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         {
             if ((GetClassMask() & CLASSMASK_WAND_USERS) == 0)
             {
-                //AuraEffectList const& mRAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT);
-                //for (AuraEffect const* aurEff : mRAPbyStat)
-                //    attPowerMod += CalculatePct(GetStat(Stats(aurEff->GetMiscValue())), aurEff->GetAmount());
+                AuraEffectList const& mRAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT);
+                for (AuraEffect const* aurEff : mRAPbyStat)
+                    attPowerMod += CalculatePct(GetStat(Stats(aurEff->GetMiscValue())), aurEff->GetAmount());
             }
         }
         else
         {
-            //AuraEffectList const& mAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT);
-            //for (AuraEffect const* aurEff : mAPbyStat)
-            //    attPowerMod += CalculatePct(GetStat(Stats(aurEff->GetMiscValue())), aurEff->GetAmount());
+            AuraEffectList const& mAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT);
+            for (AuraEffect const* aurEff : mAPbyStat)
+                attPowerMod += CalculatePct(GetStat(Stats(aurEff->GetMiscValue())), aurEff->GetAmount());
         }
     }
 
     if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
         // applies to both, amount updated in PeriodicTick each 30 seconds
-        //attPowerMod += GetTotalAuraModifier(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR);
+        attPowerMod += GetTotalAuraModifier(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR);
     }
 
     if (ranged)
@@ -889,15 +899,11 @@ void Player::UpdateDodgePercentage()
 
 void Player::UpdateSpellCritChance()
 {
-    //TODOFROST handle school
-
     float crit = 5.0f;
     // Increase crit from SPELL_AURA_MOD_SPELL_CRIT_CHANCE
     crit += GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_CRIT_CHANCE);
     // Increase crit from SPELL_AURA_MOD_CRIT_PCT
     crit += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT);
-    // Increase crit by school from SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL
-    //crit += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, 1 << school); //TODOFROST
 
     if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE)
     {
@@ -907,8 +913,11 @@ void Player::UpdateSpellCritChance()
 
     // Store crit value
     for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i) {
-        SetFloatValue(UF::ACTIVE_PLAYER_FIELD_SPELL_CRIT_PERCENTAGE1 + i, crit);
-        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::SpellCritPercentage, i), crit); 
+        // Increase crit by school from SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL
+        const float school_crit = crit + GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, 1 << i);
+
+        SetFloatValue(UF::ACTIVE_PLAYER_FIELD_SPELL_CRIT_PERCENTAGE1 + i, school_crit);
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::SpellCritPercentage, i), school_crit);
     }
 }
 
@@ -1005,9 +1014,12 @@ void Player::UpdateManaRegen()
 
     // SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL is the proper name, needs proper implementation
     // Get bonus from SPELL_AURA_MOD_MANA_REGEN_FROM_STAT aura
-    //AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_MANA_REGEN_FROM_STAT);
-    //for (AuraEffectList::const_iterator i = regenAura.begin(); i != regenAura.end(); ++i)
-    //    power_regen_mp5 += GetStat(Stats((*i)->GetMiscValue())) * (*i)->GetAmount() / 500.0f;
+    if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE)
+    {
+        AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_MANA_REGEN_FROM_STAT);
+        for (AuraEffectList::const_iterator i = regenAura.begin(); i != regenAura.end(); ++i)
+            power_regen_mp5 += GetStat(Stats((*i)->GetMiscValue())) * (*i)->GetAmount() / 500.0f;
+    }
 
     // Set regen rate in cast state apply only on spirit based regen
     int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
