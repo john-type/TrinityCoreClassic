@@ -134,14 +134,9 @@ bool Player::UpdateStats(Stats stat)
             break;
     }
 
-    if (stat == STAT_STRENGTH)
-        UpdateAttackPowerAndDamage(false);
-    else if (stat == STAT_AGILITY)
-    {
-        UpdateAttackPowerAndDamage(false);
-        UpdateAttackPowerAndDamage(true);
-    }
-
+    UpdateAttackPowerAndDamage(false);
+    UpdateAttackPowerAndDamage(true);
+    
     UpdateArmor();
     UpdateSpellDamageAndHealingBonus();
     UpdateManaRegen();
@@ -257,6 +252,7 @@ void Player::UpdateArmor()
 
     float value = GetFlatModifierValue(unitMod, BASE_VALUE);    // base armor
     value *= GetPctModifierValue(unitMod, BASE_PCT);            // armor percent
+    value += GetStat(STAT_AGILITY) * 2.0f;                      // armor bonus from stats
 
     // SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT counts as base armor
     GetTotalAuraModifier(SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT, [this, &value](AuraEffect const* aurEff) {
@@ -328,7 +324,7 @@ void Player::UpdateMaxHealth()
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE) + GetHealthBonusFromStamina();
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
-    SetMaxHealth((uint32)value);
+    SetMaxHealth((uint32)std::max(value, 1.f));
 }
 
 uint32 Player::GetPowerIndex(Powers power) const
@@ -416,7 +412,14 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
             val2 = level * 2.0f + GetStat(STAT_STRENGTH) + GetStat(STAT_AGILITY) - 20.0f;
             break;
         case CLASS_SHAMAN:
-            val2 = level * 2.0f + GetStat(STAT_STRENGTH) + GetStat(STAT_AGILITY) - 20.0f;
+            if constexpr (CURRENT_EXPANSION <= EXPANSION_WRATH_OF_THE_LICH_KING)
+            {
+                val2 = level * 2.0f + GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
+            }
+            else
+            {
+                val2 = level * 2.0f + GetStat(STAT_STRENGTH) + GetStat(STAT_AGILITY) - 20.0f;
+            }
             break;
         case CLASS_DRUID:
         {
@@ -481,25 +484,23 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float attPowerMod = GetFlatModifierValue(unitMod, TOTAL_VALUE);
     float attPowerMultiplier = GetPctModifierValue(unitMod, TOTAL_PCT) - 1.0f;
 
-    //TODO handle non-classic
-
     if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE) {
         //add dynamic flat mods
-        //if (ranged)
-        //{
-        //    if ((GetClassMask() & CLASSMASK_WAND_USERS) == 0)
-        //    {
-        //        AuraEffectList const& mRAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT);
-        //        for (AuraEffect const* aurEff : mRAPbyStat)
-        //            attPowerMod += CalculatePct(GetStat(Stats(aurEff->GetMiscValue())), aurEff->GetAmount());
-        //    }
-        //}
-        //else
-        //{
-        //    AuraEffectList const& mAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT);
-        //    for (AuraEffect const* aurEff : mAPbyStat)
-        //        attPowerMod += CalculatePct(GetStat(Stats(aurEff->GetMiscValue())), aurEff->GetAmount());
-        //}
+        if (ranged)
+        {
+            if ((GetClassMask() & CLASSMASK_WAND_USERS) == 0)
+            {
+                //AuraEffectList const& mRAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT);
+                //for (AuraEffect const* aurEff : mRAPbyStat)
+                //    attPowerMod += CalculatePct(GetStat(Stats(aurEff->GetMiscValue())), aurEff->GetAmount());
+            }
+        }
+        else
+        {
+            //AuraEffectList const& mAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT);
+            //for (AuraEffect const* aurEff : mAPbyStat)
+            //    attPowerMod += CalculatePct(GetStat(Stats(aurEff->GetMiscValue())), aurEff->GetAmount());
+        }
     }
 
     if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING) {
@@ -622,8 +623,11 @@ void Player::UpdateBlockPercentage()
         value += (int32(GetDefenseSkillValue()) - int32(GetMaxSkillValueForLevel())) * 0.04f;
         // Increase from SPELL_AURA_MOD_BLOCK_PERCENT aura
         value += GetTotalAuraModifier(SPELL_AURA_MOD_BLOCK_PERCENT);
-        // Increase from rating
-        value += GetRatingBonusValue(CR_BLOCK);
+        if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE)
+        {
+            // Increase from rating
+            value += GetRatingBonusValue(CR_BLOCK);
+        }
 
         if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
              value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_BLOCK) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_BLOCK) : value;
@@ -633,37 +637,51 @@ void Player::UpdateBlockPercentage()
 
 void Player::UpdateCritPercentage(WeaponAttackType attType)
 {
-    auto applyCritLimit = [](float value)
+    auto calcValue = [&](BaseModGroup modGroup, CombatRating cr)
     {
+        // flat = bonus from crit auras, pct = bonus from agility, combat rating = mods from items
+        float value = GetBaseModValue(modGroup, FLAT_MOD) + GetBaseModValue(modGroup, PCT_MOD);
+
+        if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE)
+        {
+            value += GetRatingBonusValue(cr);
+        }
+
+        // Modify crit from weapon skill and maximized defense skill of same level victim difference
+        value += (int32(GetWeaponSkillValue(attType)) - int32(GetMaxSkillValueForLevel())) * 0.04f;
+
         if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
             value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_CRIT) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_CRIT) : value;
-        return value;
+        
+
+        return std::max(0.f, value);
     };
+
 
     switch (attType)
     {
-        case OFF_ATTACK:
-        {
-            const auto crit = applyCritLimit(GetBaseModValue(OFFHAND_CRIT_PERCENTAGE, FLAT_MOD) + GetBaseModValue(OFFHAND_CRIT_PERCENTAGE, PCT_MOD) + GetRatingBonusValue(CR_CRIT_MELEE));
-            SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::OffhandCritPercentage), crit);
-            SetFloatValue(UF::ACTIVE_PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE, crit);
-        }
-            break;
-        case RANGED_ATTACK:
-        {
-            const auto crit = applyCritLimit(GetBaseModValue(RANGED_CRIT_PERCENTAGE, FLAT_MOD) + GetBaseModValue(RANGED_CRIT_PERCENTAGE, PCT_MOD) + GetRatingBonusValue(CR_CRIT_RANGED));
-            SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::RangedCritPercentage), crit);
-            SetFloatValue(UF::ACTIVE_PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, crit);
-        }
-            break;
-        case BASE_ATTACK:
-        default:
-        {
-            const auto crit = applyCritLimit(GetBaseModValue(CRIT_PERCENTAGE, FLAT_MOD) + GetBaseModValue(CRIT_PERCENTAGE, PCT_MOD) + GetRatingBonusValue(CR_CRIT_MELEE));
-            SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::CritPercentage), crit);
-            SetFloatValue(UF::ACTIVE_PLAYER_FIELD_CRIT_PERCENTAGE, crit);
-        }
-            break;
+    case OFF_ATTACK:
+    {
+        const auto crit = calcValue(OFFHAND_CRIT_PERCENTAGE, CR_CRIT_MELEE);
+        SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::OffhandCritPercentage), crit);
+        SetFloatValue(UF::ACTIVE_PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE, crit);
+    }
+        break;
+    case RANGED_ATTACK:
+    {
+        const auto crit = calcValue(RANGED_CRIT_PERCENTAGE, CR_CRIT_RANGED);
+        SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::RangedCritPercentage), crit);
+        SetFloatValue(UF::ACTIVE_PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, crit);
+    }
+        break;
+    case BASE_ATTACK:
+    default:
+    {
+        const auto crit = calcValue(CRIT_PERCENTAGE, CR_CRIT_MELEE);
+        SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::CritPercentage), crit);
+        SetFloatValue(UF::ACTIVE_PLAYER_FIELD_CRIT_PERCENTAGE, crit);
+    }
+        break;
     }
 }
 
@@ -756,6 +774,11 @@ float const m_diminishing_k[MAX_CLASSES] =
 // helper function
 float CalculateDiminishingReturns(float const (&capArray)[MAX_CLASSES], uint8 playerClass, float nonDiminishValue, float diminishValue)
 {
+    if constexpr (CURRENT_EXPANSION <= EXPANSION_WRATH_OF_THE_LICH_KING)
+    {
+        return diminishValue + nonDiminishValue;
+    }
+
     //  1     1     k              cx
     // --- = --- + --- <=> x' = --------
     //  x'    c     x            x + ck
@@ -798,14 +821,20 @@ void Player::UpdateParryPercentage()
     uint32 pclass = GetClass() - 1;
     if (CanParry() && parry_cap[pclass] > 0.0f)
     {
-        float nondiminishing  = 5.0f;
-        // Parry from rating
-        float diminishing = GetRatingBonusValue(CR_PARRY);
+        float nondiminishing = 5.0f;
+        float diminishing = 0.f;
+
         // Modify value from defense skill (only bonus from defense rating diminishes)
         nondiminishing += (int32(GetSkillValue(SKILL_DEFENSE)) - int32(GetMaxSkillValueForLevel())) * 0.04f;
-        diminishing += (GetRatingBonusValue(CR_DEFENSE_SKILL) * 0.04f);
         // Parry from SPELL_AURA_MOD_PARRY_PERCENT aura
         nondiminishing += GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT);
+
+        if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE)
+        {
+            diminishing += (GetRatingBonusValue(CR_DEFENSE_SKILL) * 0.04f);
+            // Parry from rating
+            diminishing += GetRatingBonusValue(CR_PARRY);
+        }
 
         // apply diminishing formula to diminishing parry chance
         value = CalculateDiminishingReturns(parry_cap, GetClass(), nondiminishing, diminishing);
@@ -813,6 +842,7 @@ void Player::UpdateParryPercentage()
         if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
              value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) : value;
 
+        value = std::max(0.f, value);
     }
     SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ParryPercentage), value);
 }
@@ -838,11 +868,15 @@ void Player::UpdateDodgePercentage()
     GetDodgeFromAgility(diminishing, nondiminishing);
     // Modify value from defense skill (only bonus from defense rating diminishes)
     nondiminishing += (int32(GetSkillValue(SKILL_DEFENSE)) - int32(GetMaxSkillValueForLevel())) * 0.04f;
-    diminishing += (GetRatingBonusValue(CR_DEFENSE_SKILL) * 0.04f);
     // Dodge from SPELL_AURA_MOD_DODGE_PERCENT aura
     nondiminishing += GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT);
-    // Dodge from rating
-    diminishing += GetRatingBonusValue(CR_DODGE);
+
+    if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE)
+    {
+        diminishing += (GetRatingBonusValue(CR_DEFENSE_SKILL) * 0.04f);
+        // Dodge from rating
+        diminishing += GetRatingBonusValue(CR_DODGE);
+    }
 
     // apply diminishing formula to diminishing dodge chance
     float value = CalculateDiminishingReturns(dodge_cap, GetClass(), nondiminishing, diminishing);
@@ -855,13 +889,21 @@ void Player::UpdateDodgePercentage()
 
 void Player::UpdateSpellCritChance()
 {
+    //TODOFROST handle school
+
     float crit = 5.0f;
     // Increase crit from SPELL_AURA_MOD_SPELL_CRIT_CHANCE
     crit += GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_CRIT_CHANCE);
     // Increase crit from SPELL_AURA_MOD_CRIT_PCT
     crit += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT);
-    // Increase crit from spell crit ratings
-    crit += GetRatingBonusValue(CR_CRIT_SPELL);
+    // Increase crit by school from SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL
+    //crit += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, 1 << school); //TODOFROST
+
+    if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE)
+    {
+        // Increase crit from spell crit ratings
+        crit += GetRatingBonusValue(CR_CRIT_SPELL);
+    }
 
     // Store crit value
     for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i) {
@@ -878,22 +920,28 @@ void Player::UpdateArmorPenetration(int32 amount)
 
 void Player::UpdateMeleeHitChances()
 {
+    //TODOFROST
     m_modMeleeHitChance = 7.5f + GetRatingBonusValue(CR_HIT_MELEE);
 }
 
 void Player::UpdateRangedHitChances()
 {
+    //TODOFROST
     m_modRangedHitChance = 7.5f + GetRatingBonusValue(CR_HIT_RANGED);
 }
 
 void Player::UpdateSpellHitChances()
 {
-    m_modSpellHitChance = 15.0f + (float)GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
-    m_modSpellHitChance += GetRatingBonusValue(CR_HIT_SPELL);
+    m_modSpellHitChance = (float)GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
+    if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE)
+    {
+        m_modSpellHitChance += GetRatingBonusValue(CR_HIT_SPELL);
+    }
 }
 
 void Player::UpdateExpertise(WeaponAttackType attack)
 {
+    //TODOFROST
     if (attack == RANGED_ATTACK)
         return;
 
@@ -942,7 +990,8 @@ void Player::UpdateManaRegen()
 
     float power_regen = OCTRegenMPPerSpirit();
 
-    if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE) {
+    if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE)
+    {
         float Intellect = GetStat(STAT_INTELLECT);
         // Mana regen from spirit and intellect
         power_regen *= std::sqrt(Intellect);
@@ -965,7 +1014,7 @@ void Player::UpdateManaRegen()
     if (modManaRegenInterrupt > 100)
         modManaRegenInterrupt = 100;
 
-    //TODOFROST - interupped regen?
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, manaIndex), power_regen_mp5 + CalculatePct(power_regen, modManaRegenInterrupt));
     SetStatFloatValue(UF::UNIT_FIELD_MOD_POWER_REGEN + manaIndex, power_regen_mp5 + power_regen);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, manaIndex), power_regen_mp5 + power_regen);
 }
@@ -1038,6 +1087,10 @@ bool Creature::UpdateAllStats()
 void Creature::UpdateArmor()
 {
     float baseValue = GetFlatModifierValue(UNIT_MOD_ARMOR, BASE_VALUE);
+    if constexpr (CURRENT_EXPANSION <= EXPANSION_THE_BURNING_CRUSADE)
+    {
+        baseValue += GetStat(STAT_AGILITY) * 2.f;
+    }
     float value = GetTotalAuraModValue(UNIT_MOD_ARMOR);
     SetArmor(int32(baseValue), int32(value - baseValue));
 }
@@ -1076,6 +1129,7 @@ void Creature::UpdateMaxPower(Powers power)
 
 void Creature::UpdateAttackPowerAndDamage(bool ranged)
 {
+    //TODOFROST
     UnitMods unitMod = ranged ? UNIT_MOD_ATTACK_POWER_RANGED : UNIT_MOD_ATTACK_POWER;
 
     float baseAttackPower       = GetFlatModifierValue(unitMod, BASE_VALUE) * GetPctModifierValue(unitMod, BASE_PCT);

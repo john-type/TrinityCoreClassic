@@ -5337,8 +5337,52 @@ float Player::GetMeleeCritFromAgility() const
     //return crit * 100.0f;
 }
 
-void Player::GetDodgeFromAgility(float &/*diminishing*/, float &/*nondiminishing*/) const
+void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing) const
 {
+    diminishing = 0.f;
+
+    float valLevel1 = 0.0f;
+    float valLevel60 = 0.0f;
+    // critical
+    switch (GetClass())
+    {
+    case CLASS_PALADIN:
+    case CLASS_SHAMAN:
+    case CLASS_DRUID:
+        valLevel1 = 4.6f;
+        valLevel60 = 20.0f;
+        break;
+    case CLASS_MAGE:
+        valLevel1 = 12.9f;
+        valLevel60 = 20.0f;
+        break;
+    case CLASS_ROGUE:
+        valLevel1 = 1.1f;
+        valLevel60 = 14.5f;
+        break;
+    case CLASS_HUNTER:
+        valLevel1 = 1.8f;
+        valLevel60 = 26.5f;
+        break;
+    case CLASS_PRIEST:
+        valLevel1 = 11.0f;
+        valLevel60 = 20.0f;
+        break;
+    case CLASS_WARLOCK:
+        valLevel1 = 8.4f;
+        valLevel60 = 20.0f;
+        break;
+    case CLASS_WARRIOR:
+        valLevel1 = 3.9f;
+        valLevel60 = 20.0f;
+        break;
+    default:
+        nondiminishing = 0.f;
+    }
+    float classrate = valLevel1 * float(60.0f - GetLevel()) / 59.0f + valLevel60 * float(GetLevel() - 1.0f) / 59.0f;
+    nondiminishing =  GetStat(STAT_AGILITY) / classrate;
+
+    static_assert(CURRENT_EXPANSION == EXPANSION_CLASSIC, "not yet implemented for > classic.");
     //// Table for base dodge values
     //const float dodge_base[MAX_CLASSES] =
     //{
@@ -28701,6 +28745,12 @@ Pet* Player::SummonPet(uint32 entry, Optional<PetSaveMode> slot, float x, float 
 
 bool Player::CanUseMastery() const
 {
+    if constexpr (CURRENT_EXPANSION >= EXPANSION_CATACLYSM)
+    {
+        if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(GetPrimarySpecialization()))
+            return HasSpell(chrSpec->MasterySpellID[0]) || HasSpell(chrSpec->MasterySpellID[1]);
+    }
+
     return false;
 }
 

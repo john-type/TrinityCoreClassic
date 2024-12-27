@@ -2633,6 +2633,55 @@ uint32 Unit::GetDefenseSkillValue(Unit const* target) const
         return GetMaxSkillValueForLevel(target);
 }
 
+uint32 Unit::GetWeaponSkillValue(WeaponAttackType attType, Unit const* target) const
+{
+    uint32 value = 0;
+    if (Player const* player = ToPlayer())
+    {
+        Item* item = player->GetWeaponForAttack(attType, true);
+
+        // feral or unarmed skill only for base attack
+        if (attType != BASE_ATTACK && !item)
+            return 0;
+
+        if (IsInFeralForm())
+            return GetMaxSkillValueForLevel();              // always maximized SKILL_FERAL_COMBAT in fact
+
+        // weapon skill or (unarmed for base attack)
+        uint32 skill = SKILL_UNARMED;
+        if (item)
+            skill = item->GetSkill();
+
+        // in PvP use full skill instead current skill value
+        value = (target && target->IsControlledByPlayer())
+            ? player->GetMaxSkillValue(skill)
+            : player->GetSkillValue(skill);
+
+        if constexpr (CURRENT_EXPANSION >= EXPANSION_THE_BURNING_CRUSADE)
+        {
+            //// Modify value from ratings
+            //value += uint32(player->GetRatingBonusValue(CR_WEAPON_SKILL));
+            //switch (attType)
+            //{
+            //case BASE_ATTACK:
+            //    value += uint32(player->GetRatingBonusValue(CR_WEAPON_SKILL_MAINHAND));
+            //    break;
+            //case OFF_ATTACK:
+            //    value += uint32(player->GetRatingBonusValue(CR_WEAPON_SKILL_OFFHAND));
+            //    break;
+            //case RANGED_ATTACK:
+            //    value += uint32(player->GetRatingBonusValue(CR_WEAPON_SKILL_RANGED));
+            //    break;
+            //default:
+            //    break;
+            //}
+        }
+    }
+    else
+        value = GetMaxSkillValueForLevel(target);
+    return value;
+}
+
 float Unit::GetUnitParryChance(WeaponAttackType attType, Unit const* victim) const
 {
     int32 const levelDiff = victim->GetLevelForTarget(this) - GetLevelForTarget(victim);

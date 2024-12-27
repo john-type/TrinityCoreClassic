@@ -380,8 +380,15 @@ struct DiminishingReturn
 
 enum MeleeHitOutcome : uint8
 {
-    MELEE_HIT_EVADE, MELEE_HIT_MISS, MELEE_HIT_DODGE, MELEE_HIT_BLOCK, MELEE_HIT_PARRY,
-    MELEE_HIT_GLANCING, MELEE_HIT_CRIT, MELEE_HIT_CRUSHING, MELEE_HIT_NORMAL
+    MELEE_HIT_EVADE,
+    MELEE_HIT_MISS,
+    MELEE_HIT_DODGE,
+    MELEE_HIT_BLOCK,
+    MELEE_HIT_PARRY,
+    MELEE_HIT_GLANCING,
+    MELEE_HIT_CRIT,
+    MELEE_HIT_CRUSHING,
+    MELEE_HIT_NORMAL
 };
 
 class DispelInfo
@@ -1178,6 +1185,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual uint32 GetShieldBlockValue() const = 0;
         uint32 GetShieldBlockValue(uint32 soft_cap, uint32 hard_cap) const;
         uint32 GetDefenseSkillValue(Unit const* target = nullptr) const;
+        uint32 GetWeaponSkillValue(WeaponAttackType attType, Unit const* target = nullptr) const;
 
         float GetWeaponProcChance() const;
         float GetPPMProcChance(uint32 WeaponSpeed, float PPM, SpellInfo const* spellProto) const;
