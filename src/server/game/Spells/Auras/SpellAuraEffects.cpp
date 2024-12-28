@@ -3386,18 +3386,17 @@ void AuraEffect::HandleAuraModResistanceExclusive(AuraApplication const* aurApp,
 
     for (uint8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL; ++x)
     {
-        //TODOFROST
-        //if (GetMiscValue() & (1 << x))
-        //{
-        //    int32 amount = target->GetMaxPositiveAuraModifierByMiscMask(SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE, 1 << x, this);
-        //    if (amount < GetAmount())
-        //    {
-        //        float value = float(GetAmount() - amount);
-        //        target->HandleStatFlatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + x), BASE_VALUE, value, apply);
-        //        if (target->GetTypeId() == TYPEID_PLAYER || target->IsPet())
-        //            target->UpdateResistanceBuffModsMod(SpellSchools(x));
-        //    }
-        //}
+        if (GetMiscValue() & (1 << x))
+        {
+            int32 amount = target->GetMaxPositiveAuraModifierByMiscMask(SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE, 1 << x, this);
+            if (amount < GetAmount())
+            {
+                float value = float(GetAmount() - amount);
+                target->HandleStatFlatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + x), BASE_VALUE, value, apply);
+                //if (target->GetTypeId() == TYPEID_PLAYER || target->IsPet()) //TODOFROST
+                //    target->UpdateResistanceBuffModsMod(SpellSchools(x));
+            }
+        }
     }
 }
 
@@ -3411,6 +3410,8 @@ void AuraEffect::HandleAuraModResistance(AuraApplication const* aurApp, uint8 mo
     for (uint8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL; ++x)
         if (GetMiscValue() & (1 << x))
             target->HandleStatFlatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + x), TOTAL_VALUE, float(GetAmount()), apply);
+            //if (target->GetTypeId() == TYPEID_PLAYER || target->IsPet())  //TODOFROST
+            //    target->UpdateResistanceBuffModsMod(SpellSchools(x));
 }
 
 void AuraEffect::HandleAuraModBaseResistancePCT(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3693,11 +3694,11 @@ void AuraEffect::HandleModTotalPercentStat(AuraApplication const* aurApp, uint8 
 
     for (int32 i = STAT_STRENGTH; i < MAX_STATS; ++i)
     {
-        if (GetMiscValueB() & 1 << i || !GetMiscValueB()) // 0 is also used for all stats
+        if (GetMiscValue() == i || GetMiscValue() == -1) // -1 is also used for all stats
         {
             float amount = target->GetTotalAuraMultiplier(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, [i](AuraEffect const* aurEff) -> bool
             {
-                if (aurEff->GetMiscValueB() & 1 << i || !aurEff->GetMiscValueB())
+                if (aurEff->GetMiscValue() == i || aurEff->GetMiscValue() == -1)
                     return true;
                 return false;
             });
@@ -3713,7 +3714,7 @@ void AuraEffect::HandleModTotalPercentStat(AuraApplication const* aurApp, uint8 
 
     // recalculate current HP/MP after applying aura modifications (only for spells with SPELL_ATTR0_ABILITY 0x00000010 flag)
     // this check is total bullshit i think
-    if ((GetMiscValueB() & 1 << STAT_STAMINA || !GetMiscValueB()) && (m_spellInfo->HasAttribute(SPELL_ATTR0_IS_ABILITY)))
+    if ((GetMiscValue() == STAT_STAMINA || GetMiscValue() == -1) && (m_spellInfo->HasAttribute(SPELL_ATTR0_IS_ABILITY)))
         target->SetHealth(std::max<uint32>(CalculatePct(target->GetMaxHealth(), healthPct), (zeroHealth ? 0 : 1)));
 }
 
@@ -4749,11 +4750,10 @@ void AuraEffect::HandleAuraRetainComboPoints(AuraApplication const* aurApp, uint
 
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
-    //TODOFROST
     // combo points was added in SPELL_EFFECT_ADD_COMBO_POINTS handler
     // remove only if aura expire by time (in case combo points amount change aura removed without combo points lost)
-    //if (!(apply) && GetBase()->GetDuration() == 0)
-    //    target->ToPlayer()->AddComboPoints(-GetAmount());
+    if (!(apply) && GetBase()->GetDuration() == 0)
+        target->ToPlayer()->AddComboPoints(nullptr, -GetAmount());
 }
 
 /*********************************************************/
@@ -5235,7 +5235,7 @@ void AuraEffect::HandleAuraConvertRune(AuraApplication const* aurApp, uint8 mode
     if (player->GetClass() != CLASS_DEATH_KNIGHT)
         return;
 
-    //TODOFROST
+    static_assert(CURRENT_EXPANSION <= EXPANSION_WRATH_OF_THE_LICH_KING, "not yet implemented.");
     //uint32 runes = GetAmount();
     //// convert number of runes specified in aura amount of rune type in miscvalue to runetype in miscvalueb
     //if (apply)

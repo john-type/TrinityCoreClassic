@@ -10398,8 +10398,10 @@ void Unit::AddComboPoints(Unit* target, int8 count, Spell* spell)
     if (!spell)
     {
         SetPower(POWER_COMBO_POINTS, comboPoints);
-        if (IsPlayer()) {
-            SetGuidValue(UF::ACTIVE_PLAYER_FIELD_COMBO_TARGET, target->GetGUID());
+        if (IsPlayer())
+        {
+            SetGuidValue(UF::ACTIVE_PLAYER_FIELD_COMBO_TARGET, target ? target->GetGUID() : ObjectGuid::Empty);
+            //TODOFROST need to use modern system for combopoint updates.
         }
     }
     else
@@ -10418,7 +10420,8 @@ void Unit::GainSpellComboPoints(Unit* target, int8 count)
     else if (cp < 0) cp = 0;
 
     SetPower(POWER_COMBO_POINTS, cp);
-    if (IsPlayer()) {
+    if (IsPlayer())
+    {
         SetGuidValue(UF::ACTIVE_PLAYER_FIELD_COMBO_TARGET, target->GetGUID());
     }
 }
@@ -10430,7 +10433,8 @@ void Unit::ClearComboPoints()
     RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
 
     SetPower(POWER_COMBO_POINTS, 0);
-    if (IsPlayer()) {
+    if (IsPlayer())
+    {
         SetGuidValue(UF::ACTIVE_PLAYER_FIELD_COMBO_TARGET, ObjectGuid::Empty);
     }
 }
