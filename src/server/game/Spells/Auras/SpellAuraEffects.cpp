@@ -1294,90 +1294,73 @@ void AuraEffect::HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
 
 void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
 {
-    uint32 spellId = 0;
+    uint32 spellId1 = 0;
     uint32 spellId2 = 0;
-    uint32 spellId3 = 0;
-    uint32 spellId4 = 0;
+    uint32 HotWSpellId = 0;
+
+    static_assert(CURRENT_EXPANSION == EXPANSION_CLASSIC);
 
     switch (GetMiscValue())
     {
-        case FORM_CAT_FORM:
-            spellId = 3025;
-            spellId2 = 48629;
-            spellId3 = 106840;
-            spellId4 = 113636;
-            break;
-        case FORM_TREE_OF_LIFE:
-            spellId = 5420;
-            spellId2 = 81097;
-            break;
-        case FORM_TRAVEL_FORM:
-            spellId = 5419;
-            break;
-        case FORM_AQUATIC_FORM:
-            spellId = 5421;
-            break;
-        case FORM_BEAR_FORM:
-            spellId = 1178;
-            spellId2 = 21178;
-            spellId3 = 106829;
-            spellId4 = 106899;
-            break;
-        case FORM_DIRE_BEAR_FORM:
-            spellId = 9635;
-            spellId2 = 21178;
-            break;
-        case FORM_FLIGHT_FORM:
-            spellId = 33948;
-            spellId2 = 34764;
-            break;
-        case FORM_FLIGHT_FORM_EPIC:
-            spellId  = 40122;
-            spellId2 = 40121;
-            break;
-        case FORM_SPIRIT_OF_REDEMPTION:
-            spellId  = 27792;
-            spellId2 = 27795;
-            spellId3 = 62371;
-            break;
-        case FORM_SHADOWFORM:
-            if (target->HasAura(107906)) // Glyph of Shadow
-                spellId = 107904;
-            else if (target->HasAura(126745)) // Glyph of Shadowy Friends
-                spellId = 142024;
-            else
-                spellId = 107903;
-            break;
-        case FORM_GHOST_WOLF:
-            if (target->HasAura(58135)) // Glyph of Spectral Wolf
-                spellId = 160942;
-            break;
-        case FORM_GHOUL:
-        case FORM_AMBIENT:
-        case FORM_STEALTH:
-        case FORM_BATTLE_STANCE:
-        case FORM_DEFENSIVE_STANCE:
-        case FORM_BERSERKER_STANCE:
-        case FORM_MOONKIN_FORM:
-        case FORM_METAMORPHOSIS:
-            break;
-        default:
-            break;
+    case FORM_CAT_FORM:
+        spellId1 = 3025;
+        HotWSpellId = 24900;
+        break;
+    case FORM_TREE_OF_LIFE:
+        spellId1 = 5420;
+        break;
+    case FORM_TRAVEL_FORM:
+        spellId1 = 5419;
+        break;
+    case FORM_AQUATIC_FORM:
+        spellId1 = 5421;
+        break;
+    case FORM_BEAR_FORM:
+        spellId1 = 1178;
+        spellId2 = 21178;
+        HotWSpellId = 24899;
+        break;
+    case FORM_DIRE_BEAR_FORM:
+        spellId1 = 9635;
+        spellId2 = 21178;
+        HotWSpellId = 24899;
+        break;
+    case FORM_BATTLE_STANCE:
+        spellId1 = 21156;
+        break;
+    case FORM_DEFENSIVE_STANCE:
+        spellId1 = 7376;
+        break;
+    case FORM_BERSERKER_STANCE:
+        spellId1 = 7381;
+        break;
+    case FORM_MOONKIN_FORM:
+        spellId1 = 24905;
+        break;
+    case FORM_SPIRIT_OF_REDEMPTION:
+        spellId1 = 27792;
+        spellId2 = 27795;                               // must be second, this important at aura remove to prevent to early iterator invalidation.
+        break;
+    case FORM_GHOST_WOLF:
+    case FORM_AMBIENT:
+    case FORM_GHOUL:
+    case FORM_SHADOWFORM:
+    case FORM_STEALTH:
+    case FORM_CREATURE_CAT:
+    case FORM_CREATURE_BEAR:
+        break;
+    default:
+        break;
     }
 
     if (apply)
     {
-        if (spellId)
-            target->CastSpell(target, spellId, this);
+        if (spellId1)
+            target->CastSpell(target, spellId1, this);
 
         if (spellId2)
             target->CastSpell(target, spellId2, this);
 
-        if (spellId3)
-            target->CastSpell(target, spellId3, this);
-
-        if (spellId4)
-            target->CastSpell(target, spellId4, this);
 
         if (target->GetTypeId() == TYPEID_PLAYER)
         {
@@ -1389,7 +1372,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                 if (itr->second.state == PLAYERSPELL_REMOVED || itr->second.disabled)
                     continue;
 
-                if (itr->first == spellId || itr->first == spellId2 || itr->first == spellId3 || itr->first == spellId4)
+                if (itr->first == spellId1 || itr->first == spellId2)
                     continue;
 
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first, DIFFICULTY_NONE);
@@ -1399,18 +1382,42 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                 if (spellInfo->Stances & (UI64LIT(1) << (GetMiscValue() - 1)))
                     target->CastSpell(target, itr->first, this);
             }
+
+            // Leader of the Pack
+            if (plrTarget->HasSpell(17007))
+            {
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(24932, DIFFICULTY_NONE);
+                if (spellInfo && spellInfo->Stances & (UI64LIT(1) << (GetMiscValue() - 1)))
+                    target->CastSpell(target, 24932, this);
+            }
+
+            // Heart of the Wild
+            if (HotWSpellId)
+            {   // hacky, but the only way as spell family is not SPELLFAMILY_DRUID
+                Unit::AuraEffectList const& mModTotalStatPct = target->GetAuraEffectsByType(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE);
+                for (AuraEffect const* aurEff : mModTotalStatPct)
+                {
+                    // Heart of the Wild
+                    if (aurEff->GetSpellInfo()->IconFileDataId == 135879 && aurEff->GetMiscValue() == 3)
+                    {
+                        CastSpellExtraArgs args(this);
+                        args.AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount() / 2); // For each 2% Intelligence, you get 1% stamina and 1% attack power.
+
+                        target->CastSpell(target, HotWSpellId, args);
+                        break;
+                    }
+                }
+            }
+
+
         }
     }
     else
     {
-        if (spellId)
-            target->RemoveOwnedAura(spellId, target->GetGUID());
+        if (spellId1)
+            target->RemoveOwnedAura(spellId1, target->GetGUID());
         if (spellId2)
             target->RemoveOwnedAura(spellId2, target->GetGUID());
-        if (spellId3)
-            target->RemoveOwnedAura(spellId3, target->GetGUID());
-        if (spellId4)
-            target->RemoveOwnedAura(spellId4, target->GetGUID());
 
         Unit::AuraEffectList const& shapeshifts = target->GetAuraEffectsByType(SPELL_AURA_MOD_SHAPESHIFT);
         AuraEffect const* newAura = nullptr;
@@ -2586,6 +2593,8 @@ void AuraEffect::HandleAuraModSkill(AuraApplication const* aurApp, uint8 mode, b
         return;
 
     target->ModifySkillBonus(prot, (apply ? points : -points), GetAuraType() == SPELL_AURA_MOD_SKILL_TALENT);
+    if (prot == SKILL_DEFENSE)
+        target->UpdateDefenseBonusesMod();
 }
 
 void AuraEffect::HandleAuraAllowTalentSwapping(AuraApplication const* aurApp, uint8 mode, bool apply) const
