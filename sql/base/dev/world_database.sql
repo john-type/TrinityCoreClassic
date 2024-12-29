@@ -2426,14 +2426,17 @@ DROP TABLE IF EXISTS `player_classlevelstats`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `player_classlevelstats` (
+  `race` tinyint unsigned NOT NULL,
   `class` tinyint unsigned NOT NULL,
   `level` tinyint unsigned NOT NULL,
   `str` smallint unsigned NOT NULL COMMENT 'strength',
   `agi` smallint unsigned NOT NULL COMMENT 'agility',
   `sta` smallint unsigned NOT NULL COMMENT 'stamina',
   `inte` smallint unsigned NOT NULL COMMENT 'intellect',
+  `basehp` smallint unsigned NOT NULL,
+  `basemana` smallint unsigned NOT NULL,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
-  PRIMARY KEY (`class`,`level`)
+  PRIMARY KEY (`race`,`class`,`level`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Stores levels stats.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 

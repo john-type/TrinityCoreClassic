@@ -4248,8 +4248,8 @@ void ObjectMgr::LoadPlayerInfo()
 
         } while (raceStatsResult->NextRow());
 
-        //                                                  0      1     2    3    4    5     6    7        8
-        QueryResult result  = WorldDatabase.Query("SELECT class, level, str, agi, sta, inte, spi, basehp, basemana FROM player_classlevelstats");
+        //                                                  0      1     2    3    4    5     6    7      8      9
+        QueryResult result  = WorldDatabase.Query("SELECT race, class, level, str, agi, sta, inte, spi, basehp, basemana FROM player_classlevelstats");
 
         if (!result)
         {
@@ -4262,15 +4262,21 @@ void ObjectMgr::LoadPlayerInfo()
         do
         {
             Field* fields = result->Fetch();
+            uint32 current_race = fields[0].GetUInt8();
+            if(current_race >= MAX_RACES)
+            {
+                TC_LOG_ERROR("sql.sql", "Wrong race {} in `player_classlevelstats` table, ignoring.", current_race);
+                continue;
+            }
 
-            uint32 current_class = fields[0].GetUInt8();
+            uint32 current_class = fields[1].GetUInt8();
             if (current_class >= MAX_CLASSES)
             {
                 TC_LOG_ERROR("sql.sql", "Wrong class {} in `player_classlevelstats` table, ignoring.", current_class);
                 continue;
             }
 
-            uint32 current_level = fields[1].GetUInt8();
+            uint32 current_level = fields[2].GetUInt8();
             if (current_level > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
             {
                 if (current_level > STRONG_MAX_LEVEL)        // hardcoded level maximum
@@ -4281,22 +4287,24 @@ void ObjectMgr::LoadPlayerInfo()
                 continue;
             }
 
-            for (std::size_t race = 0; race < raceStatModifiers.size(); ++race)
+            if(current_race >= raceStatModifiers.size())
             {
-                if (auto& info = _playerInfo[race][current_class])
-                {
-                    if (!info->levelInfo)
-                        info->levelInfo = std::make_unique<PlayerLevelInfo[]>(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
-
-                    PlayerLevelInfo& levelInfo = info->levelInfo[current_level - 1];
-                    levelInfo.basehealth = fields[7].GetUInt16();
-                    levelInfo.basemana = fields[8].GetUInt16();
-
-                    for (uint8 i = 0; i < MAX_STATS; ++i)
-                        levelInfo.stats[i] = fields[i + 2].GetUInt16() + raceStatModifiers[race].StatModifier[i];
-                }
+                TC_LOG_ERROR("server.loading", "Wrong race {} in `player_classlevelstats` table, ignoring.", current_race);
+                continue;
             }
 
+            if (auto& info = _playerInfo[current_race][current_class])
+            {
+                if (!info->levelInfo)
+                    info->levelInfo = std::make_unique<PlayerLevelInfo[]>(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+
+                PlayerLevelInfo& levelInfo = info->levelInfo[current_level - 1];
+                levelInfo.basehealth = fields[8].GetUInt16();
+                levelInfo.basemana = fields[9].GetUInt16();
+
+                for (uint8 i = 0; i < MAX_STATS; ++i)
+                    levelInfo.stats[i] = fields[i + 3].GetUInt16() + raceStatModifiers[current_race].StatModifier[i];
+            }
             ++count;
         }
         while (result->NextRow());

@@ -60,6 +60,39 @@ def update_player_create_info():
         db.tri_world.execute_raw(update_query, vm_row)
         
 def update_class_level_stats():
+    
+    vm_rows = db.vm_world.select_all(db.SelectQuery("player_levelstats"))
+    
+    for row in vm_rows:
+        cond = db.GroupCondition("AND").condition("race", "=", row['race']).condition("class", "=", row['class']).condition("level", "=", row['level'])
+        
+        existing = db.tri_world.select_one(
+            db.SelectQuery('player_classlevelstats')
+                .where(cond)
+        )
+        
+        upsert = db.UpsertQuery("player_classlevelstats").values({
+            'str': row['str'],
+            'agi': row['agi'],
+            'sta': row['sta'],
+            'inte': row['inte'],
+            'spi': row['spi'],
+            'VerifiedBuild': constants.TargetBuild
+        })
+        
+        if existing:
+            upsert.where(cond)
+        else:
+            upsert.values({
+                'race': row['race'],
+                'class': row['class'],
+                'level': row['level'],
+                'basehp': 0,
+                'basemana': 0
+            })
+
+        db.tri_world.upsert(upsert)
+    
     vm_rows = db.vm_world.get_rows_raw("SELECT basehp, basemana, class, level FROM player_classlevelstats")
     
     for vm_row in vm_rows:
