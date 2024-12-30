@@ -201,7 +201,23 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestG
                 }
             }
 
-            _player->PlayerTalkClass->SendCloseGossip();
+            if (quest->HasFlag(QUEST_FLAGS_LAUNCH_GOSSIP_ACCEPT) && !quest->HasFlagEx(QUEST_FLAGS_EX_SUPPRESS_GOSSIP_ACCEPT))
+            {
+                auto launchGossip = [&](WorldObject* worldObject)
+                {
+                    _player->PlayerTalkClass->ClearMenus();
+                    _player->PrepareGossipMenu(worldObject, _player->GetDefaultGossipMenuForSource(worldObject), true);
+                    _player->SendPreparedGossip(worldObject);
+                    _player->PlayerTalkClass->GetInteractionData().IsLaunchedByQuest = true;
+                };
+
+                if (Creature* creature = object->ToCreature())
+                    launchGossip(creature);
+                else if (GameObject* go = object->ToGameObject())
+                    launchGossip(go);
+            }
+            else
+                _player->PlayerTalkClass->SendCloseGossip();
 
             return;
         }
