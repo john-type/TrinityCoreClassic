@@ -10400,8 +10400,8 @@ void Unit::AddComboPoints(Unit* target, int8 count, Spell* spell)
         SetPower(POWER_COMBO_POINTS, comboPoints);
         if (IsPlayer())
         {
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ComboTarget), target ? target->GetGUID() : ObjectGuid::Empty);
             SetGuidValue(UF::ACTIVE_PLAYER_FIELD_COMBO_TARGET, target ? target->GetGUID() : ObjectGuid::Empty);
-            //TODOFROST need to use modern system for combopoint updates.
         }
     }
     else
@@ -10422,6 +10422,7 @@ void Unit::GainSpellComboPoints(Unit* target, int8 count)
     SetPower(POWER_COMBO_POINTS, cp);
     if (IsPlayer())
     {
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ComboTarget), target->GetGUID());
         SetGuidValue(UF::ACTIVE_PLAYER_FIELD_COMBO_TARGET, target->GetGUID());
     }
 }
@@ -10435,6 +10436,7 @@ void Unit::ClearComboPoints()
     SetPower(POWER_COMBO_POINTS, 0);
     if (IsPlayer())
     {
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ComboTarget), ObjectGuid::Empty);
         SetGuidValue(UF::ACTIVE_PLAYER_FIELD_COMBO_TARGET, ObjectGuid::Empty);
     }
 }
