@@ -1903,6 +1903,9 @@ void Player::Regenerate(Powers power)
     if (GetCommandStatus(CHEAT_POWER))
         curValue = maxPower;
 
+    if (curValue == maxPower || curValue == 0)
+        forcesSetPower = true;
+
     if (m_regenTimerCount >= 2000 || forcesSetPower)
         SetPower(power, curValue);
     else
