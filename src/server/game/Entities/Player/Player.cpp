@@ -26873,6 +26873,7 @@ void Player::SetAmmo(uint32 item)
     }
 
     SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_AMMO_ID, item);
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::AmmoID), item);
 
     _ApplyAmmoBonuses();
 }
@@ -26880,6 +26881,7 @@ void Player::SetAmmo(uint32 item)
 void Player::RemoveAmmo()
 {
     SetUInt32Value(UF::ACTIVE_PLAYER_FIELD_AMMO_ID, 0);
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::AmmoID), 0);
 
     m_ammoDPS = 0.0f;
 
