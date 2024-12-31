@@ -11919,7 +11919,7 @@ void Unit::CancelSpellMissiles(uint32 spellId, bool reverseMissile /*= false*/)
 
 bool Unit::CanApplyResilience() const
 {
-    if (CURRENT_EXPANSION > Expansions::EXPANSION_CLASSIC) {
+    if constexpr (CURRENT_EXPANSION > EXPANSION_CLASSIC) {
         return !IsVehicle() && GetOwnerGUID().IsPlayer();
     }
 
@@ -11928,7 +11928,7 @@ bool Unit::CanApplyResilience() const
 
 /*static*/ void Unit::ApplyResilience(Unit const* victim, int32* damage)
 {
-    if(CURRENT_EXPANSION <= Expansions::EXPANSION_CLASSIC) {
+    if constexpr (CURRENT_EXPANSION <= EXPANSION_CLASSIC) {
         return;
     }
     

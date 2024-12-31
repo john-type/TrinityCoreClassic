@@ -77,22 +77,21 @@ enum LootModes
 
 #define MAX_CHARACTERS_PER_REALM 200
 
-enum Expansions
-{
-    EXPANSION_LEVEL_CURRENT            = -1,
-    EXPANSION_CLASSIC                  = 0,
-    EXPANSION_THE_BURNING_CRUSADE      = 1,
-    EXPANSION_WRATH_OF_THE_LICH_KING   = 2,
-    MAX_EXPANSIONS,
-    EXPANSION_CATACLYSM                = 3,
-    EXPANSION_MISTS_OF_PANDARIA        = 4,
-    EXPANSION_WARLORDS_OF_DRAENOR      = 5,
-    EXPANSION_LEGION                   = 6,
-    EXPANSION_BATTLE_FOR_AZEROTH       = 7,
-    EXPANSION_SHADOWLANDS              = 8,
+// Expansions
 
-    MAX_ACCOUNT_EXPANSIONS
-};
+#define EXPANSION_LEVEL_CURRENT             -1
+#define EXPANSION_CLASSIC                   0
+#define EXPANSION_THE_BURNING_CRUSADE       1
+#define EXPANSION_WRATH_OF_THE_LICH_KING    2
+#define EXPANSION_CATACLYSM                 3
+#define EXPANSION_MISTS_OF_PANDARIA         4
+#define EXPANSION_WARLORDS_OF_DRAENOR       5
+#define EXPANSION_LEGION                    6
+#define EXPANSION_BATTLE_FOR_AZEROTH        7
+#define EXPANSION_SHADOWLANDS               8
+
+#define MAX_EXPANSIONS                      3
+#define MAX_ACCOUNT_EXPANSIONS              9
 
 #define CURRENT_EXPANSION EXPANSION_CLASSIC
 
