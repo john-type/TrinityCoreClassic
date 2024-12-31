@@ -199,7 +199,7 @@ namespace UF
                             BlockType* src = (BlockType*)&value[v];
                             for (auto index = 0; index < blocks; ++index)
                             {
-                                arrayMask.SetBit(v);
+                                arrayMask.SetBit((v * blocks) + index);
                                 data << src[index];
                             }
                         }
