@@ -2005,7 +2005,7 @@ class TC_GAME_API Unit : public WorldObject
             return HasUnitMovementFlag(MOVEMENTFLAG_HOVER) ? *m_unitData->HoverHeight : 0.0f;
         }
 
-        void RewardRage(uint32 baseRage);
+        void RewardRage(uint32 damage, uint32 weaponSpeedHitFactor, bool attacker);
 
         virtual float GetFollowAngle() const { return static_cast<float>(M_PI/2); }
 

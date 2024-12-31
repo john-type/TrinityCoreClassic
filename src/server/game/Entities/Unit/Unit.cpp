@@ -741,6 +741,8 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
 
 /*static*/ uint32 Unit::DealDamage(Unit* attacker, Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
 {
+    const uint32 rage_damage = damage + (cleanDamage ? cleanDamage->absorbed_damage : 0);
+
     if (UnitAI* victimAI = victim->GetAI())
         victimAI->DamageTaken(attacker, damage, damagetype, spellProto);
 
@@ -807,16 +809,27 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
     }
 
     // Rage from Damage made (only from direct weapon damage)
-    if (attacker && cleanDamage && (cleanDamage->attackType == BASE_ATTACK || cleanDamage->attackType == OFF_ATTACK) && damagetype == DIRECT_DAMAGE && attacker != victim && attacker->GetPowerType() == POWER_RAGE)
+    if (attacker && cleanDamage && damagetype == DIRECT_DAMAGE && attacker != victim && attacker->GetPowerType() == POWER_RAGE)
     {
-        uint32 rage = uint32(attacker->GetBaseAttackTime(cleanDamage->attackType) / 1000.f * 1.75f);
-        if (cleanDamage->attackType == OFF_ATTACK)
-            rage /= 2;
-        attacker->RewardRage(rage);
+        if (cleanDamage->attackType == BASE_ATTACK || cleanDamage->attackType == OFF_ATTACK)
+        {
+            uint32 weaponSpeedHitFactor  = uint32(attacker->GetBaseAttackTime(cleanDamage->attackType) / 1000.0f * (cleanDamage->attackType == BASE_ATTACK ? 3.5f : 1.75f));
+            if (cleanDamage->hitOutCome == MELEE_HIT_CRIT)
+                weaponSpeedHitFactor *= 2;
+
+            attacker->RewardRage(rage_damage, weaponSpeedHitFactor, true);
+        }
     }
 
     if (!damage)
+    {
+        // Rage from absorbed damage
+        if (cleanDamage && cleanDamage->absorbed_damage && victim->GetPowerType() == POWER_RAGE)
+            if (cleanDamage->hitOutCome != MELEE_HIT_DODGE && cleanDamage->hitOutCome != MELEE_HIT_PARRY)
+                victim->RewardRage(cleanDamage->absorbed_damage, 0, false);
+
         return 0;
+    }
 
     uint32 health = victim->GetHealth();
 
@@ -986,6 +999,13 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                 victim->ToPlayer()->DurabilityPointLossForEquipSlot(slot);
             }
         }
+
+
+        // Rage from damage received
+        if (attacker != victim && victim->GetPowerType() == POWER_RAGE)
+            if (cleanDamage && cleanDamage->hitOutCome != MELEE_HIT_DODGE && cleanDamage->hitOutCome != MELEE_HIT_PARRY)
+                victim->RewardRage(rage_damage, 0, false);
+
 
         if (attacker && attacker->GetTypeId() == TYPEID_PLAYER)
         {
@@ -12622,12 +12642,41 @@ void Unit::UpdateHeight(float newZ)
 }
 
 // baseRage means damage taken when attacker = false
-void Unit::RewardRage(uint32 baseRage)
+void Unit::RewardRage(uint32 damage, uint32 weaponSpeedHitFactor, bool attacker)
 {
-    float addRage = baseRage;
+    float addRage = 0.f;
+    float rageconversion = ((0.0091107836f * GetLevel() * GetLevel()) + 3.225598133f * GetLevel()) + 4.2652911f;
 
-    // talent who gave more rage on attack
-    AddPct(addRage, GetTotalAuraModifier(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT));
+    if constexpr (CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING)
+    {
+        // Unknown if correct, but lineary adjust rage conversion above level 70
+        if (GetLevel() > 70)
+            rageconversion += 13.27f * (GetLevel() - 70);
+    }
+
+    if (attacker)
+    {
+        // Vanilla rage formula source http://blue.mmo-champion.com/topic/18325-the-new-rage-formula-by-kalgan/
+        if constexpr (CURRENT_EXPANSION == EXPANSION_CLASSIC)
+        {
+            addRage = damage / rageconversion * 7.5f;
+        }
+        else
+        {
+            addRage = ((damage / rageconversion * 7.5f + weaponSpeedHitFactor) / 2.0f);
+        }
+
+        // talent who gave more rage on attack
+        AddPct(addRage, GetTotalAuraModifier(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT));
+    }
+    else
+    {
+        addRage = damage / rageconversion * 2.5f;
+
+        // Berserker Rage effect
+        if (HasAura(18499))
+            addRage *= CURRENT_EXPANSION >= EXPANSION_WRATH_OF_THE_LICH_KING ? 2.0f : 1.3f;
+    }
 
     addRage *= sWorld->getRate(RATE_POWER_RAGE_INCOME);
 
