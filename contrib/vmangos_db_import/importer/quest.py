@@ -9,6 +9,8 @@ def Import():
     remove_poi()
     import_templates_vmangos()
     remove_modern()
+    import_offer_reward_text()
+    import_request_items_text()
     
 def remove_poi():
     db.tri_world.execute_raw("DELETE FROM quest_poi_points")
@@ -188,7 +190,51 @@ def _upsert_quest_template(vm_qt, tri_qt = None):
         
     _update_quest_objectives(vm_qt['entry'], vm_qt)
     
+def import_offer_reward_text():
+
+    rows = db.vm_world.select_chunked(
+        db.SelectQuery("quest_template").order_by("entry ASC"),
+        250
+    )
     
+    for row in rows:
+        quest_id = row['entry']
+        offer_text = row['OfferRewardText']
+
+        existing_record = db.tri_world.select_one(
+            db.SelectQuery("quest_offer_reward").where("ID", "=", quest_id)
+        )
+
+        if existing_record:
+            update_query = db.UpsertQuery("quest_offer_reward").values({
+                'RewardText': offer_text,
+            }).where("ID", "=", quest_id)
+            db.tri_world.upsert(update_query)
+        else:
+            print(f"Quest ID {quest_id} does not exist in TrinityCore")
+
+def import_request_items_text():
+    rows = db.vm_world.select_chunked(
+        db.SelectQuery("quest_template").order_by("entry ASC"),
+        250
+    )
+    
+    for row in rows:
+        quest_id = row['entry']
+        request_text = row['RequestItemsText']
+        
+        existing_record = db.tri_world.select_one(
+            db.SelectQuery("quest_request_items").where("ID", "=", quest_id)
+        )
+        
+        if existing_record:
+            update_query = db.UpsertQuery("quest_request_items").values({
+                'CompletionText': request_text,
+            }).where("ID", "=", quest_id)
+            db.tri_world.upsert(update_query)
+        else:
+            print(f"Quest ID {quest_id} does not exist in TrinityCore")
+
 def _update_quest_objectives(quest_id, vm_qt):
     
     existing_objectives = db.tri_world.select_all(
