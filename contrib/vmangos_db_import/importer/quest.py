@@ -246,27 +246,15 @@ def remove_duplicates_quest_objectives():
     """
     db.tri_world.execute_raw(temp_table_query)
 
-    # Identify QuestIDs with duplicate ObjectIDs
-    temp_table_duplicates = """
-    CREATE TEMPORARY TABLE TempDuplicateQuests AS
-    SELECT QuestID
-    FROM quest_objectives
-    GROUP BY QuestID
-    HAVING COUNT(DISTINCT ObjectID) = 1
-    """
-    db.tri_world.execute_raw(temp_table_duplicates)
-
-    # Delete duplicates using the temporary tables
+    # Deletes all rows not in TempKeepRows
     delete_query = """
     DELETE FROM quest_objectives
-    WHERE QuestID IN (SELECT QuestID FROM TempDuplicateQuests)
-    AND ID NOT IN (SELECT ID FROM TempKeepRows)
+    WHERE ID NOT IN (SELECT ID FROM TempKeepRows)
     """
     db.tri_world.execute_raw(delete_query)
 
-    # Drops temporary tables
+    # Drop the temporary table
     db.tri_world.execute_raw("DROP TEMPORARY TABLE TempKeepRows")
-    db.tri_world.execute_raw("DROP TEMPORARY TABLE TempDuplicateQuests")
 
 def _update_quest_objectives(quest_id, vm_qt):
     
