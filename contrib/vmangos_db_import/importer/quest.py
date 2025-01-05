@@ -11,7 +11,8 @@ def Import():
     remove_modern()
     import_offer_reward_text()
     import_request_items_text()
-    
+    remove_duplicates_quest_objectives()
+
 def remove_poi():
     db.tri_world.execute_raw("DELETE FROM quest_poi_points")
     db.tri_world.execute_raw("DELETE FROM quest_poi")
@@ -234,6 +235,38 @@ def import_request_items_text():
             db.tri_world.upsert(update_query)
         else:
             print(f"Quest ID {quest_id} does not exist in TrinityCore")
+
+def remove_duplicates_quest_objectives():
+    # Creates a temporary table to store IDs to keep
+    temp_table_query = """
+    CREATE TEMPORARY TABLE TempKeepRows AS
+    SELECT MIN(ID) AS ID
+    FROM quest_objectives
+    GROUP BY QuestID, ObjectID
+    """
+    db.tri_world.execute_raw(temp_table_query)
+
+    # Identify QuestIDs with duplicate ObjectIDs
+    temp_table_duplicates = """
+    CREATE TEMPORARY TABLE TempDuplicateQuests AS
+    SELECT QuestID
+    FROM quest_objectives
+    GROUP BY QuestID
+    HAVING COUNT(DISTINCT ObjectID) = 1
+    """
+    db.tri_world.execute_raw(temp_table_duplicates)
+
+    # Delete duplicates using the temporary tables
+    delete_query = """
+    DELETE FROM quest_objectives
+    WHERE QuestID IN (SELECT QuestID FROM TempDuplicateQuests)
+    AND ID NOT IN (SELECT ID FROM TempKeepRows)
+    """
+    db.tri_world.execute_raw(delete_query)
+
+    # Drops temporary tables
+    db.tri_world.execute_raw("DROP TEMPORARY TABLE TempKeepRows")
+    db.tri_world.execute_raw("DROP TEMPORARY TABLE TempDuplicateQuests")
 
 def _update_quest_objectives(quest_id, vm_qt):
     
