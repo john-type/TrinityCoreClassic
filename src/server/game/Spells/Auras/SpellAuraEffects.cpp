@@ -1925,7 +1925,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
         {
             target->SetTransformSpell(GetId());
             //  apply Polymorph Heal Effect when Polymorph is cast
-            if (GetId() == 118 || GetId() == 12824 || GetId() == 12825 || GetId() == 12826)
+            if (GetId() == 118 || GetId() == 12824 || GetId() == 12825 || GetId() == 12826 || GetId() == 28271 || GetId() == 28272)
             {
                 if (!target->HasAura(12939))
                 {
